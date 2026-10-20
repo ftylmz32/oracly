@@ -11,7 +11,8 @@ import type { ServerClock } from './clock.js';
 import { toEpochMs } from './clock.js';
 import { serverDayKey } from './gem-wallet-policy.js';
 
-export const RITUAL_DAILY_LIMIT = { coffee: 1, palm: 2, dream: 3 } as const;
+/** Astrology: one personal reading a day; a second covers a mid-day birth-data change. */
+export const RITUAL_DAILY_LIMIT = { coffee: 1, palm: 2, dream: 3, astrology: 2 } as const;
 export type RitualKind = keyof typeof RITUAL_DAILY_LIMIT;
 
 const CLAIM_MS = 70_000;
@@ -24,6 +25,7 @@ const CODE = {
   coffee: ErrorCode.coffeeDailyQuota,
   palm: ErrorCode.palmDailyQuota,
   dream: ErrorCode.dreamDailyQuota,
+  astrology: ErrorCode.astrologyDailyQuota,
 } as const;
 
 type Charge = { state: 'open' | 'done'; live: number };
@@ -38,6 +40,7 @@ export function ritualKindOf(operation: string): RitualKind | null {
   if (operation === 'coffee_analysis') return 'coffee';
   if (operation === 'palm_analysis') return 'palm';
   if (operation === 'dream_analysis') return 'dream';
+  if (operation === 'astrology_daily') return 'astrology';
   return null;
 }
 

@@ -11,6 +11,7 @@ enum AiOperation {
   soulmateInterpretation,
   tarotReading,
   yildiznameReading,
+  astrologyDaily,
   tts,
 }
 
@@ -25,6 +26,7 @@ extension AiOperationWire on AiOperation {
         AiOperation.soulmateInterpretation => 'soulmate_interpretation',
         AiOperation.tarotReading => 'tarot_reading',
         AiOperation.yildiznameReading => 'yildizname_reading',
+        AiOperation.astrologyDaily => 'astrology_daily',
         AiOperation.tts => 'tts',
       };
 }

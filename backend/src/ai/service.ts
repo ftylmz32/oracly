@@ -48,6 +48,9 @@ import { parseNarrativeTarotResult } from './narrative-tarot-result.js';
 import { yildiznameNarrativeMessages } from './narrative-yildizname-prompts.js';
 import { buildYildiznameNarrativeCompleteOptions } from './narrative-yildizname-model.js';
 import { parseYildiznameNarrativeResult } from './narrative-yildizname-result.js';
+import { astrologyDailyMessages } from './astrology-daily-prompts.js';
+import { buildAstrologyDailyCompleteOptions } from './astrology-daily-model.js';
+import { parseAstrologyDailyResult } from './astrology-daily-result.js';
 import { requestOpenAiSpeech } from './openai-speech.js';
 import type { SpendGuard } from './spend-guard.js';
 import { spendReservationScope } from './spend-context.js';
@@ -153,6 +156,8 @@ export class AiProxyService {
         return this.tarotReading(request, model, ctx?.parentKey);
       case 'yildizname_reading':
         return this.yildiznameReading(request, model, ctx?.parentKey);
+      case 'astrology_daily':
+        return this.astrologyDaily(request, model, ctx?.parentKey);
       case 'tts':
         return this.tts(request, ctx?.parentKey);
     }
@@ -542,6 +547,24 @@ export class AiProxyService {
       }),
     );
     return parseYildiznameNarrativeResult(raw, request.narrative);
+  }
+
+  private async astrologyDaily(
+    request: Extract<ValidatedRequest, { operation: 'astrology_daily' }>,
+    model: string,
+    reserveKey?: string,
+  ) {
+    const raw = extractChatText(
+      await this.transport.complete({
+        ...buildAstrologyDailyCompleteOptions(
+          this.config,
+          model,
+          astrologyDailyMessages(request.sky),
+        ),
+        reservationKey: reserveKey ? `${reserveKey}:astrology` : undefined,
+      }),
+    );
+    return parseAstrologyDailyResult(raw, request.sky);
   }
 
   private async tts(

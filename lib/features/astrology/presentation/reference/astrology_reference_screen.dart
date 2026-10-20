@@ -57,6 +57,9 @@ class _AstrologyReferenceScreenState
     } catch (_) {}
   }
 
+  bool _ownSign(String signId) =>
+      ref.read(astrologyNatalSkyProvider).valueOrNull?.sunSign.id == signId;
+
   void _handleBack() {
     if (Navigator.of(context).canPop()) {
       Navigator.of(context).pop();
@@ -73,21 +76,23 @@ class _AstrologyReferenceScreenState
         AstrologyContentCatalogue.signById(_selectedId) ??
         AstrologyContentCatalogue.signs.first;
     final profile = ref.read(personalDiscoveryProfileProvider).valueOrNull;
-    final natalSky = ref.read(astrologyNatalSkyProvider).valueOrNull;
+    final personal = _ownSign(sign.id)
+        ? ref.read(astrologyPersonalReadingProvider(astrologyDayKey())).valueOrNull
+        : null;
     Navigator.of(context)
         .push(
           MaterialPageRoute<void>(
             builder: (_) => AstrologyReferenceDetailScreen(
               sign: sign,
-              reading: AstrologyDailyReadingService.build(
-                sign,
-                profile: profile,
-                natalSky: natalSky,
-                selectedThemes: EncounterInterests.forReading(
-                  chosen: ref.read(encounterThemesProvider),
-                  observed: profile?.observedRecurringLabels ?? const [],
-                ),
-              ),
+              reading: personal ??
+                  AstrologyDailyReadingService.build(
+                    sign,
+                    profile: profile,
+                    selectedThemes: EncounterInterests.forReading(
+                      chosen: ref.read(encounterThemesProvider),
+                      observed: profile?.observedRecurringLabels ?? const [],
+                    ),
+                  ),
               themeLabels: profile?.personalizationThemes ?? const <String>[],
             ),
           ),
@@ -105,13 +110,18 @@ class _AstrologyReferenceScreenState
     final profileAsync = ref.watch(personalDiscoveryProfileProvider);
     final profile = profileAsync.valueOrNull;
     final themeLabels = profile?.personalizationThemes ?? const <String>[];
-    // Sign restore is the only gate. Profile themes arrive later and
-    // must not hold a local sun-sign reading behind a spinner.
-    final isLoading = _restoringSign;
-    final reading = AstrologyDailyReadingService.build(
+    // Profile themes arrive later and must not hold the general reading
+    // behind a spinner. Only the owner's own personal reading is awaited.
+    final own = _ownSign(selected.id);
+    final personal = own
+        ? ref.watch(astrologyPersonalReadingProvider(astrologyDayKey()))
+        : null;
+    final isLoading = _restoringSign ||
+        (own && (personal?.isLoading ?? false)) ||
+        ref.watch(astrologyNatalSkyProvider).isLoading;
+    final reading = personal?.valueOrNull ?? AstrologyDailyReadingService.build(
       selected,
       profile: profile,
-      natalSky: ref.watch(astrologyNatalSkyProvider).valueOrNull,
       selectedThemes: EncounterInterests.forReading(
         chosen: ref.watch(encounterThemesProvider),
         observed: profile?.observedRecurringLabels ?? const [],

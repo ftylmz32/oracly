@@ -15,6 +15,8 @@ export const ErrorCode = {
   coffeeDailyQuota: 'coffee_daily_quota',
   palmDailyQuota: 'palm_daily_quota',
   dreamDailyQuota: 'dream_daily_quota',
+  /** Personal daily astrology already written today; the client keeps its copy. */
+  astrologyDailyQuota: 'astrology_daily_quota',
   invalidRequest: 'invalid_request',
   invalidImage: 'invalid_image',
   unsupportedImageType: 'unsupported_image_type',

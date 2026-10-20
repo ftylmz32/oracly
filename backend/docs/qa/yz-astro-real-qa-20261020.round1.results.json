@@ -1,0 +1,271 @@
+{
+  "day": "2026-10-20",
+  "used": 6,
+  "cap": 6,
+  "spendBeforeUsd": 0.016828,
+  "spendAfterUsd": 0.17922,
+  "results": [
+    {
+      "id": "yildizname.Ayşe",
+      "ok": true,
+      "ms": 26942,
+      "data": {
+        "contractVersion": 1,
+        "languageCode": "tr",
+        "scope": "full",
+        "summary": {
+          "text": "Ayşe, sende hem görünür olma hem de kendi yolunu doğrudan açma isteği var. Dışarıdan sıcak, kendine güvenen ve belirgin bir duruşla algılanırken, içeride kararlarını yalnızca cesaretle değil, güçlü bir sezgi ve anlam arayışıyla da kuruyorsun. Bildiklerini genişletmek, kendi görüşünü oluşturmak ve hayatı doğrudan deneyimlemek seni canlı tutuyor. Buna karşılık iş, sorumluluk ve düzen alanında hem özgürleşme ihtiyacı hem de belirsizlikle mücadele öne çıkıyor. En iyi hâlinde cesaretini sabırla birleştiriyor; ani kopuş yerine kalıcı bir yön inşa ediyorsun.",
+          "factRefs": [
+            "angle.ascendant",
+            "placement.sun",
+            "house.9",
+            "aspect.sun.saturn.sextile",
+            "aspect.sun.uranus.square",
+            "aspect.sun.neptune.square",
+            "placement.uranus",
+            "placement.neptune",
+            "house.6"
+          ],
+          "themeRefs": []
+        },
+        "sections": [
+          {
+            "kind": "emotional_world",
+            "text": "Duygusal güvenin somutlukla besleniyor: istikrar, güvenilirlik ve emeğinin görünür bir karşılığı olması içini yatıştırıyor. Toplum önündeki rolün ya da yaptığın iş, yalnızca başarı meselesi değil; kendini güvende hissetmenin de bir parçası. Kriz anında sakin kalabilen, değişimi acele etmeden günlük hayatın içine yerleştirebilen bir tarafın var. Yine de yakın ilişkilerde sorumluluk ağırlaştığında duygularını tutma, ihtiyacını erteleme veya güçlü görünme eğilimi doğabilir. Bu yüzden dışarıdan dayanıklı görünen hâlinle içeride destek bekleyen yanın her zaman aynı şeyi söylemeyebilir.",
+            "factRefs": [
+              "placement.moon",
+              "angle.midheaven",
+              "house.10",
+              "aspect.moon.jupiter.trine",
+              "aspect.moon.saturn.square",
+              "aspect.moon.uranus.trine",
+              "aspect.moon.neptune.trine",
+              "placement.saturn",
+              "house.7"
+            ],
+            "themeRefs": []
+          },
+          {
+            "kind": "mind_and_expression",
+            "text": "Zihnin söylenen kadar söylenmeyeni de dinliyor. İnsanların niyetlerini, duygusal alt metni ve karmaşık meselelerin görünmeyen bağlarını sezme becerin güçlü. Düşünce ile estetik duyarlılık birbirine yakın çalıştığı için sert gerçekleri bile incelikli, şefkatli veya yaratıcı bir dille ifade edebilirsin. Fakat zihnin düz bir çizgide ilerlemek yerine geri dönerek, çağrışımlar kurarak ve içten içe tartarak çalışıyor; kesin bir cümleye varmadan önce birçok katmanı yokluyorsun. Yüzeysel açıklamalar seni kolay tatmin etmiyor. Güven, mahremiyet, paylaşım ve güç dengeleri söz konusu olduğunda hem çok anlayışlı hem de son derece derine inen bir gözlemciye dönüşüyorsun.",
+            "factRefs": [
+              "placement.mercury",
+              "placement.venus",
+              "house.8",
+              "aspect.mercury.venus.conjunction",
+              "aspect.mercury.pluto.trine",
+              "aspect.venus.pluto.trine",
+              "placement.pluto",
+              "house.4"
+            ],
+            "themeRefs": []
+          },
+          {
+            "kind": "relationships_and_values",
+            "text": "Yakınlıkta ruhsal ve duygusal bütünlük arıyorsun; yalnızca hoşlanmak değil, karşındakiyle gerçekten temas kurmak önemli. Sevgin cömert, empatik ve sınırların ötesini görebilen bir nitelik taşıyor. Bunun yanında ortaklıkta eşitlik, zihinsel özgürlük ve güvenilirlik de vazgeçilmez. Birine bağlanırken hem derin birleşme isteğin hem de ilişkinin kendi kuralları olan ciddi bir yapı taşıması beklentin devreye giriyor. Bu iki ihtiyaç birleştiğinde yüzeysel bağlara razı olmak zorlaşıyor. Güven sarsıldığında meseleyi unutmak yerine köküne kadar anlamak istiyorsun; sadakat senin için yalnızca devam etmek değil, hakikati kaldırabilecek bir yakınlık kurmak demek.",
+            "factRefs": [
+              "placement.venus",
+              "house.8",
+              "placement.saturn",
+              "house.7",
+              "aspect.venus.pluto.trine",
+              "aspect.saturn.pluto.square",
+              "placement.pluto"
+            ],
+            "themeRefs": []
+          },
+          {
+            "kind": "drive_and_growth",
+            "text": "Harekete geçişin çoğu zaman sezgisel: önce ortamı ve insanların hâlini hissediyor, sonra enerjini yönlendiriyorsun. Bu sana hassas durumlarda incelik kazandırırken, hedef çok belirsiz olduğunda gücünün dağılmasına da yol açabilir. Öte yandan özdeğer ve maddi güven alanında ayrıntıları iyileştirme, yararlı olma ve kaynakları dikkatle yönetme isteğin güçlü. Buradaki gerilim, büyük bir duygusal dürtüyle hareket etmek ile her şeyi kusursuz ve ölçülü yapmaya çalışmak arasında beliriyor. Bazen fazla verme, ardından hesabı sıkı tutma eğilimi oluşabilir. Gelişim çizgin, sezgisel cesaretinle pratik muhakemeyi birbirine rakip değil, tamamlayıcı gördüğünde daha akıcı hâle geliyor.",
+            "factRefs": [
+              "placement.mars",
+              "house.8",
+              "placement.jupiter",
+              "house.2",
+              "aspect.mars.jupiter.opposition",
+              "balance.elements",
+              "balance.modalities"
+            ],
+            "themeRefs": []
+          }
+        ],
+        "reflectionPrompt": "Güvende kalma ihtiyacın ile kendi yönünü özgürce değiştirme isteğin aynı anda yükseldiğinde, hangisinin sesini daha çabuk duyuyorsun?",
+        "closingMessage": "Sende yumuşaklık ile dayanıklılık birbirini zayıflatmıyor; tam tersine, derinliği taşıyabilmenin iki ayrı yolu gibi çalışıyor. En kişisel gücün, hassasiyetini kaybetmeden net bir duruş kurabilmende."
+      }
+    },
+    {
+      "id": "yildizname.Mehmet",
+      "ok": true,
+      "ms": 10874,
+      "data": {
+        "contractVersion": 1,
+        "languageCode": "tr",
+        "scope": "reduced",
+        "summary": {
+          "text": "Mehmet, sende hızlı başlayan ama gelişigüzel ilerlemeyen bir taraf var. Ne düşündüğünü doğrudan söylemek, kararın ilk kıvılcımını bekletmemek ve bir şeyi harekete geçirmek doğal geliyor. Bunun yanında güçlü gerçekçilik, başladığın şeye biçim verme ve kalıcı bir sonuç çıkarma isteğini artırıyor. Cesaretin yalnızca atılmakla değil, somutlaştırmakla anlam kazanıyor.",
+          "factRefs": [
+            "placement.sun",
+            "placement.mercury",
+            "balance.elements",
+            "balance.modalities"
+          ],
+          "themeRefs": []
+        },
+        "sections": [
+          {
+            "kind": "relationships_and_values",
+            "text": "Yakınlıkta zihinsel canlılık önemli: sohbet, merak ve karşılıklı fikir alışverişi ilgiyi besliyor. Tekdüzelik yorabilir; buna karşılık güven veren, sade ve tutarlı değerler seni ilişkide tutar. Yani bağ kurarken hem hareket alanı hem de sağlamlık arıyorsun. Bu ikisi çatıştığında, heyecanla süreklilik arasında gidip gelmek mümkün.",
+            "factRefs": [
+              "placement.venus",
+              "placement.jupiter"
+            ],
+            "themeRefs": []
+          },
+          {
+            "kind": "strengths_and_resources",
+            "text": "Bağımsız düşünceyi disiplinle birleştirebilirsin. Alışılmış yöntemi sorgulayan yanın yalnızca karşı çıkmak istemiyor; daha işe yarar bir düzen kurmaya yöneliyor. Sabır, sorumluluk ve strateji güçlü kaynakların. Yüzeyde kalmayan bakışın da bir konunun özüne inme cesareti veriyor. Ancak kontrol ihtiyacı fazlalaştığında esneklik azalabilir ve her şeyi hemen yapılandırma isteği baskı yaratabilir.",
+            "factRefs": [
+              "placement.mars",
+              "placement.saturn",
+              "placement.uranus",
+              "placement.neptune",
+              "placement.pluto"
+            ],
+            "themeRefs": []
+          }
+        ],
+        "reflectionPrompt": "Hızla başlamak isteyen yanınla sağlam bir temel arayan yanın aynı anda konuştuğunda, hangisinin sesini daha kolay duyuyorsun?",
+        "closingMessage": "Sende yenilik ile dayanıklılık birbirinin rakibi değil; doğru yerde buluştuklarında özgün fikirlerin gerçek bir ağırlık kazanıyor."
+      }
+    },
+    {
+      "id": "yildizname.Zeynep",
+      "ok": true,
+      "ms": 25459,
+      "data": {
+        "contractVersion": 1,
+        "languageCode": "tr",
+        "scope": "full",
+        "summary": {
+          "text": "Zeynep, sende ilk anda hissedilen yoğunluk ile içeride yürüttüğün sessiz tartı arasında belirgin bir karşıtlık var. İnsanlara güçlü, kararlı ve kolay çözülmeyen biri gibi görünürken; kararlarının arkasında adalet arayan, farklı tarafları uzun uzun değerlendiren bir zihin çalışıyor. Kendini hemen ortaya dökmek yerine önce gözlemlemek, niyetleri anlamak ve söylenecek sözü içinden süzmek sana daha doğal geliyor. Fakat kimliğini başkalarının beklentilerine göre düzenlemek de uzun süre taşınabilir bir şey değil. İçindeki özgür ve alışılmadık taraf, fazla tanımlandığını hissettiğinde aniden yön değiştirebilir. Bu nedenle hayatındaki temel gerilimlerden biri, uyumu korurken kendi gerçeğini kaybetmemek.",
+          "factRefs": [
+            "angle.ascendant",
+            "placement.venus",
+            "placement.mars",
+            "placement.pluto",
+            "placement.sun",
+            "placement.mercury",
+            "aspect.sun.uranus.square",
+            "aspect.sun.neptune.square"
+          ],
+          "themeRefs": []
+        },
+        "sections": [
+          {
+            "kind": "emotional_world",
+            "text": "Duygusal güveni çoğu zaman işe yarar olmakta, ayrıntıları fark etmekte ve içinde bulunduğun topluluğa anlamlı bir katkı sunmakta buluyorsun. İnsanların ihtiyacını çabuk sezen, aksayan yeri gören bir yanın var. Bu dikkat, yakınlık kurma biçiminle güzel biçimde birleşiyor: ilgin yüzeysel değil; karşındaki kişiyi gerçekten tanımak ve sadakatin karşılıklı olduğundan emin olmak istiyorsun. Yine de içeride biriken gerilim güçlü. Bir şeyi düzeltme isteğin, yoğun tepkin ve daha fazlasını yapma dürtün aynı anda yükseldiğinde duyguların ölçülü ifade alanını daraltabilir. Dışarıdan sakin görünürken içeride çok daha sert bir hareket yaşanması bundan. Özellikle aidiyet ile kendi iradeni koruma ihtiyacı çarpıştığında, küçük görünen bir mesele beklenenden fazla ağırlık kazanabilir.",
+            "factRefs": [
+              "placement.moon",
+              "placement.venus",
+              "placement.mars",
+              "placement.jupiter",
+              "placement.pluto",
+              "aspect.moon.venus.sextile",
+              "aspect.moon.mars.square",
+              "aspect.moon.jupiter.square",
+              "aspect.moon.pluto.square"
+            ],
+            "themeRefs": []
+          },
+          {
+            "kind": "mind_and_expression",
+            "text": "Zihnin hem ilişki kuran hem de çerçeve kuran bir yapıda. Bir konunun iki tarafını görebilir, sert bir düşünceyi daha anlaşılır ve dengeli bir dille aktarabilirsin. Büyük resmi kavrama ve fikirleri geniş bir bağlama yerleştirme becerin de güçlü; bu, yalnızca ayrıntıda kalmanı engeller. Öte yandan düşüncelerini hemen paylaşmak yerine önce içeride düzenleme eğilimin var. Sözcüklerin arkasındaki amacı, güç ilişkisini ya da söylenmeyeni hesaba katarsın. Pratik akıl ile sezgisel kavrayışın birlikte çalışması, alışılmış yöntem yetmediğinde özgün bir çözüm bulmanı sağlar. Bu zihinsel derinliğin gölge tarafı, belirsiz bir şeyi gereğinden fazla çözmeye çalışmak ya da henüz biçimlenmemiş bir sezgiye kesin bir açıklama aramak olabilir.",
+            "factRefs": [
+              "placement.mercury",
+              "placement.jupiter",
+              "placement.uranus",
+              "placement.neptune",
+              "aspect.mercury.jupiter.sextile",
+              "aspect.uranus.neptune.conjunction",
+              "aspect.saturn.neptune.sextile"
+            ],
+            "themeRefs": []
+          },
+          {
+            "kind": "relationships_and_values",
+            "text": "Yakınlıkta yarım bağlar sana göre değil. Güven, dürüstlük ve duygusal cesaret arıyorsun; çekim oluştuğunda bunu yalnız zihinsel değil, bütün varlığınla yaşarsın. Bununla birlikte bağlanma biçiminde şaşırtıcı bir ciddiyet var. Yoğunluk ararken sürekliliği de önemsiyor, sevginin yalnız sözle değil dayanıklılıkla anlaşılmasını bekliyorsun. Kolay açılmaman soğukluktan çok, verdiğin değerin ağırlığından kaynaklanıyor. İlişkide sağlamlık arayışı bazen kontrol ihtiyacına yaklaşabilir; özellikle belirsizlik karşısında karşındakinin niyetini tamamen anlamak istemen rahat akışı zorlaştırır. Yine de duyguyu sorumlulukla birleştirebilmen, zor zamanlarda bağın içinde kalabilen güçlü bir kaynak.",
+            "factRefs": [
+              "placement.venus",
+              "placement.saturn",
+              "angle.ascendant",
+              "aspect.venus.saturn.trine",
+              "aspect.moon.venus.sextile"
+            ],
+            "themeRefs": []
+          },
+          {
+            "kind": "strengths_and_resources",
+            "text": "Harekete geçtiğinde enerjin dağılmıyor; tek bir noktada toplanarak dönüşüm yaratıyor. Kriz karşısında geri çekilmekten çok meselenin köküne inme, gerekeni keskin biçimde yapma ve tıkanmış bir süreci hareketlendirme gücün var. Ani değişimlere verdiğin pratik karşılık da bu dayanıklılığı destekliyor. Maddi ve kişisel değer alanında ise büyümeyi genişlik, öğrenme ve bağımsızlıkla ilişkilendiriyorsun. Büyük düşünme isteğin güçlü olsa da yaratıcı hevesin zaman zaman iç denetimle karşılaşabilir: bir yanın denemek ve büyümek isterken diğer yanın yeterince iyi, güvenli ya da kalıcı olup olmadığını sorgular. Bu çekişme seni durdurmak zorunda değil; doğru ölçüyü bulduğunda cesareti kalıcılıkla birleştirebilir. Görünür olduğun alanda sıcak, yaratıcı ve kendine özgü bir iz bırakma arzun da sessizce çalışıyor.",
+            "factRefs": [
+              "placement.mars",
+              "placement.pluto",
+              "placement.uranus",
+              "placement.jupiter",
+              "placement.saturn",
+              "angle.midheaven",
+              "aspect.mars.pluto.conjunction",
+              "aspect.mars.uranus.sextile",
+              "aspect.uranus.pluto.sextile",
+              "aspect.jupiter.saturn.square"
+            ],
+            "themeRefs": []
+          }
+        ],
+        "reflectionPrompt": "Uyumu korumak için sustuğun yer ile kendine sadık kalmak için yön değiştirdiğin yer arasında senin için gerçek denge nerede başlıyor?",
+        "closingMessage": "Derinliğin yalnızca güçlü hissetmende değil, hissettiğini biçime ve dayanıklılığa dönüştürebilmende yatıyor. Sessiz tarafınla etkili tarafın birbirine rakip değil; ikisi aynı bütünün farklı kapıları."
+      }
+    },
+    {
+      "id": "astrology.Ayşe",
+      "ok": false,
+      "ms": 15077,
+      "error": "invalid_response"
+    },
+    {
+      "id": "astrology.Mehmet",
+      "ok": true,
+      "ms": 15315,
+      "data": {
+        "contractVersion": 1,
+        "portrait": "Koç’taki Güneş ve Merkür, doğrudan ve hızlı bir ifade biçimi verirken; İkizler Venüs’ü merakı, Kova Mars’ı bağımsız hareket etme ihtiyacını öne çıkarıyor. Boğa Jüpiter ile Oğlak Satürn ise büyümeyi sağlamlık ve kalıcılıkla birleştiriyor.",
+        "overall": "Mehmet, bugün kendini ortaya koymak daha doğal ve zahmetsiz geliyor. Özgüvenini besleyen, canlılığını artıran bir akış var; özellikle görünür olmak ya da kişisel bir niyeti sahiplenmek eskisinden daha kolay hissedilebilir. Jüpiter’in desteği tek güne sıkışmıyor: birkaç haftaya yayılan bu dönemde, kimliğini daha geniş ve cesur biçimde ifade etme isteğin güçleniyor. Abartıya kaçmadan büyümek için elverişli bir zemin oluşuyor.",
+        "love": "Yakınlık isteği ile kendi ritminde hareket etme arzusu bugün birbirini zorlayabilir. Venüs, çekimi yoğunlaştırırken sabırsızlığı da görünür kılıyor; bir mesaj bekliyorsan, söylenenden çok söyleyiş biçimine takılabilirsin. Duygusal ve fiziksel beklentiler arasındaki gerilim birkaç gün boyunca belirgin kalıyor.",
+        "career": "Zihnindekini işe dönüştürme hızı yükseliyor. Yazışma, karar verme ya da bir fikri savunma gereken konularda sözlerin daha net ve etkili akıyor. Mars’ın verdiği ivme yaklaşık bir hafta hissedilirken, yarım kalmış bir iş varsa düşünce ile uygulama arasındaki mesafe kısalıyor.",
+        "money": "Maddi konularda ölçü, sorumluluk ve kalıcılık birbiriyle uyumlu çalışıyor. Harcama ya da birikim başlıklarında yalnızca anlık isteği değil, uzun vadeli değeri de görmek kolaylaşıyor. Bir ödeme planı veya bütçe sınırı gündemindeyse, Venüs birkaç gün boyunca daha gerçekçi ve dengeli bir yaklaşımı destekliyor.",
+        "mood": "Duygularınla düşüncelerin bugün hızlıca bağlantı kuruyor. İçinden geçeni adlandırmak ve uygun sözü bulmak, günün özellikle yakın saatlerinde daha rahat.",
+        "drive": "Bu alan bugün daha sakin; Aslan’daki Mars görünür ve yaratıcı davranma isteğini artırırken, doğuştan gelen Kova Mars’ın bağımsız ritmi kendi çizgisini koruyor.",
+        "opportunity": "Fırsatlar cephesi bugün ayrıca vurgulu değil. Aslan’daki Jüpiter ile Koç Güneş’in cesur tonu, önüne gelen ihtimalleri daha geniş bir bakışla değerlendirmeni destekliyor.",
+        "caution": "Uyarı alanı bugün sessiz. Koç’taki Satürn ve doğuştan gelen Koç Güneş, kendini ortaya koyarken ciddiyet ve sorumluluk temasını fonda tutuyor.",
+        "reflection": "Bugün kendini daha geniş ifade ettiğinde, hangi yanın en sahici biçimde görünür oluyor?"
+      }
+    },
+    {
+      "id": "astrology.Zeynep",
+      "ok": true,
+      "ms": 15312,
+      "data": {
+        "contractVersion": 1,
+        "portrait": "Terazi’nin ölçülü ve içe dönük tarafı, Akrep’in güçlü duruşu ve derin bağ kurma isteğiyle birleşiyor. Başak Ay’ın seçiciliği ise hem çevrende hem duygularında ayrıntıları hızla fark etmeni sağlıyor.",
+        "overall": "Zeynep, bugün kendi merkezine dönme ihtiyacın belirginleşiyor. Kim olduğunla dışarıya gösterdiğin yüz arasındaki çizgi daha görünür; başkalarının beklentilerinden çok, iç sesinin ağırlığını hissediyorsun. Güneş bu kişisel odağı yoğunlaştırırken dinlenme, geri çekilme ve zihnindeki dağınıklığı toplama isteği de artıyor. Birkaç güne yayılan bu dönem, eski bir halini kapatıp kendinle ilgili daha berrak bir tanıma yaklaşmak gibi çalışıyor.",
+        "love": "Yakınlık isteğin güçlü, fakat sevgi görme biçiminle kendini ortaya koyma tarzın aynı ritimde ilerlemeyebilir. Mars, çekimi ve sabırsızlığı birlikte yükseltiyor; bir mesaj bekliyorsan sessizlik gereğinden fazla anlam kazanabilir. Arzu ile gurur arasındaki gerilim, ilişkilerde yoğun ama kolayca keskinleşen bir hava yaratıyor.",
+        "career": "İş hayatındaki yönün ve görünürlüğün güçlü biçimde öne çıkıyor. Başlatma, öne çıkma ya da yarım kalmış bir işi sahiplenme dürtüsü belirgin; Mars burada enerjini doğrudan hedefe topluyor. Rekabet hissi yükselse de asıl mesele, gücünü nerede göstermek istediğinin netleşmesi.",
+        "money": "Maddi konularda düşünceler daha ciddi ve sorgulayıcı bir çizgide ilerliyor. Bir ödeme, bütçe ya da alışveriş kararı gündemindeyse seçenekleri zihninde evirip çevirmek yorucu gelebilir. Satürn, hızlı karar verme isteğiyle uzun vadeli sorumluluklar arasında haftalara yayılan bir gerilim kuruyor.",
+        "mood": "Duygusal ihtiyaçlarınla keyif aldığın şeyler gün içinde kısa süreliğine ters düşebilir. Hem mesafe isteyip hem de sıcaklık aramak, ruh halinde ani geçişler yaratıyor.",
+        "drive": "Cesaretin ve büyüme isteğin birbirini besliyor. Büyük düşünmek bugün gözünü korkutmaktan çok hareket enerjini artırıyor; özellikle iddialı bir hedef varsa tempo doğal biçimde yükseliyor.",
+        "opportunity": "Kalıcı bir mesleki yapı kurma potansiyeli sessizce güçleniyor. Sabır isteyen sorumluluklar, görünürlüğünü sağlam bir zemine taşıyan fırsatlara dönüşebilecek nitelikte.",
+        "caution": "Evdeki duygusal atmosfer ile dışarıdaki görünür rolün arasında kısa süreli bir çekişme hissedebilirsin. Anlık ruh halini mesleki bir kararın tek ölçüsü yapmamak iyi gelebilir.",
+        "reflection": "Bugün kendi sesinle başkalarının beklentilerini ayırdığında geriye hangi istek kalıyor?"
+      }
+    }
+  ]
+}

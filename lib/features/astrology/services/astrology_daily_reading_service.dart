@@ -7,12 +7,7 @@ import '../../personal_discovery/models/personal_discovery_profile.dart';
 import '../data/astrology_daily_copy.dart';
 import '../data/astrology_day_pool_tr.dart';
 import '../data/astrology_detail_copy.dart';
-import '../../birth_chart/astronomy/astronomia_ephemeris_adapter.dart';
-import '../../birth_chart/astronomy/astronomical_ephemeris_port.dart';
 import '../models/astrology_daily_reading.dart';
-import '../sky/astrology_natal_sky.dart';
-import '../sky/astrology_sky_reading.dart';
-import '../sky/astrology_transit_engine.dart';
 import 'astrology_personalization.dart';
 
 abstract final class AstrologyDailyReadingService {
@@ -23,28 +18,10 @@ abstract final class AstrologyDailyReadingService {
     DateTime? now,
     PersonalDiscoveryProfile? profile,
     List<String> selectedThemes = const [],
-    AstrologyNatalSky? natalSky,
-    AstronomicalEphemerisPort? ephemeris,
   }) {
+    // General sun-sign copy. The personal reading is written from the
+    // person's own transits (astrologyPersonalReadingProvider).
     final day = now ?? DateTime.now();
-    // The person's own sign, in Turkish: written from today's transits to
-    // their chart. Any other sign, or no birth data, stays general copy.
-    if (natalSky != null &&
-        natalSky.sunSign.id == sign.id &&
-        _usesTurkishPool) {
-      final sky = AstrologyTransitEngine.compute(
-        natal: natalSky,
-        day: day,
-        ephemeris: ephemeris ?? _ephemeris,
-      );
-      return AstrologySkyReading.compose(
-        sky: sky,
-        day: day,
-        themes: selectedThemes.isNotEmpty
-            ? selectedThemes
-            : (profile?.observedRecurringLabels ?? const <String>[]),
-      );
-    }
     final pool = _usesTurkishPool ? kAstrologyDayPoolTr[sign.id] : null;
     final base = pool != null
         ? _fromPool(sign, pool, dayIndex(day))
@@ -63,8 +40,6 @@ abstract final class AstrologyDailyReadingService {
       DateTime.utc(day.year, day.month, day.day)
           .difference(DateTime.utc(2000))
           .inDays;
-
-  static final _ephemeris = AstronomiaEphemerisAdapter();
 
   static bool get _usesTurkishPool {
     final code = OraclyL10n.code;

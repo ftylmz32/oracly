@@ -59,6 +59,16 @@ const kL10nAstrology = <String, L10nTriple>{
   'astro.lane_work': L10nTriple('YÖN', 'DIRECTION', 'НАПРАВЛЕНИЕ'),
   'astro.lane_inner': L10nTriple('İÇERİDE', 'WITHIN', 'ВНУТРИ'),
   'astro.lane_money': L10nTriple('DEĞER', 'WORTH', 'ЦЕННОСТЬ'),
+  'astro.basis_full': L10nTriple(
+    'Bugünkü gökyüzünün, doğum saatin ve şehrinle hesaplanan haritana yaptığı açılardan yazıldı.',
+    "Written from today's sky against your chart, calculated with your birth time and city.",
+    'Написано по сегодняшнему небу относительно твоей карты, рассчитанной по времени и городу рождения.',
+  ),
+  'astro.basis_day_only': L10nTriple(
+    'Bugünkü gökyüzünün, doğum günündeki gezegen konumlarına yaptığı açılardan yazıldı. Doğum saatin bilinmediği için yükselen ve evler hesaba katılmadı.',
+    "Written from today's sky against the planets on your birth day. Without a birth time, rising sign and houses are left out.",
+    'Написано по сегодняшнему небу относительно планет в день рождения. Без времени рождения асцендент и дома не учитываются.',
+  ),
   'astro.report_theme': L10nTriple('GÖZLEM', 'OBSERVATION', 'НАБЛЮДЕНИЕ'),
   'astro.report_message': L10nTriple(
     'NE ANLAMA GELİYOR',

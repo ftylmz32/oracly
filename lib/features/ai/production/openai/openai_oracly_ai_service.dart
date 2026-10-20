@@ -16,7 +16,10 @@ import '../models/dream_ai_analysis.dart';
 import '../models/palm_ai_analysis.dart';
 import '../oracly_ai_service.dart';
 import '../oracly_narrative_tarot_ai_service.dart';
+import '../oracly_astrology_daily_ai_service.dart';
 import '../oracly_narrative_yildizname_ai_service.dart';
+import '../transport/ai_operation.dart';
+import '../transport/ai_proxy_request.dart';
 import '../transport/ai_transport.dart';
 import '../../../tarot/narrative/live/narrative_tarot_attempt.dart';
 import '../../../star_map/narrative/live/yildizname_narrative_attempt.dart';
@@ -32,7 +35,8 @@ class OpenAiOraclyAiService
         OraclyStagedImageAiService,
         OraclyEvidenceMemoryAiService,
         OraclyNarrativeTarotAiService,
-        OraclyNarrativeYildiznameAiService {
+        OraclyNarrativeYildiznameAiService,
+        OraclyAstrologyDailyAiService {
   OpenAiOraclyAiService({
     required this._config,
     required this._transport,
@@ -209,6 +213,25 @@ class OpenAiOraclyAiService
           ),
         );
       },
+    );
+  }
+
+  @override
+  Future<AiOutcome<Map<String, dynamic>>> generateAstrologyDaily({
+    required Map<String, dynamic> payload,
+    required String operationId,
+  }) {
+    return _guard.runOutcome(
+      operationId,
+      kind: AiRequestKind.astrology,
+      fingerprint: operationId,
+      () => _transport.execute(
+        AiProxyRequest(
+          operation: AiOperation.astrologyDaily,
+          idempotencyKey: operationId,
+          payload: payload,
+        ),
+      ),
     );
   }
 

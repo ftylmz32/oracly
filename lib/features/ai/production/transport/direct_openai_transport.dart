@@ -57,6 +57,10 @@ class DirectOpenAiTransport implements AiTransport {
       AiOperation.yildiznameReading => Future.value(
           AiOutcome.failure(AiFailure.noConfiguration()),
         ),
+      // Daily astrology writer is proxy-only (server spend guard + quota).
+      AiOperation.astrologyDaily => Future.value(
+          AiOutcome.failure(AiFailure.noConfiguration()),
+        ),
       AiOperation.tts => _openAi.speech(
           text: payload['text'] as String? ?? '',
           personality: payload['personality'] as String? ?? 'mystical',

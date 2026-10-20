@@ -22,6 +22,10 @@ import {
   validateYildiznameNarrativePayload,
   type YildiznameNarrativeValidated,
 } from './narrative-yildizname-contract.js';
+import {
+  validateAstrologyDailyPayload,
+  type AstrologyDailyValidated,
+} from './astrology-daily-contract.js';
 
 type BaseRequest =
   | {
@@ -76,6 +80,7 @@ type BaseRequest =
     }
   | NarrativeTarotValidated
   | YildiznameNarrativeValidated
+  | AstrologyDailyValidated
   | {
       operation: 'tts';
       text: string;
@@ -129,6 +134,9 @@ export function validateAiBody(body: unknown): ValidatedRequest {
       return { ...validateTarot(payload), language };
     case 'yildizname_reading':
       return { ...validateYildiznameNarrativePayload(payload), language };
+    case 'astrology_daily':
+      // The contract accepts Turkish only, so language is already 'tr'.
+      return validateAstrologyDailyPayload(payload);
     case 'tts':
       return { ...validateTts(payload), language };
   }

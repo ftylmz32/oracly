@@ -32,6 +32,7 @@ import '../../features/premium/services/soul_mate_generation_session.dart';
 import '../../features/reading_feedback/data/reading_feedback_store.dart';
 import '../../features/reading_operation/services/reading_pending_operation_store.dart';
 import '../../features/share_reopen/services/share_ownership_store.dart';
+import '../../features/astrology/sky/astrology_daily_cache.dart';
 import '../../features/birth_chart/data/pending_birth_profile_store.dart';
 import '../../features/star_map/artifacts/local_yildizname_artifact_repository.dart';
 import '../../features/tarot/data/datasources/tarot_local_datasource.dart';
@@ -121,6 +122,10 @@ abstract final class UserLocalDataWipe {
       failed.add(PalmReadingStore.key);
     }
     await step('astrology_history', () => clearList('astrology_history'));
+    await step(
+      AstrologyDailyCache.storageKey,
+      () => removeKey(AstrologyDailyCache.storageKey),
+    );
     await step('ai_conversations', () => clearList('ai_conversations'));
     await step('birth_chart_latest', () => removeKey('birth_chart_latest'));
     await step(

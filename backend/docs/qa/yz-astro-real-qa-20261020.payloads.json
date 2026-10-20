@@ -1,0 +1,1277 @@
+[
+  {
+    "id": "yildizname.Ayşe",
+    "operation": "yildizname_reading",
+    "scope": "narrativeFull",
+    "payload": {
+      "mode": "natal_narrative_v1",
+      "contractVersion": 1,
+      "language": "tr",
+      "narrative": {
+        "version": 1,
+        "serializerVersion": 1,
+        "languageCode": "tr",
+        "scope": "full",
+        "fidelity": "fullNatalEphemeris",
+        "houseSystem": "wholeSign",
+        "calculationVersion": "yildizname-natal-v1",
+        "addressName": "Ayşe",
+        "placements": [
+          {
+            "factRef": "placement.sun",
+            "body": "sun",
+            "sign": "aries",
+            "certainty": "exact",
+            "degreeWithinSign": 15.932786745424336,
+            "house": 9
+          },
+          {
+            "factRef": "placement.moon",
+            "body": "moon",
+            "sign": "taurus",
+            "certainty": "exact",
+            "degreeWithinSign": 13.259391835544498,
+            "house": 10
+          },
+          {
+            "factRef": "placement.mercury",
+            "body": "mercury",
+            "sign": "pisces",
+            "certainty": "exact",
+            "degreeWithinSign": 29.3889778558771,
+            "retrograde": true,
+            "house": 8
+          },
+          {
+            "factRef": "placement.venus",
+            "body": "venus",
+            "sign": "pisces",
+            "certainty": "exact",
+            "degreeWithinSign": 27.74976978633123,
+            "retrograde": false,
+            "house": 8
+          },
+          {
+            "factRef": "placement.mars",
+            "body": "mars",
+            "sign": "pisces",
+            "certainty": "exact",
+            "degreeWithinSign": 6.506685607537236,
+            "retrograde": false,
+            "house": 8
+          },
+          {
+            "factRef": "placement.jupiter",
+            "body": "jupiter",
+            "sign": "virgo",
+            "certainty": "exact",
+            "degreeWithinSign": 5.607381799851169,
+            "retrograde": true,
+            "house": 2
+          },
+          {
+            "factRef": "placement.saturn",
+            "body": "saturn",
+            "sign": "aquarius",
+            "certainty": "exact",
+            "degreeWithinSign": 16.286200287371116,
+            "retrograde": false,
+            "house": 7
+          },
+          {
+            "factRef": "placement.uranus",
+            "body": "uranus",
+            "sign": "capricorn",
+            "certainty": "exact",
+            "degreeWithinSign": 17.90132788067899,
+            "retrograde": false,
+            "house": 6
+          },
+          {
+            "factRef": "placement.neptune",
+            "body": "neptune",
+            "sign": "capricorn",
+            "certainty": "exact",
+            "degreeWithinSign": 18.89591680819086,
+            "retrograde": false,
+            "house": 6
+          },
+          {
+            "factRef": "placement.pluto",
+            "body": "pluto",
+            "sign": "scorpio",
+            "certainty": "exact",
+            "degreeWithinSign": 22.612761770491318,
+            "retrograde": true,
+            "house": 4
+          }
+        ],
+        "angles": [
+          {
+            "factRef": "angle.ascendant",
+            "kind": "ascendant",
+            "sign": "leo",
+            "certainty": "exact",
+            "degreeWithinSign": 17.18429869991391,
+            "house": 1
+          },
+          {
+            "factRef": "angle.midheaven",
+            "kind": "midheaven",
+            "sign": "taurus",
+            "certainty": "exact",
+            "degreeWithinSign": 7.862548523097736,
+            "house": 10
+          }
+        ],
+        "houses": [
+          {
+            "factRef": "house.1",
+            "number": 1,
+            "sign": "leo"
+          },
+          {
+            "factRef": "house.2",
+            "number": 2,
+            "sign": "virgo"
+          },
+          {
+            "factRef": "house.3",
+            "number": 3,
+            "sign": "libra"
+          },
+          {
+            "factRef": "house.4",
+            "number": 4,
+            "sign": "scorpio"
+          },
+          {
+            "factRef": "house.5",
+            "number": 5,
+            "sign": "sagittarius"
+          },
+          {
+            "factRef": "house.6",
+            "number": 6,
+            "sign": "capricorn"
+          },
+          {
+            "factRef": "house.7",
+            "number": 7,
+            "sign": "aquarius"
+          },
+          {
+            "factRef": "house.8",
+            "number": 8,
+            "sign": "pisces"
+          },
+          {
+            "factRef": "house.9",
+            "number": 9,
+            "sign": "aries"
+          },
+          {
+            "factRef": "house.10",
+            "number": 10,
+            "sign": "taurus"
+          },
+          {
+            "factRef": "house.11",
+            "number": 11,
+            "sign": "gemini"
+          },
+          {
+            "factRef": "house.12",
+            "number": 12,
+            "sign": "cancer"
+          }
+        ],
+        "aspects": [
+          {
+            "factRef": "aspect.sun.saturn.sextile",
+            "bodyA": "sun",
+            "bodyB": "saturn",
+            "type": "sextile",
+            "orb": 0.353413541946793,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.sun.uranus.square",
+            "bodyA": "sun",
+            "bodyB": "uranus",
+            "type": "square",
+            "orb": 1.968541135254668,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.sun.neptune.square",
+            "bodyA": "sun",
+            "bodyB": "neptune",
+            "type": "square",
+            "orb": 2.9631300627665382,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.moon.jupiter.trine",
+            "bodyA": "moon",
+            "bodyB": "jupiter",
+            "type": "trine",
+            "orb": 7.652010035693337,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.moon.saturn.square",
+            "bodyA": "moon",
+            "bodyB": "saturn",
+            "type": "square",
+            "orb": 3.026808451826639,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.moon.uranus.trine",
+            "bodyA": "moon",
+            "bodyB": "uranus",
+            "type": "trine",
+            "orb": 4.641936045134486,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.moon.neptune.trine",
+            "bodyA": "moon",
+            "bodyB": "neptune",
+            "type": "trine",
+            "orb": 5.636524972646356,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.mercury.venus.conjunction",
+            "bodyA": "mercury",
+            "bodyB": "venus",
+            "type": "conjunction",
+            "orb": 1.639208069545873,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.mercury.pluto.trine",
+            "bodyA": "mercury",
+            "bodyB": "pluto",
+            "type": "trine",
+            "orb": 6.776216085385784,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.venus.pluto.trine",
+            "bodyA": "venus",
+            "bodyB": "pluto",
+            "type": "trine",
+            "orb": 5.1370080158399105,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.mars.jupiter.opposition",
+            "bodyA": "mars",
+            "bodyB": "jupiter",
+            "type": "opposition",
+            "orb": 0.8993038076860671,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.saturn.pluto.square",
+            "bodyA": "saturn",
+            "bodyB": "pluto",
+            "type": "square",
+            "orb": 6.3265614831202015,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.uranus.neptune.conjunction",
+            "bodyA": "uranus",
+            "bodyB": "neptune",
+            "type": "conjunction",
+            "orb": 0.9945889275118702,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.uranus.pluto.sextile",
+            "bodyA": "uranus",
+            "bodyB": "pluto",
+            "type": "sextile",
+            "orb": 4.7114338898123265,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.neptune.pluto.sextile",
+            "bodyA": "neptune",
+            "bodyB": "pluto",
+            "type": "sextile",
+            "orb": 3.7168449623004562,
+            "certainty": "exact"
+          }
+        ],
+        "balances": [
+          {
+            "factRef": "balance.elements",
+            "kind": "elements",
+            "counts": {
+              "fire": 1,
+              "earth": 4,
+              "air": 1,
+              "water": 4
+            },
+            "dominant": "earth"
+          },
+          {
+            "factRef": "balance.modalities",
+            "kind": "modalities",
+            "counts": {
+              "cardinal": 3,
+              "fixed": 3,
+              "mutable": 4
+            },
+            "dominant": "mutable"
+          }
+        ],
+        "discoveryThemes": [],
+        "omittedLayers": [],
+        "policy": {
+          "version": "yildizname_policy_v1",
+          "rules": [
+            "USE_ONLY_SUPPLIED_FACTS",
+            "DO_NOT_CALCULATE_ASTRONOMY",
+            "DO_NOT_INVENT_MEMORY",
+            "DO_NOT_INVENT_PLACEMENTS",
+            "DO_NOT_INVENT_HOUSES",
+            "DO_NOT_INVENT_ASPECTS",
+            "DO_NOT_TREAT_SYMBOLIC_INTERPRETATION_AS_CERTAINTY",
+            "NO_DETERMINISTIC_FUTURE",
+            "NO_FATALISM",
+            "NO_MEDICAL_DIAGNOSIS",
+            "NO_PREGNANCY_CERTAINTY",
+            "NO_LEGAL_FINANCIAL_GUARANTEE",
+            "NO_GUARANTEED_SOULMATE",
+            "KARMIC_LANGUAGE_METAPHOR_ONLY"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "yildizname.Mehmet",
+    "operation": "yildizname_reading",
+    "scope": "narrativeReduced",
+    "payload": {
+      "mode": "natal_narrative_v1",
+      "contractVersion": 1,
+      "language": "tr",
+      "narrative": {
+        "version": 1,
+        "serializerVersion": 1,
+        "languageCode": "tr",
+        "scope": "reduced",
+        "fidelity": "reducedNatal",
+        "calculationVersion": "yildizname-natal-v1",
+        "addressName": "Mehmet",
+        "placements": [
+          {
+            "factRef": "placement.sun",
+            "body": "sun",
+            "sign": "aries",
+            "certainty": "intervalStable"
+          },
+          {
+            "factRef": "placement.mercury",
+            "body": "mercury",
+            "sign": "aries",
+            "certainty": "intervalStable"
+          },
+          {
+            "factRef": "placement.venus",
+            "body": "venus",
+            "sign": "gemini",
+            "certainty": "intervalStable"
+          },
+          {
+            "factRef": "placement.mars",
+            "body": "mars",
+            "sign": "aquarius",
+            "certainty": "intervalStable"
+          },
+          {
+            "factRef": "placement.jupiter",
+            "body": "jupiter",
+            "sign": "taurus",
+            "certainty": "intervalStable"
+          },
+          {
+            "factRef": "placement.saturn",
+            "body": "saturn",
+            "sign": "capricorn",
+            "certainty": "intervalStable"
+          },
+          {
+            "factRef": "placement.uranus",
+            "body": "uranus",
+            "sign": "capricorn",
+            "certainty": "intervalStable"
+          },
+          {
+            "factRef": "placement.neptune",
+            "body": "neptune",
+            "sign": "capricorn",
+            "certainty": "intervalStable"
+          },
+          {
+            "factRef": "placement.pluto",
+            "body": "pluto",
+            "sign": "scorpio",
+            "certainty": "intervalStable"
+          }
+        ],
+        "angles": [],
+        "houses": [],
+        "aspects": [],
+        "balances": [
+          {
+            "factRef": "balance.elements",
+            "kind": "elements",
+            "counts": {
+              "fire": 2,
+              "earth": 4,
+              "air": 2,
+              "water": 1
+            },
+            "dominant": "earth"
+          },
+          {
+            "factRef": "balance.modalities",
+            "kind": "modalities",
+            "counts": {
+              "cardinal": 5,
+              "fixed": 3,
+              "mutable": 1
+            },
+            "dominant": "cardinal"
+          }
+        ],
+        "discoveryThemes": [],
+        "omittedLayers": [
+          "exactDegrees",
+          "ascendant",
+          "midheaven",
+          "houses",
+          "aspects",
+          "retrograde"
+        ],
+        "policy": {
+          "version": "yildizname_policy_v1",
+          "rules": [
+            "USE_ONLY_SUPPLIED_FACTS",
+            "DO_NOT_CALCULATE_ASTRONOMY",
+            "DO_NOT_INVENT_MEMORY",
+            "DO_NOT_INVENT_PLACEMENTS",
+            "DO_NOT_INVENT_HOUSES",
+            "DO_NOT_INVENT_ASPECTS",
+            "DO_NOT_TREAT_SYMBOLIC_INTERPRETATION_AS_CERTAINTY",
+            "NO_DETERMINISTIC_FUTURE",
+            "NO_FATALISM",
+            "NO_MEDICAL_DIAGNOSIS",
+            "NO_PREGNANCY_CERTAINTY",
+            "NO_LEGAL_FINANCIAL_GUARANTEE",
+            "NO_GUARANTEED_SOULMATE",
+            "KARMIC_LANGUAGE_METAPHOR_ONLY"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "yildizname.Zeynep",
+    "operation": "yildizname_reading",
+    "scope": "narrativeFull",
+    "payload": {
+      "mode": "natal_narrative_v1",
+      "contractVersion": 1,
+      "language": "tr",
+      "narrative": {
+        "version": 1,
+        "serializerVersion": 1,
+        "languageCode": "tr",
+        "scope": "full",
+        "fidelity": "fullNatalEphemeris",
+        "houseSystem": "wholeSign",
+        "calculationVersion": "yildizname-natal-v1",
+        "addressName": "Zeynep",
+        "placements": [
+          {
+            "factRef": "placement.sun",
+            "body": "sun",
+            "sign": "libra",
+            "certainty": "exact",
+            "degreeWithinSign": 26.339197325355144,
+            "house": 12
+          },
+          {
+            "factRef": "placement.moon",
+            "body": "moon",
+            "sign": "virgo",
+            "certainty": "exact",
+            "degreeWithinSign": 6.398668576301276,
+            "house": 11
+          },
+          {
+            "factRef": "placement.mercury",
+            "body": "mercury",
+            "sign": "libra",
+            "certainty": "exact",
+            "degreeWithinSign": 8.19011822627101,
+            "retrograde": false,
+            "house": 12
+          },
+          {
+            "factRef": "placement.venus",
+            "body": "venus",
+            "sign": "scorpio",
+            "certainty": "exact",
+            "degreeWithinSign": 12.31217521456935,
+            "retrograde": false,
+            "house": 1
+          },
+          {
+            "factRef": "placement.mars",
+            "body": "mars",
+            "sign": "scorpio",
+            "certainty": "exact",
+            "degreeWithinSign": 29.529322732140884,
+            "retrograde": false,
+            "house": 1
+          },
+          {
+            "factRef": "placement.jupiter",
+            "body": "jupiter",
+            "sign": "sagittarius",
+            "certainty": "exact",
+            "degreeWithinSign": 13.736246528072996,
+            "retrograde": false,
+            "house": 2
+          },
+          {
+            "factRef": "placement.saturn",
+            "body": "saturn",
+            "sign": "pisces",
+            "certainty": "exact",
+            "degreeWithinSign": 18.89324011127883,
+            "retrograde": true,
+            "house": 5
+          },
+          {
+            "factRef": "placement.uranus",
+            "body": "uranus",
+            "sign": "capricorn",
+            "certainty": "exact",
+            "degreeWithinSign": 26.60559827413863,
+            "retrograde": false,
+            "house": 3
+          },
+          {
+            "factRef": "placement.neptune",
+            "body": "neptune",
+            "sign": "capricorn",
+            "certainty": "exact",
+            "degreeWithinSign": 22.837480980974078,
+            "retrograde": false,
+            "house": 3
+          },
+          {
+            "factRef": "placement.pluto",
+            "body": "pluto",
+            "sign": "scorpio",
+            "certainty": "exact",
+            "degreeWithinSign": 29.260076753073633,
+            "retrograde": false,
+            "house": 1
+          }
+        ],
+        "angles": [
+          {
+            "factRef": "angle.ascendant",
+            "kind": "ascendant",
+            "sign": "scorpio",
+            "certainty": "exact",
+            "degreeWithinSign": 5.529158504952903,
+            "house": 1
+          },
+          {
+            "factRef": "angle.midheaven",
+            "kind": "midheaven",
+            "sign": "leo",
+            "certainty": "exact",
+            "degreeWithinSign": 11.632799988058906,
+            "house": 10
+          }
+        ],
+        "houses": [
+          {
+            "factRef": "house.1",
+            "number": 1,
+            "sign": "scorpio"
+          },
+          {
+            "factRef": "house.2",
+            "number": 2,
+            "sign": "sagittarius"
+          },
+          {
+            "factRef": "house.3",
+            "number": 3,
+            "sign": "capricorn"
+          },
+          {
+            "factRef": "house.4",
+            "number": 4,
+            "sign": "aquarius"
+          },
+          {
+            "factRef": "house.5",
+            "number": 5,
+            "sign": "pisces"
+          },
+          {
+            "factRef": "house.6",
+            "number": 6,
+            "sign": "aries"
+          },
+          {
+            "factRef": "house.7",
+            "number": 7,
+            "sign": "taurus"
+          },
+          {
+            "factRef": "house.8",
+            "number": 8,
+            "sign": "gemini"
+          },
+          {
+            "factRef": "house.9",
+            "number": 9,
+            "sign": "cancer"
+          },
+          {
+            "factRef": "house.10",
+            "number": 10,
+            "sign": "leo"
+          },
+          {
+            "factRef": "house.11",
+            "number": 11,
+            "sign": "virgo"
+          },
+          {
+            "factRef": "house.12",
+            "number": 12,
+            "sign": "libra"
+          }
+        ],
+        "aspects": [
+          {
+            "factRef": "aspect.sun.uranus.square",
+            "bodyA": "sun",
+            "bodyB": "uranus",
+            "type": "square",
+            "orb": 0.26640094878348464,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.sun.neptune.square",
+            "bodyA": "sun",
+            "bodyB": "neptune",
+            "type": "square",
+            "orb": 3.501716344381066,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.moon.venus.sextile",
+            "bodyA": "moon",
+            "bodyB": "venus",
+            "type": "sextile",
+            "orb": 5.913506638268075,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.moon.mars.square",
+            "bodyA": "moon",
+            "bodyB": "mars",
+            "type": "square",
+            "orb": 6.869345844160421,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.moon.jupiter.square",
+            "bodyA": "moon",
+            "bodyB": "jupiter",
+            "type": "square",
+            "orb": 7.337577951771721,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.moon.pluto.square",
+            "bodyA": "moon",
+            "bodyB": "pluto",
+            "type": "square",
+            "orb": 7.138591823227671,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.mercury.jupiter.sextile",
+            "bodyA": "mercury",
+            "bodyB": "jupiter",
+            "type": "sextile",
+            "orb": 5.546128301802014,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.venus.saturn.trine",
+            "bodyA": "venus",
+            "bodyB": "saturn",
+            "type": "trine",
+            "orb": 6.581064896709478,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.mars.uranus.sextile",
+            "bodyA": "mars",
+            "bodyB": "uranus",
+            "type": "sextile",
+            "orb": 2.923724458002255,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.mars.pluto.conjunction",
+            "bodyA": "mars",
+            "bodyB": "pluto",
+            "type": "conjunction",
+            "orb": 0.2692459790672501,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.jupiter.saturn.square",
+            "bodyA": "jupiter",
+            "bodyB": "saturn",
+            "type": "square",
+            "orb": 5.156993583205804,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.saturn.neptune.sextile",
+            "bodyA": "saturn",
+            "bodyB": "neptune",
+            "type": "sextile",
+            "orb": 3.94424086969525,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.uranus.neptune.conjunction",
+            "bodyA": "uranus",
+            "bodyB": "neptune",
+            "type": "conjunction",
+            "orb": 3.7681172931645506,
+            "certainty": "exact"
+          },
+          {
+            "factRef": "aspect.uranus.pluto.sextile",
+            "bodyA": "uranus",
+            "bodyB": "pluto",
+            "type": "sextile",
+            "orb": 2.6544784789350047,
+            "certainty": "exact"
+          }
+        ],
+        "balances": [
+          {
+            "factRef": "balance.elements",
+            "kind": "elements",
+            "counts": {
+              "fire": 1,
+              "earth": 3,
+              "air": 2,
+              "water": 4
+            },
+            "dominant": "water"
+          },
+          {
+            "factRef": "balance.modalities",
+            "kind": "modalities",
+            "counts": {
+              "cardinal": 4,
+              "fixed": 3,
+              "mutable": 3
+            },
+            "dominant": "cardinal"
+          }
+        ],
+        "discoveryThemes": [],
+        "omittedLayers": [],
+        "policy": {
+          "version": "yildizname_policy_v1",
+          "rules": [
+            "USE_ONLY_SUPPLIED_FACTS",
+            "DO_NOT_CALCULATE_ASTRONOMY",
+            "DO_NOT_INVENT_MEMORY",
+            "DO_NOT_INVENT_PLACEMENTS",
+            "DO_NOT_INVENT_HOUSES",
+            "DO_NOT_INVENT_ASPECTS",
+            "DO_NOT_TREAT_SYMBOLIC_INTERPRETATION_AS_CERTAINTY",
+            "NO_DETERMINISTIC_FUTURE",
+            "NO_FATALISM",
+            "NO_MEDICAL_DIAGNOSIS",
+            "NO_PREGNANCY_CERTAINTY",
+            "NO_LEGAL_FINANCIAL_GUARANTEE",
+            "NO_GUARANTEED_SOULMATE",
+            "KARMIC_LANGUAGE_METAPHOR_ONLY"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "astrology.Ayşe",
+    "operation": "astrology_daily",
+    "operationId": "astro.20261020.897171dd313a2148",
+    "payload": {
+      "mode": "sky_daily_v1",
+      "contractVersion": 1,
+      "language": "tr",
+      "sky": {
+        "day": "2026-10-20",
+        "depth": "full",
+        "natal": [
+          {
+            "point": "sun",
+            "sign": "aries",
+            "house": 9
+          },
+          {
+            "point": "moon",
+            "sign": "taurus",
+            "house": 10
+          },
+          {
+            "point": "mercury",
+            "sign": "pisces",
+            "house": 8
+          },
+          {
+            "point": "venus",
+            "sign": "pisces",
+            "house": 8
+          },
+          {
+            "point": "mars",
+            "sign": "pisces",
+            "house": 8
+          },
+          {
+            "point": "jupiter",
+            "sign": "virgo",
+            "house": 2
+          },
+          {
+            "point": "saturn",
+            "sign": "aquarius",
+            "house": 7
+          },
+          {
+            "point": "ascendant",
+            "sign": "leo",
+            "house": 1
+          },
+          {
+            "point": "midheaven",
+            "sign": "taurus",
+            "house": 10
+          }
+        ],
+        "transits": [
+          {
+            "point": "moon",
+            "sign": "aquarius",
+            "natalHouse": 7
+          },
+          {
+            "point": "sun",
+            "sign": "libra",
+            "natalHouse": 3
+          },
+          {
+            "point": "mercury",
+            "sign": "scorpio",
+            "natalHouse": 4
+          },
+          {
+            "point": "venus",
+            "sign": "scorpio",
+            "natalHouse": 4
+          },
+          {
+            "point": "mars",
+            "sign": "leo",
+            "natalHouse": 1
+          },
+          {
+            "point": "jupiter",
+            "sign": "leo",
+            "natalHouse": 1
+          },
+          {
+            "point": "saturn",
+            "sign": "aries",
+            "natalHouse": 9
+          }
+        ],
+        "findings": [
+          {
+            "lane": "overall",
+            "transit": "mars",
+            "natal": "moon",
+            "aspect": "square",
+            "tone": "friction",
+            "strength": "exact",
+            "span": "week"
+          },
+          {
+            "lane": "love",
+            "transit": "moon",
+            "natal": "moon",
+            "aspect": "square",
+            "tone": "friction",
+            "strength": "close",
+            "span": "hours"
+          },
+          {
+            "lane": "money",
+            "transit": "venus",
+            "natal": "jupiter",
+            "aspect": "sextile",
+            "tone": "flow",
+            "strength": "wide",
+            "span": "days"
+          },
+          {
+            "lane": "mood",
+            "transit": "moon",
+            "natal": "sun",
+            "aspect": "sextile",
+            "tone": "flow",
+            "strength": "exact",
+            "span": "hours"
+          },
+          {
+            "lane": "caution",
+            "transit": "moon",
+            "natal": "ascendant",
+            "aspect": "opposition",
+            "tone": "friction",
+            "strength": "exact",
+            "span": "hours"
+          }
+        ],
+        "themes": [
+          "İlişki"
+        ],
+        "addressName": "Ayşe"
+      }
+    }
+  },
+  {
+    "id": "astrology.Mehmet",
+    "operation": "astrology_daily",
+    "operationId": "astro.20261020.5e80212a05c1ba24",
+    "payload": {
+      "mode": "sky_daily_v1",
+      "contractVersion": 1,
+      "language": "tr",
+      "sky": {
+        "day": "2026-10-20",
+        "depth": "dayOnly",
+        "natal": [
+          {
+            "point": "sun",
+            "sign": "aries"
+          },
+          {
+            "point": "mercury",
+            "sign": "aries"
+          },
+          {
+            "point": "venus",
+            "sign": "gemini"
+          },
+          {
+            "point": "mars",
+            "sign": "aquarius"
+          },
+          {
+            "point": "jupiter",
+            "sign": "taurus"
+          },
+          {
+            "point": "saturn",
+            "sign": "capricorn"
+          }
+        ],
+        "transits": [
+          {
+            "point": "moon",
+            "sign": "aquarius"
+          },
+          {
+            "point": "sun",
+            "sign": "libra"
+          },
+          {
+            "point": "mercury",
+            "sign": "scorpio"
+          },
+          {
+            "point": "venus",
+            "sign": "scorpio"
+          },
+          {
+            "point": "mars",
+            "sign": "leo"
+          },
+          {
+            "point": "jupiter",
+            "sign": "leo"
+          },
+          {
+            "point": "saturn",
+            "sign": "aries"
+          }
+        ],
+        "findings": [
+          {
+            "lane": "overall",
+            "transit": "jupiter",
+            "natal": "sun",
+            "aspect": "trine",
+            "tone": "flow",
+            "strength": "exact",
+            "span": "weeks"
+          },
+          {
+            "lane": "love",
+            "transit": "venus",
+            "natal": "mars",
+            "aspect": "square",
+            "tone": "friction",
+            "strength": "exact",
+            "span": "days"
+          },
+          {
+            "lane": "career",
+            "transit": "mars",
+            "natal": "mercury",
+            "aspect": "trine",
+            "tone": "flow",
+            "strength": "wide",
+            "span": "week"
+          },
+          {
+            "lane": "money",
+            "transit": "venus",
+            "natal": "saturn",
+            "aspect": "sextile",
+            "tone": "flow",
+            "strength": "exact",
+            "span": "days"
+          },
+          {
+            "lane": "mood",
+            "transit": "moon",
+            "natal": "mercury",
+            "aspect": "sextile",
+            "tone": "flow",
+            "strength": "close",
+            "span": "hours"
+          }
+        ],
+        "themes": [],
+        "addressName": "Mehmet"
+      }
+    }
+  },
+  {
+    "id": "astrology.Zeynep",
+    "operation": "astrology_daily",
+    "operationId": "astro.20261020.65a9aced0b8c1a73",
+    "payload": {
+      "mode": "sky_daily_v1",
+      "contractVersion": 1,
+      "language": "tr",
+      "sky": {
+        "day": "2026-10-20",
+        "depth": "full",
+        "natal": [
+          {
+            "point": "sun",
+            "sign": "libra",
+            "house": 12
+          },
+          {
+            "point": "moon",
+            "sign": "virgo",
+            "house": 11
+          },
+          {
+            "point": "mercury",
+            "sign": "libra",
+            "house": 12
+          },
+          {
+            "point": "venus",
+            "sign": "scorpio",
+            "house": 1
+          },
+          {
+            "point": "mars",
+            "sign": "scorpio",
+            "house": 1
+          },
+          {
+            "point": "jupiter",
+            "sign": "sagittarius",
+            "house": 2
+          },
+          {
+            "point": "saturn",
+            "sign": "pisces",
+            "house": 5
+          },
+          {
+            "point": "ascendant",
+            "sign": "scorpio",
+            "house": 1
+          },
+          {
+            "point": "midheaven",
+            "sign": "leo",
+            "house": 10
+          }
+        ],
+        "transits": [
+          {
+            "point": "moon",
+            "sign": "aquarius",
+            "natalHouse": 4
+          },
+          {
+            "point": "sun",
+            "sign": "libra",
+            "natalHouse": 12
+          },
+          {
+            "point": "mercury",
+            "sign": "scorpio",
+            "natalHouse": 1
+          },
+          {
+            "point": "venus",
+            "sign": "scorpio",
+            "natalHouse": 1
+          },
+          {
+            "point": "mars",
+            "sign": "leo",
+            "natalHouse": 10
+          },
+          {
+            "point": "jupiter",
+            "sign": "leo",
+            "natalHouse": 10
+          },
+          {
+            "point": "saturn",
+            "sign": "aries",
+            "natalHouse": 6
+          }
+        ],
+        "findings": [
+          {
+            "lane": "overall",
+            "transit": "sun",
+            "natal": "sun",
+            "aspect": "conjunction",
+            "tone": "fusion",
+            "strength": "exact",
+            "span": "days"
+          },
+          {
+            "lane": "love",
+            "transit": "mars",
+            "natal": "venus",
+            "aspect": "square",
+            "tone": "friction",
+            "strength": "exact",
+            "span": "week"
+          },
+          {
+            "lane": "career",
+            "transit": "mars",
+            "natal": "midheaven",
+            "aspect": "conjunction",
+            "tone": "fusion",
+            "strength": "exact",
+            "span": "week"
+          },
+          {
+            "lane": "money",
+            "transit": "saturn",
+            "natal": "mercury",
+            "aspect": "opposition",
+            "tone": "friction",
+            "strength": "wide",
+            "span": "weeks"
+          },
+          {
+            "lane": "mood",
+            "transit": "moon",
+            "natal": "venus",
+            "aspect": "square",
+            "tone": "friction",
+            "strength": "close",
+            "span": "hours"
+          },
+          {
+            "lane": "drive",
+            "transit": "mars",
+            "natal": "jupiter",
+            "aspect": "trine",
+            "tone": "flow",
+            "strength": "close",
+            "span": "week"
+          },
+          {
+            "lane": "opportunity",
+            "transit": "saturn",
+            "natal": "midheaven",
+            "aspect": "trine",
+            "tone": "flow",
+            "strength": "wide",
+            "span": "weeks"
+          },
+          {
+            "lane": "caution",
+            "transit": "moon",
+            "natal": "midheaven",
+            "aspect": "opposition",
+            "tone": "friction",
+            "strength": "wide",
+            "span": "hours"
+          }
+        ],
+        "themes": [],
+        "addressName": "Zeynep"
+      }
+    }
+  }
+]

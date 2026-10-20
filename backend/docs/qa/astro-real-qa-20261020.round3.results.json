@@ -1,0 +1,62 @@
+{
+  "day": "2026-10-20",
+  "round": "round3",
+  "used": 3,
+  "cap": 3,
+  "results": [
+    {
+      "id": "astrology.Ayşe",
+      "ok": true,
+      "ms": 13145,
+      "data": {
+        "contractVersion": 1,
+        "portrait": "Cesur ve doğrudan bir tarafın var; yine de güven, sadakat ve duygusal derinlik olmadan tam anlamıyla açılmıyorsun. Dışarıdan sıcak ve kendinden emin görünürken içeride sezgilerinle ilerliyorsun.",
+        "overall": "Ayşe, bugün iç huzurunla kendini güçlü biçimde ortaya koyma isteğin aynı tempoda ilerlemiyor. Bir yanın güvenli ve tanıdık ritmi korumak isterken diğer yanın sabırsızca görünür olmak, tepki vermek ya da hızlanmak istiyor. Bu gerilim yalnızca anlık değil; hafta boyunca zaman zaman kendini hatırlatıyor. Özellikle gururuna dokunan bir durumda ilk tepkin yoğun olabilir. Yumuşak ama net bir ifade, iki ihtiyacın da sesini duyurabilir.",
+        "love": "Yakınlık ihtiyacın ile duygusal mesafe arzun kısa süreli bir çekişme yaratıyor. Son okumalarında öne çıkan ilişki teması bugün daha çok “birlikteyken ne kadar kendim kalıyorum?” sorusunda belirginleşiyor. Karşındaki kişinin tavrı kadar kendi iç ritmin de hassas; bu dalgalanma gün içinde hafifliyor.",
+        "career": "İş ve sorumluluklarda söylenmeyeni sezme becerin güçlü. Yüzeydeki açıklamadan çok niyetleri, eksik ayrıntıları ve perde arkasındaki bağlantıları fark ediyorsun. Ancak düşüncelerini aktarırken dolaylı anlatım ağır basıyor; netlik, içgörünün görünür hâle gelmesini kolaylaştırır.",
+        "money": "Maddi konularda ölçülü bir iyimserlik devrede. Bir harcamanın gerçek değerini, yalnızca fiyatından değil sana sağladığı güven ve uzun vadeli faydadan tartıyorsun. Önümüzdeki birkaç gün bütçe, evle ilgili ihtiyaçlar ya da kaynak paylaşımı üzerine yapılan değerlendirmeler zorlamadan ilerleyebilir.",
+        "mood": "İç dünyan ile kendini ortaya koyuşun bugün birbirini destekliyor. Kendi çizgini korurken çevrenle bağ kurmak daha doğal geliyor; bu akış özellikle günün duygusal tonunu hafifletiyor.",
+        "drive": "Enerjin görünür ve sıcak, fakat hareketlerinin altında hassas bir motivasyon var. Güçlü görünme arzusu ile sezgilerine göre yön değiştirme eğilimi aynı anda çalışıyor.",
+        "opportunity": "Kendine güvenin, yeni bir bakış açısını cesaretle sahiplenmen için alan açıyor. Büyük düşünmek ile ilk adımı atmak arasında canlı bir uyum var; hevesin çevrene de yansıyor.",
+        "caution": "Beden dilin, içeride hissettiğinden daha mesafeli ya da meydan okuyan bir izlenim verebilir. Yakın temaslarda anlık gerilim yüzüne ve ses tonuna hızlıca yansıyor; bu etki gün içinde geçici.",
+        "reflection": "Bugün güçlü görünme isteğinin altında hangi duygusal ihtiyacın duyulmayı bekliyor?"
+      }
+    },
+    {
+      "id": "astrology.Mehmet",
+      "ok": true,
+      "ms": 13474,
+      "data": {
+        "contractVersion": 1,
+        "portrait": "Hızlı kavrayan, doğrudan konuşan ve kendi kararını vermek isteyen bir yapın var. Merakın canlı; yine de güven, süreklilik ve somut sonuçlar senin için belirleyici.",
+        "overall": "Mehmet, kendini ortaya koymak bugün daha doğal geliyor; görünür olmak için zorlaman ya da olduğundan büyük davranman gerekmiyor. İçindeki genişleme isteği, cesaretinle uyum içinde çalışıyor ve uzun süredir dar gelen bir düşünceyi geride bırakmana yardım edebilir. Bu yalnızca günün kısa havası değil, birkaç haftaya yayılan destekleyici bir dönem. Kendi tavrına güvendiğinde işler daha rahat akıyor; abartıya kaçmadan büyük düşünmek mümkün.",
+        "love": "Yakınlık isteği ile kişisel alan ihtiyacı aynı anda yükseliyor. Çekim güçlü olsa da sabırsızlık, küçük bir belirsizliği gereğinden fazla keskin hissettirebilir. Duygusal yoğunluk ile özgür hareket etme arzusu arasındaki gerilim birkaç gün boyunca ilişkilerde ince bir huzursuzluk yaratıyor.",
+        "career": "Düşüncelerini hızlıca toparlayıp net biçimde ifade etme gücün öne çıkıyor. Bir görüşme, yazışma ya da karar sürecinde sözü dolandırmadan asıl noktaya varmak kolaylaşıyor. Yaklaşık bir haftalık bu akış, zihinsel cesareti desteklerken fikirlerini görünür kılmana da alan açıyor.",
+        "money": "Maddi konularda haz ile sorumluluk arasında sakin bir denge kuruluyor. Kalıcı değeri olanla yalnızca anlık çekicilik taşıyanı ayırt etmek daha kolay. Önümüzdeki birkaç gün, sınırlarını korurken keyif duygusunu bütünüyle kısmadan ölçülü seçimler yapabileceğin bir zemin sunuyor.",
+        "mood": "Zihnin ve duyguların bugün aynı dili konuşuyor. İçinden geçeni adlandırmak, özellikle günün kısa akışı içinde, alışıldığından daha rahat.",
+        "drive": "Enerjin hem dikkat çekmek hem de kendi bağımsız çizgini korumak istiyor. Bu ikili vurgu, hareketlerinde yaratıcı fakat yer yer inatçı bir ritim doğuruyor.",
+        "opportunity": "Büyük düşünme isteğin, doğal cesaretinle yan yana duruyor. Kendini gösterebildiğin yerlerde içten gelen bir canlılık hissedebilirsin.",
+        "caution": "Kendini kanıtlama arzusu ciddiyet kazanıyor; bu da iç sesini gereğinden sert bir ölçüte dönüştürebilir. Yüksek beklenti ile sağlıklı sorumluluk arasındaki fark bugün önemli.",
+        "reflection": "Kendini büyütmek istediğin yerde gerçekten alan mı açıyorsun, yoksa yalnızca daha fazla yük mü alıyorsun?"
+      }
+    },
+    {
+      "id": "astrology.Zeynep",
+      "ok": true,
+      "ms": 12987,
+      "data": {
+        "contractVersion": 1,
+        "portrait": "İnsanların niyetini kolayca sezen, güçlü ve mahremiyetine düşkün bir yapın var. Uyum ararken ayrıntıları kaçırmıyor; güvendiğinde ise duygularını derin ve doğrudan yaşıyorsun.",
+        "overall": "Zeynep, doğum günü mevsimin kendi merkezine dönme hissini belirginleştiriyor. Kim olduğunla dışarıya gösterdiğin yüz arasındaki mesafe bugün daha görünür; başkalarının beklentilerinden çok kendi canlılığının nerede arttığını fark ediyorsun. İç dünyanda sessizce olgunlaşan bir niyet artık adını isteyebilir. Bu birkaç günlük yoğunluk, geride kalan yılı kişisel bir eşik gibi hissettirirken yeni yaşının ana tonunu da içeriden duyuruyor.",
+        "love": "Yakınlıkta arzu ile hassasiyet aynı hızda ilerlemiyor. Güçlü bir çekim, beğenilme isteği ya da küçük bir jestin taşıdığı anlam gereğinden fazla büyüyebilir. Sıcaklık ararken gururun devreye girmesi, sevgi dilini keskinleştiriyor; tutku yüksek, tahammül payı ise daha dar.",
+        "career": "İş hayatındaki yönün ve görünürlüğün güçlü bir ivme kazanıyor. Üstlenmek, öne çıkmak ya da ağırlığını hissettirmek için alışıldığından daha fazla enerji var. Rekabet duygusu da yükseliyor; asıl belirleyici olan, gücünü yalnızca görünür olmaya mı yoksa gerçekten önem verdiğin bir hedefe mi verdiğin.",
+        "money": "Maddi kararlar konusunda zihnin iki farklı ölçü arasında sıkışıyor: hızlı bir sonuca varma isteği ve uzun vadeli güvence ihtiyacı. Harcama, ücret ya da bütçe üzerine düşünürken sözcükler sertleşebilir. Bu haftalara yayılan süreç, rakamların yanında kararlarının taşıdığı sorumluluğu da daha ağır hissettiriyor.",
+        "mood": "Duygusal olarak biraz mesafeye ihtiyaç duyarken aynı anda sıcaklık ve yakınlık arıyorsun. Bu kısa süreli çelişki, keyif aldığın şeylerden bile kolayca huzursuz olmana yol açabilir.",
+        "drive": "Cesaretin ve büyüme arzun birbirini destekliyor. Büyük düşünmek gözünü korkutmuyor; enerji doğru yere aktığında ilerleme zorlama hissi taşımıyor.",
+        "opportunity": "Mesleki yönde kalıcı bir yapı kurma şansı, sabır ve ciddiyet üzerinden beliriyor. Ağır ilerleyen bir sorumluluk, zamanla itibarını sağlamlaştıran bir dayanağa dönüşebilir.",
+        "caution": "Evdeki duygusal hava ile dışarıda sürdürdüğün güçlü görüntü arasında kısa süreli bir gerilim var. Anlık bir ruh hâlinin mesleki tavrının tamamını belirlemesine izin vermemek iyi gelebilir.",
+        "reflection": "Yeni yaşında seni gerçekten canlı hissettiren hangi yönünü daha görünür kılmak istiyorsun?"
+      }
+    }
+  ]
+}
