@@ -5,7 +5,7 @@ import '../l10n_triple.dart';
 
 const kL10nDreamRead = <String, L10nTriple>{
   'dream.read.feeling.empty': L10nTriple(
-    'Bu anlatıda henüz tutunacak bir his yok; sahne henüz durmuyor.',
+    'Bu anlatıda duran bir his seçilmedi.',
     'There is not yet a feeling to hold; the scene has not settled.',
     'Чувства, за которое можно держаться, пока нет; сцена ещё не встала.',
   ),
@@ -35,7 +35,7 @@ const kL10nDreamRead = <String, L10nTriple>{
     'Чувство ещё не ясно; {scene} всё же оставляет тихий след.',
   ),
   'dream.read.detail.empty': L10nTriple(
-    'Belirgin bir ayrıntı henüz durmuyor; uydurmadan burada kalıyorum.',
+    '',
     'No sharp detail sits yet; I stay here without inventing one.',
     'Яркой детали пока нет; остаюсь здесь, ничего не выдумывая.',
   ),

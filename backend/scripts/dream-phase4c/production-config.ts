@@ -11,7 +11,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { loadConfig, type AppConfig } from '../../src/config.js';
-import { buildDreamCompleteOptions, dreamWriterQaMetadata } from '../../src/ai/dream-writer-model.js';
+import { buildDreamCompleteOptions, DREAM_OUTPUT_TOKEN_CEILING, dreamWriterQaMetadata } from '../../src/ai/dream-writer-model.js';
 import { buildChatCompletionBody } from '../../src/ai/openai-transport.js';
 
 const DEPLOY_SCRIPT = fileURLToPath(new URL('../deploy-cloud-run.sh', import.meta.url));
@@ -62,7 +62,7 @@ export function describeDreamConfig(config: AppConfig) {
     temperature: body.temperature ?? null,
     reasoningEffort: body.reasoning_effort ?? null,
     responseFormat: body.response_format ?? null,
-    maxOutputTokens: null,
+    maxOutputTokens: DREAM_OUTPUT_TOKEN_CEILING,
     timeoutMs: config.openaiTimeoutMs,
     transportRetries: 0,
   };

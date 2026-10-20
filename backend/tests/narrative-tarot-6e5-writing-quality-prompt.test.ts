@@ -71,7 +71,8 @@ describe('Phase 6E.5 writing-quality prompt contract', () => {
     const r = rulesText();
     expect(r).toMatch(/Single-card spreads should be proportionate/i);
     expect(r).toMatch(/do not compensate for fewer cards by turning every section into guidance/i);
-    expect(r).toMatch(/concrete image, position, orientation, and tension unfold as a compact reading/i);
+    expect(r).toMatch(/concrete image, position, orientation, and the question unfold as a compact reading/i);
+    expect(r).not.toMatch(/central tension\/tradeoff only/i);
     expect(r).toMatch(/advice is one supporting consequence, not the narrative voice/i);
     expect(r).toMatch(/not as a task the user must perform/);
     expect(r).toMatch(/Do not hand the user a verb/);

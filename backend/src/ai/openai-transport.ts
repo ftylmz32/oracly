@@ -19,6 +19,11 @@ export type OpenAiCompleteOptions = {
   reasoningEffort?: 'none' | 'low' | 'medium' | 'high' | 'xhigh' | 'max';
   /** Stable per attempt. A repeat of the same key does not reserve twice. */
   reservationKey?: string;
+  /**
+   * Sent as max_completion_tokens and used as the reservation ceiling.
+   * Omit it and the quote uses the model's published maximum.
+   */
+  maxCompletionTokens?: number;
 };
 
 /** Pure chat-completions body builder (no network). Phase 6E.4.1. */
@@ -35,6 +40,9 @@ export function buildChatCompletionBody(
         : { temperature: 0.6 }),
     ...(options.reasoningEffort
       ? { reasoning_effort: options.reasoningEffort }
+      : {}),
+    ...(options.maxCompletionTokens != null
+      ? { max_completion_tokens: options.maxCompletionTokens }
       : {}),
     ...(options.jsonSchema
       ? {
@@ -67,7 +75,7 @@ export class OpenAiTransport {
     const scoped = spendReservationScope.getStore();
     const reservationKey = options.reservationKey ?? (scoped ? `${scoped}:${options.model}` : `once:${randomUUID()}`);
     if (this.spend) {
-      const quote = quoteChat(options.model, options.messages);
+      const quote = quoteChat(options.model, options.messages, options.maxCompletionTokens);
       if ('unpriced' in quote) fail(ErrorCode.spendGuard, 503);
       await this.spend.reserve({ key: reservationKey, ceilingMicros: quote.ceilingMicros });
     }

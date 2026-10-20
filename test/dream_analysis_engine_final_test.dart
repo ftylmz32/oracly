@@ -64,7 +64,8 @@ void main() {
     final reading = _read('   ');
     expect(reading.toLowerCase(), isNot(contains('yılan')));
     expect(reading.toLowerCase(), isNot(contains('deniz')));
-    expect(reading.toLowerCase(), contains('uydurma'));
+    expect(reading, isNot(contains('uydurmadan burada kalıyorum')));
+    expect(reading, isNot(contains('henüz durmuyor')));
     expect(reading, contains('?'));
     _quality(reading);
   });
@@ -203,10 +204,20 @@ void main() {
       }
       final reading = _read(told);
       expect(reading, isNot(contains('çok daha yine de')));
+      expect(reading, isNot(contains('uydurmadan burada kalıyorum')));
+      expect(reading, isNot(contains('henüz durmuyor')));
       expect(reading, isNot(contains(told)));
       _quality(reading);
     },
   );
+
+  test('a short named image stays in the local scene and is not a system apology', () {
+    final reading = _read('Rüyamda çekirge gördüm');
+    expect(reading.toLowerCase(), contains('çekirge'));
+    expect(reading, isNot(contains('uydurmadan burada kalıyorum')));
+    expect(reading, isNot(contains('henüz durmuyor')));
+    expect(reading, isNot(contains('açık ve net oluşu')));
+  });
 }
 
 String _read(

@@ -68,6 +68,7 @@ abstract final class DreamAnalysisFactParts {
     // narrative itself contains — never hard-cut at an arbitrary word.
     final pause = text.indexOf(_pause[language]!);
     if (pause > 8 && pause < 88) return _trimEdge(text.substring(0, pause));
+    if (text.length <= 110) return _trimEdge(text);
     return '';
   }
 

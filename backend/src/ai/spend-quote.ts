@@ -63,9 +63,17 @@ function parts(messages: OpenAiMessage[]): { chars: number; images: number } {
   return { chars, images };
 }
 
-export function quoteChat(model: string, messages: OpenAiMessage[]): SpendQuote {
+export function quoteChat(
+  model: string,
+  messages: OpenAiMessage[],
+  maxOutputTokens?: number,
+): SpendQuote {
   const rate = TEXT[model];
   if (!rate) return { unpriced: 'unknown_model' };
+  const outputTokens = maxOutputTokens ?? rate.maxOutput;
+  if (!Number.isInteger(outputTokens) || outputTokens <= 0 || outputTokens > rate.maxOutput) {
+    return { unpriced: 'unpriced_output' };
+  }
   const seen = parts(messages);
   if (seen.images > 0 && rate.imageTokens == null) return { unpriced: 'unpriced_output' };
   const inputTokens = seen.chars + seen.images * (rate.imageTokens ?? 0);
@@ -73,7 +81,7 @@ export function quoteChat(model: string, messages: OpenAiMessage[]): SpendQuote 
   const inputRate = long && rate.longInput ? rate.longInput : rate.input;
   const outputRate = long && rate.longOutput ? rate.longOutput : rate.output;
   return {
-    ceilingMicros: micros(inputTokens, inputRate) + micros(rate.maxOutput, outputRate),
+    ceilingMicros: micros(inputTokens, inputRate) + micros(outputTokens, outputRate),
   };
 }
 

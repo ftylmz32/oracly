@@ -27,9 +27,7 @@ abstract final class DreamAnalysisBeats {
 
   static String detail(DreamAnalysisFacts facts, int seed) {
     final detail = facts.detail;
-    if (detail == null || detail.isEmpty) {
-      return _t(facts, 'dream.read.detail.empty');
-    }
+    if (detail == null || detail.isEmpty) return '';
     return _fill(facts, 'dream.read.detail.${seed % 3}', {'detail': detail});
   }
 

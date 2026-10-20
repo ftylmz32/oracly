@@ -41,7 +41,7 @@ function sectionResponsibilityRules(): string[] {
     'For relationship questions, answer the emotional or decision dynamic symbolically and with epistemic uncertainty — never claim factual access to another person\'s feelings.',
     'summary: answer directly at the length the question and spread need. Do not explain every card or repeat advice or closing.',
     'cardReadings: what THIS card + position + orientation contributes. Do not restate the full reading.',
-    'synthesis: what becomes visible when evidence is combined. One-card = central tension/tradeoff only. Multi-card = connect cards. Do NOT rewrite summary.',
+    'synthesis: the reading the user hears. One card: name that card and one visible symbol from the evidence, then say what the picture means for the question in everyday language. Several cards: connect them as one scene, each card changing the next. Do not write an abstract psychological tension essay or a second summary.',
     'relationshipInsights: exact supplied card-to-card relationship evidence — not a synthesis duplicate.',
     'recurringCardInsights: what recurrence adds beyond the current card alone. Frequency language must match occurrenceCount.',
     'recurringThemeInsights: what the repeated theme adds — do not restate the current relationship question.',
@@ -58,7 +58,7 @@ function sectionResponsibilityRules(): string[] {
 function compressionAndOptionalFieldRules(): string[] {
   return [
     'Single-card spreads should be proportionate to their evidence. Let the model choose natural rhythm and length; keep optional fields empty/null unless distinctly useful.',
-    'For one card, do not compensate for fewer cards by turning every section into guidance. Let the card\'s concrete image, position, orientation, and tension unfold as a compact reading addressed to the user; advice is one supporting consequence, not the narrative voice.',
+    'For one card, do not compensate for fewer cards by turning every section into guidance. Let the card\'s concrete image, position, orientation, and the question unfold as a compact reading addressed to the user; advice is one supporting consequence, not the narrative voice.',
     'For one card, synthesis is the one complete, satisfying reading the user can read as a continuous story: begin from the card\'s concrete visual symbols, position, and upright/reversed orientation, meet the user\'s question, and let the interpretation develop toward a new meaning. Do not make it a short recap or a coaching list. Keep summary to a brief lead for storage and navigation; keep cardReadings evidence-specific; make advice a short, distinct consequence only when useful. Required closingMessage must not repeat the story, and reflectionPrompt/dailyFocus should be null unless each adds a genuinely new dimension.',
     'Do not fill every optional field merely because the schema allows it. Empty optional content is better than filler.',
     'lifeAreas are optional — return [] when no unique domain connection; never pad.',
@@ -69,7 +69,7 @@ function recurrenceAndLanguageRules(): string[] {
   return [
     'Recurrence frequency must match evidence. For occurrenceCount = 2 use calibrated language (appeared twice / has reappeared / appeared again). Avoid stronger claims (persistent pattern / keeps appearing repeatedly / constant recurring signal) unless evidence supports that strength. Never invent frequency.',
     'Write natively in the requested language. Do not translate English Tarot phrasing word-for-word.',
-    'TR: natural contemporary Turkish; proper diacritics when orthography calls for them; avoid therapy/translation-like noun repetition across every section; warm, clear, mature — not slang.',
+    'TR: natural contemporary Turkish; proper diacritics when orthography calls for them; avoid therapy/translation-like noun repetition across every section; warm, clear, mature — not slang. Name the card and a visible symbol. Do not open from an abstract pair of inner states, and do not invent a life event, a person, or a past the user did not tell.',
     'RU: idiomatic contemporary Russian; avoid calqued English metaphors; do not overuse "указывает на" / "говорит о" / "необходимо" / "важно" in every section; vary sentence construction.',
     'EN: avoid stock AI/Tarot filler that replaces specific insight ("embrace the journey", "this reading highlights", "this card encourages", "move forward with…", "path toward…" as empty ceremony).',
     'Solve repetition by compressing, omitting optional filler, and giving each section a different job — never by inventing new facts.',

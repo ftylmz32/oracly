@@ -15,6 +15,13 @@ import type { OpenAiCompleteOptions } from './openai-transport.js';
 
 export const FROZEN_DREAM_WRITER_MODEL = 'gpt-6-astra';
 export const FROZEN_DREAM_REASONING_EFFORT = 'medium';
+/**
+ * Completion budget sent to Astra, including reasoning tokens.
+ * 12_000 output tokens at the published $50 / 1M rate is $0.60 before input.
+ * The model's published 128_000 maximum is about $6.40 of output alone, so an
+ * uncapped reservation does not fit the provisional $5 UTC-day guard.
+ */
+export const DREAM_OUTPUT_TOKEN_CEILING = 12_000;
 
 /** Locked envs: exact frozen writer + reasoning, or no_configuration. */
 export function assertFrozenDreamWriter(config: AppConfig): void {
@@ -48,7 +55,13 @@ export function buildDreamCompleteOptions(
 ): OpenAiCompleteOptions {
   const model = resolveDreamWriterModel(config);
   const reasoningEffort = dreamReasoningEffort(config, model);
-  return { model, messages, jsonMode: true, ...(reasoningEffort ? { reasoningEffort } : {}) };
+  return {
+    model,
+    messages,
+    jsonMode: true,
+    maxCompletionTokens: DREAM_OUTPUT_TOKEN_CEILING,
+    ...(reasoningEffort ? { reasoningEffort } : {}),
+  };
 }
 
 /** Non-secret QA metadata for the Dream writer binding. */

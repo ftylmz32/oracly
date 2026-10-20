@@ -1,7 +1,7 @@
 // Dream Phase 4C.3 — the production Dream request is exactly the 4C.2
 // winning Astra request, and the deploy-config QA reader reports the binding.
 import { describe, expect, it } from 'vitest';
-import { buildDreamCompleteOptions } from '../src/ai/dream-writer-model.js';
+import { buildDreamCompleteOptions, DREAM_OUTPUT_TOKEN_CEILING } from '../src/ai/dream-writer-model.js';
 import { buildChatCompletionBody } from '../src/ai/openai-transport.js';
 import { dreamMessages } from '../src/ai/prompts.js';
 import { describeDreamConfig, phase4cConfig } from '../scripts/dream-phase4c/production-config.js';
@@ -11,7 +11,7 @@ import { completion, fakeFetch } from './dream-phase4c2-support.js';
 import { astraAttempts, dreamCall, FAKE_KEY, passRaw } from './dream-phase4c3-support.js';
 
 const production = () => phase4cConfig(FAKE_KEY);
-const ABSENT = ['temperature', 'top_p', 'logprobs', 'top_logprobs', 'tools', 'max_tokens', 'max_completion_tokens'];
+const ABSENT = ['temperature', 'top_p', 'logprobs', 'top_logprobs', 'tools', 'max_tokens'];
 
 describe('Dream Phase 4C.3 — exact 4C.2 Astra parity', () => {
   it('covers every 4C.2 case once', () => {
@@ -24,8 +24,9 @@ describe('Dream Phase 4C.3 — exact 4C.2 Astra parity', () => {
     const messages = dreamMessages(request.payload, request.language);
     const prod = buildChatCompletionBody(buildDreamCompleteOptions(production(), messages));
     const winner = buildChatCompletionBody(completeOptions(candidate('gpt-6-astra'), messages));
-    expect(prod).toEqual(winner);
-    expect(JSON.stringify(prod)).toBe(JSON.stringify(winner));
+    const { max_completion_tokens: cap, ...rest } = prod;
+    expect(cap).toBe(DREAM_OUTPUT_TOKEN_CEILING);
+    expect(rest).toEqual(winner);
     expect(prod).toMatchObject({ model: 'gpt-6-astra', reasoning_effort: 'medium', response_format: { type: 'json_object' } });
     expect(prod.messages).toEqual(messages);
     for (const k of ABSENT) expect(prod).not.toHaveProperty(k);
@@ -37,7 +38,9 @@ describe('Dream Phase 4C.3 — exact 4C.2 Astra parity', () => {
     await runPhase4c2({ attempts: [{ ...a, order: 1 }], config: production(), fetch: fake.fetch });
     expect(prod.sent).toHaveLength(1);
     expect(prod.sent[0].url).toBe(fake.sent[0].url);
-    expect(JSON.stringify(prod.body)).toBe(JSON.stringify(fake.sent[0].body));
+    expect(prod.body.max_completion_tokens).toBe(DREAM_OUTPUT_TOKEN_CEILING);
+    const { max_completion_tokens: _cap, ...rest } = prod.body;
+    expect(rest).toEqual(fake.sent[0].body);
   });
 });
 
@@ -55,6 +58,7 @@ describe('Dream Phase 4C.3 — production config QA reader', () => {
       reasoningEffort: 'medium',
       temperature: null,
       responseFormat: { type: 'json_object' },
+      maxOutputTokens: DREAM_OUTPUT_TOKEN_CEILING,
       timeoutMs: 45_000,
       transportRetries: 0,
       locked: true,

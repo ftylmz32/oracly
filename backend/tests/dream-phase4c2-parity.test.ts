@@ -7,6 +7,7 @@ import {
   FROZEN_EVIDENCE, PHASE4C2_ARTIFACT_PATH, PHASE4C2_SCHEMA, validatePhase4c2Artifact, type Phase4c2Artifact,
 } from '../scripts/dream-phase4c2/artifact.js';
 import { candidate, estimateCostUsd } from '../scripts/dream-phase4c2/candidates.js';
+import { DREAM_OUTPUT_TOKEN_CEILING } from '../src/ai/dream-writer-model.js';
 import { buildPhase4c2Matrix, loadPhase4c2Requests } from '../scripts/dream-phase4c2/matrix.js';
 import { loadConfig } from '../src/config.js';
 import { deployedOpenAiEnv } from '../scripts/dream-phase4c/production-config.js';
@@ -37,13 +38,17 @@ async function adapterBody(model: string) {
 describe('Phase 4C.2 adapter mirrors AiProxyService.dream', () => {
   it('the Astra candidate sends the 4C.3 production body byte for byte', async () => {
     const prod = await production(frozenRaw('tr-negated-fear'));
-    expect(await adapterBody('gpt-6-astra')).toBe(JSON.stringify(prod.body));
+    const { max_completion_tokens: cap, ...rest } = prod.body;
+    expect(cap).toBe(DREAM_OUTPUT_TOKEN_CEILING);
+    expect(await adapterBody('gpt-6-astra')).toBe(JSON.stringify(rest));
   });
 
   it('the gpt-4o candidate sends the pre-4C.3 generic body byte for byte', async () => {
     const prod = await production(frozenRaw('tr-negated-fear'), genericDevConfig());
     expect(prod.body.model).toBe('gpt-4o');
-    expect(await adapterBody('gpt-4o')).toBe(JSON.stringify(prod.body));
+    const { max_completion_tokens: cap, ...rest } = prod.body;
+    expect(cap).toBe(DREAM_OUTPUT_TOKEN_CEILING);
+    expect(await adapterBody('gpt-4o')).toBe(JSON.stringify(rest));
   });
 
   it.each([

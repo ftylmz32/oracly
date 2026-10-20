@@ -4,6 +4,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildDreamCompleteOptions,
+  DREAM_OUTPUT_TOKEN_CEILING,
   FROZEN_DREAM_REASONING_EFFORT,
   FROZEN_DREAM_WRITER_MODEL,
 } from '../src/ai/dream-writer-model.js';
@@ -73,7 +74,13 @@ describe('Dream Phase 4C.3 — locked options', () => {
   it('model gpt-6-astra, messages unchanged, JSON mode, medium, temperature omitted', () => {
     const messages = [{ role: 'user' as const, content: 'JSON please' }];
     const options = buildDreamCompleteOptions(configWith({ APP_ENV: 'production', ...ASTRA }), messages);
-    expect(options).toEqual({ model: 'gpt-6-astra', messages, jsonMode: true, reasoningEffort: 'medium' });
+    expect(options).toEqual({
+      model: 'gpt-6-astra',
+      messages,
+      jsonMode: true,
+      reasoningEffort: 'medium',
+      maxCompletionTokens: DREAM_OUTPUT_TOKEN_CEILING,
+    });
     expect(options.messages).toBe(messages);
     expect(options).not.toHaveProperty('temperature');
   });
