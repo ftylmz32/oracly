@@ -69,6 +69,9 @@ enum CoffeeV3SubmissionOutcome {
   /// its V3 creation flag is off). No operation bound, draft intact.
   createRejected,
 
+  /// Commerce is on and this account has no coffee credit. Draft intact.
+  entitlementRequired,
+
   /// Client creation gate closed (rollout flag off or non-Turkish UI).
   creationDisabled,
 
@@ -246,7 +249,9 @@ class CoffeeV3SubmissionController {
     );
     final snapshot = begun.snapshot;
     if (snapshot == null) {
-      // Never remapped to V2, never staged, nothing bound locally.
+      if (begun.backendCode == 'reading_entitlement_required') {
+        return CoffeeV3SubmissionOutcome.entitlementRequired;
+      }
       return begun.httpStatus == 400
           ? CoffeeV3SubmissionOutcome.createRejected
           : CoffeeV3SubmissionOutcome.retryableFailure;

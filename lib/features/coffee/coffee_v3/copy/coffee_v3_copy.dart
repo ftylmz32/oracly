@@ -61,6 +61,10 @@ abstract final class CoffeeV3Copy {
   static const createConnectionLost =
       'Falını başlatırken bağlantı koptu.\n'
       'Fotoğrafların kayıtlı; tekrar deneyebilirsin.';
+  static const entitlementRequired =
+      'Bu fal bir hak ister.\n'
+      'Hakların ve mağazanın durumu bir sonraki ekranda.';
+  static const openCommerce = 'Fal haklarına bak';
 
   static const stagingInProgress = 'Fotoğrafların hazırlanıyor…';
   static const stagingConnectionLost =

@@ -18,6 +18,8 @@ const BY_OPERATION = 'readingEntitlementByOperation';
 const TRIALS = 'readingEntitlementTrials';
 const TRIAL_DAYS = 'readingEntitlementTrialDays';
 const EVENTS = 'readingCommerceEvents';
+const OPEN = 'readingEntitlementOpen';
+const HOLD_LEASE_MS = 120_000;
 
 export class ReadingEntitlementError extends Error {
   constructor(readonly code: 'owned_by_other' | 'invalid' | 'unavailable') {
@@ -75,6 +77,7 @@ export class ReadingEntitlementLedger {
           feature: product.feature,
           units: product.grants,
           transactionId: input.transactionId,
+          refunded: false,
         });
         this.writeEvent(tx, `purchase:${purchaseId}`, {
           name: 'purchase_completed',
@@ -138,15 +141,28 @@ export class ReadingEntitlementLedger {
     ownerUserId: string;
     feature: ReadingCommerceFeature;
     sourceRequestId: string;
+    operationId: string;
+    atMs: number;
   }): Promise<{ ok: true; holdId: string } | { ok: false; reason: 'none' | 'closed' }> {
     const holdId = docId(`${input.ownerUserId}\0${input.sourceRequestId}`);
     return this.store.runTransaction(async (tx) => {
       const holdRef = this.store.collection(HOLDS).doc(holdId);
       const balanceRef = this.store.collection(BALANCES).doc(docId(input.ownerUserId));
+      const openRef = this.store.collection(OPEN).doc(docId(input.ownerUserId));
       const hold = await tx.get(holdRef);
       const current = hold.data();
+      const open = readOpen((await tx.get(openRef)).data());
+      const item = {
+        sourceRequestId: input.sourceRequestId,
+        feature: input.feature,
+        operationId: input.operationId,
+        atMs: input.atMs,
+      };
       if (hold.exists && current?.ownerUserId === input.ownerUserId && current.feature === input.feature) {
-        if (current.state === 'held') return { ok: true as const, holdId };
+        if (current.state === 'held') {
+          tx.set(openRef, { items: upsertOpen(open, item) });
+          return { ok: true as const, holdId };
+        }
         return { ok: false as const, reason: 'closed' as const };
       }
       const balance = readBalance((await tx.get(balanceRef)).data());
@@ -156,10 +172,76 @@ export class ReadingEntitlementLedger {
         ownerUserId: input.ownerUserId,
         feature: input.feature,
         sourceRequestId: input.sourceRequestId,
-        operationId: null,
+        operationId: input.operationId,
+        atMs: input.atMs,
         state: 'held',
       });
+      tx.set(openRef, { items: upsertOpen(open, item) });
       return { ok: true as const, holdId };
+    });
+  }
+
+  /**
+   * A hold with no operation is an interrupted create. After the lease,
+   * bind it when the operation exists, otherwise return the credit.
+   * This is not a store refund.
+   */
+  async reconcile(input: {
+    ownerUserId: string;
+    nowMs: number;
+    leaseMs?: number;
+    lookup: (operationId: string) => Promise<{ ownerUserId: string } | null>;
+  }): Promise<{ restored: number; bound: number }> {
+    const lease = input.leaseMs ?? HOLD_LEASE_MS;
+    const snap = await this.store.collection(OPEN).doc(docId(input.ownerUserId)).get();
+    let restored = 0;
+    let bound = 0;
+    for (const item of readOpen(snap.data())) {
+      if (input.nowMs - item.atMs < lease) continue;
+      const operation = await input.lookup(item.operationId);
+      if (operation?.ownerUserId === input.ownerUserId) {
+        await this.bind(docId(`${input.ownerUserId}\0${item.sourceRequestId}`), item.operationId);
+        bound += 1;
+      } else if (await this.restoreBySource(input.ownerUserId, item.sourceRequestId)) {
+        restored += 1;
+      }
+    }
+    return { restored, bound };
+  }
+
+  /**
+   * The store reversed the charge. Unused credits drop. A reading already
+   * opened from this purchase is left alone. Not `entitlement_restored`.
+   */
+  async noteStoreRefund(input: {
+    ownerUserId: string;
+    platform: 'android' | 'ios';
+    purchaseToken: string;
+    atMs: number;
+  }): Promise<'noted' | 'absent' | 'already'> {
+    const purchaseId = docId(`${input.platform}\0${input.purchaseToken.trim()}`);
+    return this.store.runTransaction(async (tx) => {
+      const purchaseRef = this.store.collection(PURCHASES).doc(purchaseId);
+      const purchase = await tx.get(purchaseRef);
+      const data = purchase.data();
+      if (!purchase.exists || !data) return 'absent' as const;
+      if (data.ownerUserId !== input.ownerUserId) throw new ReadingEntitlementError('owned_by_other');
+      if (data.refunded === true) return 'already' as const;
+      const feature = data.feature === 'palm' ? 'palm' : 'coffee';
+      const units = numberField(data, 'units');
+      const balanceRef = this.store.collection(BALANCES).doc(docId(input.ownerUserId));
+      const balance = readBalance((await tx.get(balanceRef)).data());
+      const drop = Math.min(units, balance[feature]);
+      tx.set(balanceRef, add(balance, feature, -drop));
+      tx.set(purchaseRef, { ...data, refunded: true });
+      this.writeEvent(tx, `store-refund:${purchaseId}`, {
+        name: 'store_refund',
+        feature,
+        productId: typeof data.productId === 'string' ? data.productId : null,
+        proposedTryMinor: null,
+        atMs: input.atMs,
+      });
+      return 'noted' as const;
     });
   }
 
@@ -174,6 +256,13 @@ export class ReadingEntitlementLedger {
         holdId,
         ownerUserId: data.ownerUserId,
       });
+      if (typeof data.ownerUserId === 'string' && typeof data.sourceRequestId === 'string') {
+        const openRef = this.store.collection(OPEN).doc(docId(data.ownerUserId));
+        const open = readOpen((await tx.get(openRef)).data());
+        tx.set(openRef, {
+          items: open.filter((item) => item.sourceRequestId !== data.sourceRequestId),
+        });
+      }
     });
   }
 
@@ -214,6 +303,11 @@ export class ReadingEntitlementLedger {
       const balance = readBalance((await tx.get(balanceRef)).data());
       tx.set(balanceRef, add(balance, data.feature, 1));
       tx.set(holdRef, { ...data, state: 'restored' });
+      const openRef = this.store.collection(OPEN).doc(docId(ownerUserId));
+      const open = readOpen((await tx.get(openRef)).data());
+      tx.set(openRef, {
+        items: open.filter((item) => item.sourceRequestId !== data.sourceRequestId),
+      });
       this.writeEvent(tx, `restored:${holdId}:${randomBytes(4).toString('hex')}`, {
         name: 'entitlement_restored',
         feature: data.feature,
@@ -270,6 +364,35 @@ function count(data: Record<string, unknown> | undefined, key: string): number {
 function numberField(data: Record<string, unknown> | undefined, key: string): number {
   const value = data?.[key];
   return typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : 0;
+}
+
+type OpenItem = {
+  sourceRequestId: string;
+  feature: ReadingCommerceFeature;
+  operationId: string;
+  atMs: number;
+};
+
+function readOpen(data: Record<string, unknown> | undefined): OpenItem[] {
+  const items = data?.items;
+  if (!Array.isArray(items)) return [];
+  return items.flatMap((raw) => {
+    if (!raw || typeof raw !== 'object') return [];
+    const item = raw as Record<string, unknown>;
+    if (typeof item.sourceRequestId !== 'string' || typeof item.operationId !== 'string') return [];
+    if (item.feature !== 'coffee' && item.feature !== 'palm') return [];
+    if (typeof item.atMs !== 'number') return [];
+    return [{
+      sourceRequestId: item.sourceRequestId,
+      feature: item.feature,
+      operationId: item.operationId,
+      atMs: item.atMs,
+    }];
+  });
+}
+
+function upsertOpen(items: OpenItem[], next: OpenItem): OpenItem[] {
+  return [...items.filter((item) => item.sourceRequestId !== next.sourceRequestId), next];
 }
 
 function docId(value: string): string {

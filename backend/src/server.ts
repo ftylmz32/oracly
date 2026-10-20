@@ -18,6 +18,7 @@ import { registerHealth } from './routes/health.js';
 import { registerBillingRoutes } from './routes/billing.js';
 import { registerReadingCommerceRoutes } from './routes/reading-commerce.js';
 import type { ConsumableVerifier } from './reading/reading-commerce-verify.js';
+import { createReadingConsumableVerifier } from './reading/reading-consumable-verifier.js';
 import { registerReviewAccessRoutes } from './routes/review-access.js';
 import type { BillingProviders } from './billing/types.js';
 import type { EntitlementBindingRepository } from './billing/entitlement-repository.js';
@@ -262,7 +263,12 @@ export async function buildServer(options: BuildOptions) {
     appCheck,
     store: options.gemStore,
     clock: readingClock,
-    verifier: options.readingCommerceVerifier,
+    verifier: options.readingCommerceVerifier ?? createReadingConsumableVerifier(config),
+    lookupOperation: async (ownerUserId, operationId) => {
+      const record = await readingOperationRepository.getById(operationId);
+      if (!record || record.ownerUserId !== ownerUserId) return null;
+      return record;
+    },
   });
   await registerGemAccelerationRoutes(app, config, {
     appCheck,

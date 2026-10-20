@@ -36,6 +36,7 @@ export type ReadingCommerceRouteOptions = {
   store?: FirestoreLike;
   clock?: ServerClock;
   verifier?: ConsumableVerifier;
+  lookupOperation?: (ownerUserId: string, operationId: string) => Promise<{ ownerUserId: string } | null>;
 };
 
 export async function registerReadingCommerceRoutes(
@@ -58,6 +59,13 @@ export async function registerReadingCommerceRoutes(
     const nowMs = toEpochMs(clock.now());
     const budgetOpen = await readingBudgetOpen(options.store, config, nowMs);
     const purchasable = verifier.admitted && budgetOpen;
+    if (options.lookupOperation) {
+      await ledger.reconcile({
+        ownerUserId: owner,
+        nowMs,
+        lookup: (operationId) => options.lookupOperation!(owner, operationId),
+      });
+    }
     const store = options.store;
     await store.runTransaction(async (tx) => {
       tx.set(store.collection('readingCommerceEvents').doc(createHash('sha256').update(`shown\0${owner}\0${nowMs}`).digest('hex')), {
@@ -75,6 +83,8 @@ export async function registerReadingCommerceRoutes(
       commerce: 'open',
       purchasable,
       storeAdmitted: verifier.admitted,
+      androidAdmitted: verifier.androidAdmitted === true,
+      iosAdmitted: verifier.iosAdmitted === true,
       fulfillmentOpen: readingFulfillmentOpen(config) && budgetOpen,
       proposals: readingCommerceProposals(),
       balance: await ledger.balance(owner),
@@ -108,6 +118,24 @@ export async function registerReadingCommerceRoutes(
       purchaseToken,
     });
     if (!verified.ok) {
+      if (verified.reason === 'canceled' || verified.reason === 'revoked') {
+        try {
+          await ledger.noteStoreRefund({
+            ownerUserId: owner,
+            platform,
+            purchaseToken,
+            atMs: toEpochMs(clock.now()),
+          });
+        } catch (error) {
+          if (error instanceof ReadingEntitlementError && error.code === 'owned_by_other') {
+            return reply.code(200).send(successEnvelope({
+              granted: false,
+              reason: 'purchase_bound_to_other_account',
+            }));
+          }
+          return reply.code(503).send(errorEnvelope(ErrorCode.noConfiguration));
+        }
+      }
       return reply.code(200).send(successEnvelope({ granted: false, reason: verified.reason }));
     }
     try {
@@ -119,10 +147,18 @@ export async function registerReadingCommerceRoutes(
         transactionId: verified.transactionId,
         atMs: toEpochMs(clock.now()),
       });
+      const consumeState = platform === 'android' && verifier.consume
+        ? await verifier.consume({
+            platform,
+            productId: productId as ReadingCommerceProductId,
+            purchaseToken,
+          })
+        : 'skipped';
       return reply.code(200).send(successEnvelope({
         granted: true,
         idempotent: granted.idempotent,
         balance: granted.balance,
+        consumeState,
       }));
     } catch (error) {
       if (error instanceof ReadingEntitlementError && error.code === 'owned_by_other') {

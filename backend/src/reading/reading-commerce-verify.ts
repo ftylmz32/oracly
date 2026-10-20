@@ -13,17 +13,34 @@ export type ConsumableVerifyRequest = {
 };
 
 export type ConsumableVerifyResult =
-  | { ok: true; transactionId: string }
-  | { ok: false; reason: 'store_not_admitted' | 'unverified' | 'provider_unavailable' };
+  | { ok: true; transactionId: string; environment?: 'Production' | 'Sandbox' }
+  | {
+      ok: false;
+      reason:
+        | 'store_not_admitted'
+        | 'unverified'
+        | 'provider_unavailable'
+        | 'pending'
+        | 'canceled'
+        | 'revoked'
+        | 'invalid'
+        | 'product_mismatch'
+        | 'bundle_mismatch';
+    };
 
 export type ConsumableVerifier = {
   readonly admitted: boolean;
+  readonly androidAdmitted?: boolean;
+  readonly iosAdmitted?: boolean;
   verify(request: ConsumableVerifyRequest): Promise<ConsumableVerifyResult>;
+  consume?(request: ConsumableVerifyRequest): Promise<'done' | 'pending' | 'skipped'>;
 };
 
 export function createClosedConsumableVerifier(): ConsumableVerifier {
   return {
     admitted: false,
+    androidAdmitted: false,
+    iosAdmitted: false,
     verify(): Promise<ConsumableVerifyResult> {
       return Promise.resolve({ ok: false, reason: 'store_not_admitted' });
     },

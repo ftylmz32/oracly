@@ -540,6 +540,25 @@ function mapVerifyErrorMessage(error: unknown): BillingVerifyResult {
   return billingResult('error', 'provider_unavailable');
 }
 
+/** Signed transaction only. Does not decide Premium or a reading credit. */
+export async function decodeSignedAppleTransaction(
+  config: AppleStoreConfig,
+  jws: string,
+): Promise<
+  | { ok: true; payload: JWSTransactionDecodedPayload; environment: 'Production' | 'Sandbox' }
+  | { ok: false; reason: string }
+> {
+  const decoded = await decodeJwsWithFallback(config, jws, toEnv(config.preferEnvironment));
+  if (decoded.status !== 'ok') {
+    return { ok: false, reason: decoded.result.reason ?? 'unverified' };
+  }
+  return {
+    ok: true,
+    payload: decoded.payload,
+    environment: decoded.environment === Environment.SANDBOX ? 'Sandbox' : 'Production',
+  };
+}
+
 function isTxnNotFound(error: unknown): boolean {
   const apiError = error as { httpStatusCode?: number; apiError?: number; errorCode?: number };
   const code = apiError.apiError ?? apiError.errorCode;

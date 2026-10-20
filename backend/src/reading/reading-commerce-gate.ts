@@ -77,11 +77,24 @@ export async function openCommerceCreate(input: {
   }
   const feature: ReadingCommerceFeature = input.body.readingType === 'palm' ? 'palm' : 'coffee';
   const ledger = new ReadingEntitlementLedger(input.store);
+  await ledger.reconcile({
+    ownerUserId: input.ownerUserId,
+    nowMs: input.nowMs,
+    lookup: async (operationId) => {
+      try {
+        return await input.service.get(input.ownerUserId, operationId);
+      } catch {
+        return null;
+      }
+    },
+  });
   const operationId = randomBytes(16).toString('hex');
   const consumed = await ledger.consume({
     ownerUserId: input.ownerUserId,
     feature,
     sourceRequestId: input.body.sourceRequestId,
+    operationId,
+    atMs: input.nowMs,
   });
   if (!consumed.ok) {
     const closed = consumed.reason === 'closed';

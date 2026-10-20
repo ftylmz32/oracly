@@ -41,6 +41,10 @@ enum CoffeeV3CreateBlock {
 
   /// Transport failure before an operation was bound (draft kept).
   connectionLost,
+
+  /// The server asked for a reading credit. The purchase screen decides
+  /// whether a buy button exists.
+  entitlementRequired,
 }
 
 class CoffeeV3FlowController extends ChangeNotifier {
@@ -334,6 +338,8 @@ class CoffeeV3FlowController extends ChangeNotifier {
         _startObserving();
       case CoffeeV3SubmissionOutcome.createRejected:
         _lastCreateBlock = CoffeeV3CreateBlock.serverUnavailable;
+      case CoffeeV3SubmissionOutcome.entitlementRequired:
+        _lastCreateBlock = CoffeeV3CreateBlock.entitlementRequired;
       case CoffeeV3SubmissionOutcome.creationDisabled:
         _lastCreateBlock = CoffeeV3CreateBlock.creationDisabled;
       case CoffeeV3SubmissionOutcome.retryableFailure:
