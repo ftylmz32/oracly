@@ -25,6 +25,7 @@ final class YildiznameNarrativeRequest {
     required List<String> omittedLayers,
     this.houseSystem,
     this.calculationVersion,
+    this.addressName,
     this.version = kYildiznameNarrativeVersion,
     this.serializerVersion = kYildiznameSerializerVersion,
   })  : placements = List.unmodifiable(placements),
@@ -42,6 +43,10 @@ final class YildiznameNarrativeRequest {
   final String fidelity;
   final String? houseSystem;
   final String? calculationVersion;
+
+  /// Sanitized preferred name, or null. Omitted from the wire when null, so
+  /// a nameless request keeps its earlier canonical form and fingerprint.
+  final String? addressName;
   final List<YildiznamePlacementFact> placements;
   final List<YildiznameAngleFact> angles;
   final List<YildiznameHouseFact> houses;
@@ -69,6 +74,7 @@ final class YildiznameNarrativeRequest {
         if (houseSystem != null) 'houseSystem': houseSystem,
         if (calculationVersion != null)
           'calculationVersion': calculationVersion,
+        if (addressName != null) 'addressName': addressName,
         'placements': placements.map((e) => e.toProviderJson()).toList(),
         'angles': angles.map((e) => e.toProviderJson()).toList(),
         'houses': houses.map((e) => e.toProviderJson()).toList(),

@@ -73,6 +73,7 @@ class _AstrologyReferenceScreenState
         AstrologyContentCatalogue.signById(_selectedId) ??
         AstrologyContentCatalogue.signs.first;
     final profile = ref.read(personalDiscoveryProfileProvider).valueOrNull;
+    final natalSky = ref.read(astrologyNatalSkyProvider).valueOrNull;
     Navigator.of(context)
         .push(
           MaterialPageRoute<void>(
@@ -81,6 +82,7 @@ class _AstrologyReferenceScreenState
               reading: AstrologyDailyReadingService.build(
                 sign,
                 profile: profile,
+                natalSky: natalSky,
                 selectedThemes: EncounterInterests.forReading(
                   chosen: ref.read(encounterThemesProvider),
                   observed: profile?.observedRecurringLabels ?? const [],
@@ -109,6 +111,7 @@ class _AstrologyReferenceScreenState
     final reading = AstrologyDailyReadingService.build(
       selected,
       profile: profile,
+      natalSky: ref.watch(astrologyNatalSkyProvider).valueOrNull,
       selectedThemes: EncounterInterests.forReading(
         chosen: ref.watch(encounterThemesProvider),
         observed: profile?.observedRecurringLabels ?? const [],

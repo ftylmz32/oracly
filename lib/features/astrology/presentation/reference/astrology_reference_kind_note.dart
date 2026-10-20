@@ -9,9 +9,16 @@ import '../../../../core/theme/craftsmanship_rhythm.dart';
 import '../../../../core/theme/reading_typography.dart';
 
 class AstrologyReferenceKindNote extends StatelessWidget {
-  const AstrologyReferenceKindNote({super.key, this.compact = false});
+  const AstrologyReferenceKindNote({
+    super.key,
+    this.compact = false,
+    this.basisNote = '',
+  });
 
   final bool compact;
+
+  /// What a personal reading was calculated from; replaces the sun-sign note.
+  final String basisNote;
 
   /// Chamber honesty label — not a Preview availability badge.
   static String get label => PreviewCapabilityCopy.astrologyLabel;
@@ -20,7 +27,9 @@ class AstrologyReferenceKindNote extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      compact ? PreviewCapabilityCopy.astrologyLabel : detail,
+      compact
+          ? PreviewCapabilityCopy.astrologyLabel
+          : (basisNote.isNotEmpty ? basisNote : detail),
       textAlign: compact ? TextAlign.center : TextAlign.start,
       style: ReadingTypography.footnote(
         color: OraclyChrome.cream.withValues(

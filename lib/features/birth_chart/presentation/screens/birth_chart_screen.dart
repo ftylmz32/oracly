@@ -17,18 +17,34 @@ import '../../providers/birth_chart_providers.dart';
 import '../widgets/birth_chart_phase_body.dart';
 
 class BirthChartScreen extends ConsumerStatefulWidget {
-  const BirthChartScreen({super.key, this.returnWhenChartGenerated = false});
+  const BirthChartScreen({
+    super.key,
+    this.returnWhenChartGenerated = false,
+    this.completeMissingPlace = false,
+  });
 
   /// Used by the Yildizname entry journey to continue into the existing
   /// Narrative V1 orchestrator after the first authoritative chart is saved.
   /// Direct Birth Chart visits keep showing the local chart result.
   final bool returnWhenChartGenerated;
 
+  /// Opens the saved profile for editing so only the missing city is asked.
+  final bool completeMissingPlace;
+
   @override
   ConsumerState<BirthChartScreen> createState() => _BirthChartScreenState();
 }
 
 class _BirthChartScreenState extends ConsumerState<BirthChartScreen> {
+  var _missingPlaceOpened = false;
+
+  void _maybeCompleteMissingPlace(BirthChartController controller) {
+    if (!widget.completeMissingPlace || _missingPlaceOpened) return;
+    if (controller.isInitializing || controller.chart == null) return;
+    _missingPlaceOpened = true;
+    controller.beginCompleteMissingPlace();
+  }
+
   void _handleBack(BirthChartController controller) {
     if (controller.isEditing && controller.chart != null) {
       controller.cancelEdit();
@@ -61,6 +77,7 @@ class _BirthChartScreenState extends ConsumerState<BirthChartScreen> {
     final controller = ref.watch(birthChartControllerProvider);
 
     ref.listen<BirthChartController>(birthChartControllerProvider, (_, next) {
+      _maybeCompleteMissingPlace(next);
       final message = next.statusMessage;
       if (message != null) {
         OraclySnackBar.show(context, message: message);

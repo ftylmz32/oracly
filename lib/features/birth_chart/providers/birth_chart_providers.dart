@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers/app_providers.dart';
 import '../controllers/birth_chart_controller.dart';
+import '../data/pending_birth_profile_store.dart';
 import '../services/birth_chart_experience_service.dart';
 import '../../discovery_journal/providers/discovery_journal_providers.dart';
 import '../../personal_discovery/providers/personal_discovery_providers.dart';
@@ -15,6 +16,7 @@ final birthChartExperienceServiceProvider =
   return BirthChartExperienceService(
     repository: ref.watch(birthChartRepositoryProvider),
     memory: ref.watch(oraclyMemoryStoreProvider),
+    pending: PendingBirthProfileStore(ref.watch(localStorageProvider)),
   );
 });
 

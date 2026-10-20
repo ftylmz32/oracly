@@ -86,6 +86,13 @@ class BirthChartController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Saved date/time stay filled in; only the missing place is asked for.
+  void beginCompleteMissingPlace() {
+    beginEdit();
+    _s.statusMessage = BirthChartCopy.placeMissing;
+    notifyListeners();
+  }
+
   void cancelEdit() {
     _s.editing = false;
     if (_s.chart != null &&

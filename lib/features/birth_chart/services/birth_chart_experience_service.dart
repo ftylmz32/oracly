@@ -11,6 +11,7 @@ import '../astronomy/evidence_aware_natal_calculator.dart';
 import '../astronomy/evidence_fingerprint.dart';
 import '../astronomy/natal_calculation_error.dart';
 import '../data/birth_chart_record_mapper.dart';
+import '../data/pending_birth_profile_store.dart';
 import '../models/birth_chart.dart';
 import '../models/birth_profile.dart';
 import '../models/chart_fidelity.dart';
@@ -28,8 +29,10 @@ class BirthChartExperienceService {
     ChartCalculationPort? calculator,
     ChartInsightGenerator? insightGenerator,
     OraclyMemoryStore? memory,
+    PendingBirthProfileStore? pending,
   }) : _repository = repository,
        _memory = memory,
+       _pending = pending,
        _persist = BirthChartExperiencePersist(
          repository: repository,
          calculator: calculator ?? EvidenceAwareNatalChartCalculator(),
@@ -40,6 +43,7 @@ class BirthChartExperienceService {
 
   final BirthChartRepository _repository;
   final OraclyMemoryStore? _memory;
+  final PendingBirthProfileStore? _pending;
   final BirthChartExperiencePersist _persist;
   final ChartCalculationPort _calculator;
 
@@ -48,10 +52,47 @@ class BirthChartExperienceService {
     return BirthChartExperienceResult(chart: chart);
   }
 
+  /// Saves birth answers onboarding had to keep aside for lack of an owner.
+  /// True when a chart was written. Throws when the owner is still missing.
+  Future<bool> adoptPendingProfile() async {
+    final pending = _pending;
+    final profile = pending?.read();
+    if (pending == null || profile == null) return false;
+    if (await _repository.getLatest() != null) {
+      await pending.clear();
+      return false;
+    }
+    // Cleared only after it settles, so a failed attempt can be retried.
+    await (_adoption ??= _adopt(pending, profile)
+        .whenComplete(() => _adoption = null));
+    return true;
+  }
+
+  Future<void>? _adoption;
+
+  Future<void> _adopt(
+    PendingBirthProfileStore pending,
+    BirthProfile profile,
+  ) async {
+    await _persist.buildAndSave(profile);
+    await pending.clear();
+  }
+
   Future<BirthChartLoadResult> loadSaved() async {
     BirthChartRecord? record;
     try {
       record = await _repository.getLatest();
+      if (record == null) {
+        try {
+          if (await adoptPendingProfile()) {
+            record = await _repository.getLatest();
+          }
+        } on BirthChartOwnerUnavailableException {
+          rethrow;
+        } catch (_) {
+          // Unusable pending answers must not break the saved-chart path.
+        }
+      }
     } on BirthChartOwnerUnavailableException {
       return const BirthChartLoadResult.ownerUnavailable();
     }

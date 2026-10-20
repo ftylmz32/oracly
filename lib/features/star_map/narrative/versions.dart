@@ -96,4 +96,8 @@ const int kYildiznameMaxThemeRefChars = 64;
 
 const int kYildiznameMaxLanguageCodeChars = 8;
 
+/// WIRE — matches backend `maxAddressNameChars` exactly; enforced by
+/// `YildiznameAddressName.sanitize` before the name enters the request.
+const int kYildiznameMaxAddressNameChars = 32;
+
 const Set<String> kYildiznameLocales = {'tr', 'en', 'ru'};

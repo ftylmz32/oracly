@@ -18,6 +18,7 @@ abstract final class BirthChartCopy {
   static String get onboardingDescription => _t('birth.onboarding_body');
   static String get timeImportance => _t('birth.time_note');
   static String get placeImportance => _t('birth.place_note');
+  static String get placeMissing => _t('birth.place_missing');
   static String get birthDateLabel => _t('birth.date_label');
   static String get birthTimeLabel => _t('birth.time_label');
   static String get birthPlaceLabel => _t('birth.place_label');

@@ -126,6 +126,7 @@ export const YILDIZNAME_LIMITS = {
   maxLabelChars: 120,
   maxOmittedLayerChars: 40,
   maxCalculationVersionChars: 64,
+  maxAddressNameChars: 32,
   maxOrb: 12,
   summary: 1200,
   section: 1600,

@@ -240,9 +240,7 @@ final localDataOwnerEpochProvider = Provider<int>((ref) {
 
 final birthChartRepositoryProvider = Provider<BirthChartRepository>((ref) {
   ref.watch(localDataOwnerEpochProvider);
-  final storage = ref.watch(localStorageProvider);
-  final ownerId = storage.getString(UserLocalDataIsolation.ownerKey);
-  return LocalBirthChartRepository(storage, ownerId: ownerId);
+  return LocalBirthChartRepository.live(ref.watch(localStorageProvider));
 });
 
 final astrologyRepositoryProvider = Provider<AstrologyRepository>((ref) {

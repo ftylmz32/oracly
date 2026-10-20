@@ -58,6 +58,7 @@ const kL10nAstrology = <String, L10nTriple>{
   'astro.lane_love': L10nTriple('YAKINLIK', 'CLOSENESS', 'БЛИЗОСТЬ'),
   'astro.lane_work': L10nTriple('YÖN', 'DIRECTION', 'НАПРАВЛЕНИЕ'),
   'astro.lane_inner': L10nTriple('İÇERİDE', 'WITHIN', 'ВНУТРИ'),
+  'astro.lane_money': L10nTriple('DEĞER', 'WORTH', 'ЦЕННОСТЬ'),
   'astro.report_theme': L10nTriple('GÖZLEM', 'OBSERVATION', 'НАБЛЮДЕНИЕ'),
   'astro.report_message': L10nTriple(
     'NE ANLAMA GELİYOR',

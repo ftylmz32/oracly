@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/design_system/app_layout.dart';
 import '../../../../core/design_system/chamber_header_lead.dart';
+import '../../../../features/birth_chart/evidence/birth_profile_gaps.dart';
 import '../../../../features/birth_chart/providers/birth_information_provider.dart';
 import '../../../../features/onboarding/data/encounter_interest_store.dart';
 import '../../../../features/personal_discovery/providers/personal_discovery_providers.dart';
@@ -143,12 +144,22 @@ class StarMapReferenceScreen extends ConsumerWidget {
                                     reading: reading,
                                     profile: profile,
                                   ),
-                              onOpenLeaf: () =>
-                                  StarMapReferenceRoutes.openPrimaryArchiveLeaf(
-                                    context,
-                                    reading,
-                                    profile: profile,
-                                  ),
+                              onOpenLeaf: () => profile != null &&
+                                      BirthProfileGaps.needsPlace(profile)
+                                  ? StarMapReferenceRoutes.openBirthChart(
+                                      context,
+                                      onReturn: refresh,
+                                      continueToNarrative: true,
+                                      completeMissingPlace: true,
+                                      reading: reading,
+                                      profile: profile,
+                                    )
+                                  : StarMapReferenceRoutes
+                                      .openPrimaryArchiveLeaf(
+                                      context,
+                                      reading,
+                                      profile: profile,
+                                    ),
                             ),
                           );
                         },

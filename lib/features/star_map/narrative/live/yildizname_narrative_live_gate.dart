@@ -11,4 +11,8 @@ abstract final class YildiznameNarrativeLiveGate {
   static bool get isEnabled => FeatureFlagRuntime.isEnabled(
     ProductFeatureFlags.yildiznameNarrativeV1.key,
   );
+
+  static bool get addressNameEnabled => FeatureFlagRuntime.isEnabled(
+    ProductFeatureFlags.yildiznameAddressName.key,
+  );
 }

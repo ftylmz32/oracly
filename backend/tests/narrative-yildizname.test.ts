@@ -727,3 +727,93 @@ describe('yildizname end-to-end scripted provider', () => {
     await app.close();
   });
 });
+
+describe('yildizname addressName (preferred name)', () => {
+  const validate = (narrative: Record<string, unknown>) =>
+    validateYildiznameNarrativePayload(
+      body(narrative).payload as Record<string, unknown>,
+    );
+
+  it('accepts one or two letter words and carries them through', () => {
+    for (const name of ['Ayşe', 'Ayşe Nur', "O'Neil", 'Işıl', 'Jean-Luc']) {
+      const v = validate(fullNarrative({ addressName: name }));
+      expect(v.narrative.addressName).toBe(name);
+    }
+  });
+
+  it('rejects anything that is not a canonical name', () => {
+    for (const bad of [
+      '',
+      ' Ayşe',
+      'Ayşe ',
+      'Ayşe  Nur',
+      'Ayşe Nur Yılmaz',
+      'user123',
+      'a@b.com',
+      '{name}',
+      'A'.repeat(33),
+      42,
+      null,
+    ]) {
+      expect(() => validate(fullNarrative({ addressName: bad }))).toThrow(
+        ProxyError,
+      );
+    }
+  });
+
+  it('a nameless request keeps its pre-name shape and fingerprint', () => {
+    const plain = validate(fullNarrative());
+    expect('addressName' in plain.narrative).toBe(false);
+    const named = validate(fullNarrative({ addressName: 'Ayşe' }));
+    expect(yildiznameRequestFingerprint(named)).not.toBe(
+      yildiznameRequestFingerprint(plain),
+    );
+    expect(yildiznameRequestFingerprint(validate(fullNarrative()))).toBe(
+      yildiznameRequestFingerprint(plain),
+    );
+  });
+
+  it('the prompt teaches natural addressing and never invents a name', () => {
+    const rules = yildiznameSystemRules().join('\n');
+    expect(rules).toContain('ADDRESSING');
+    expect(rules).toContain('NOT A COACH');
+    const named = validate(fullNarrative({ addressName: 'Ayşe' }));
+    const namedUser = yildiznameNarrativeMessages(named.narrative, 'tr')[1]
+      .content as string;
+    expect(namedUser).toContain('addressName is supplied: "Ayşe"');
+    const plain = validate(fullNarrative());
+    const plainUser = yildiznameNarrativeMessages(plain.narrative, 'tr')[1]
+      .content as string;
+    expect(plainUser).toContain('do not use or invent a name');
+    expect(plainUser).not.toContain('addressName is supplied');
+  });
+
+  it('reaches the scripted provider (0 real OpenAI)', async () => {
+    const narrative = fullNarrative({ addressName: 'Ayşe' });
+    const result = validResult(narrative);
+    let seenBody = '';
+    let calls = 0;
+    const app = await testApp(testConfig(), async (_url, init) => {
+      calls += 1;
+      seenBody = String(init?.body ?? '');
+      return new Response(
+        JSON.stringify({
+          choices: [{ message: { content: JSON.stringify(result) } }],
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      );
+    });
+    const res = await app.inject({
+      method: 'POST',
+      url: '/v1/ai/complete',
+      headers: authHeader(),
+      payload: body(narrative, 'en'),
+    });
+    expect(res.statusCode).toBe(200);
+    // The transport may escape non-ASCII; either form proves delivery.
+    const escaped = String.raw`Ay\u015fe`;
+    expect(seenBody.includes('Ayşe') || seenBody.includes(escaped)).toBe(true);
+    expect(calls).toBe(1);
+    await app.close();
+  });
+});

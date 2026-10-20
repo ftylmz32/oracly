@@ -26,6 +26,7 @@ abstract final class YildiznameLivePlanBuilder {
     required String languageCode,
     Iterable<YildiznameArtifact> artifactHistory = const [],
     List<String> personalDiscoveryLabels = const [],
+    String? addressName,
   }) {
     if (!featureEnabled) return YildiznameLivePlan.legacyLocal();
     if (!_narrativeEvidenceCandidate(chart)) {
@@ -56,6 +57,7 @@ abstract final class YildiznameLivePlanBuilder {
       observedRecurringLabels: List.unmodifiable(personalDiscoveryLabels),
       artifactRecurringThemes:
           YildiznameArtifactMemory.recurringThemes(sameOwner),
+      addressName: addressName,
     );
     if (request.scope != scope) return YildiznameLivePlan.invalidEvidence();
 

@@ -8,7 +8,7 @@ import '../../../../core/design_system/oracly_chrome.dart';
 import '../../../../core/theme/reading_typography.dart';
 import '../../copy/astrology_presentation_copy.dart';
 
-enum AstrologyContentLaneKind { love, work, inner }
+enum AstrologyContentLaneKind { love, work, money, inner }
 
 abstract final class AstrologyContentLaneMeta {
   AstrologyContentLaneMeta._();
@@ -16,12 +16,14 @@ abstract final class AstrologyContentLaneMeta {
   static String title(AstrologyContentLaneKind kind) => switch (kind) {
         AstrologyContentLaneKind.love => AstrologyPresentationCopy.laneLove,
         AstrologyContentLaneKind.work => AstrologyPresentationCopy.laneWork,
+        AstrologyContentLaneKind.money => AstrologyPresentationCopy.laneMoney,
         AstrologyContentLaneKind.inner => AstrologyPresentationCopy.laneInner,
       };
 
   static IconData icon(AstrologyContentLaneKind kind) => switch (kind) {
         AstrologyContentLaneKind.love => AppIcons.star,
         AstrologyContentLaneKind.work => AppIcons.energy,
+        AstrologyContentLaneKind.money => AppIcons.gems,
         AstrologyContentLaneKind.inner => AppIcons.moon,
       };
 }

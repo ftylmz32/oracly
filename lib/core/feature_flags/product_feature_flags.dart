@@ -59,6 +59,14 @@ abstract final class ProductFeatureFlags {
     defaultValue: true,
   );
 
+  /// Sends the saved preferred name with a Yıldızname narrative request.
+  /// Remote `false` is the kill switch for a backend without the field.
+  static const yildiznameAddressName = FeatureFlagDefinition(
+    key: 'yildizname_address_name',
+    type: FeatureFlagType.boolean,
+    defaultValue: true,
+  );
+
   /// Coffee V3 three-photo client capture (two cup views + saucer; Turkish
   /// only). Gates starting a NEW capture only — an existing V3 draft stays
   /// reachable and an already-created V3 operation always recovers. Dark by
@@ -79,6 +87,7 @@ abstract final class ProductFeatureFlags {
     astrologyVisual,
     newDailyEngine,
     yildiznameNarrativeV1,
+    yildiznameAddressName,
     coffeeV3ThreeView,
   ];
 

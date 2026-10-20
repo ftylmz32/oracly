@@ -48,8 +48,10 @@ void main() {
     expect(BirthChartCopy.summaryTitle, 'Yorumun özeti');
     expect(BirthChartCopy.personalizeEmpty, contains('Güneş burcuna göre'));
     expect(BirthChartCopy.onboardingDescription, contains('yalnızca doğum tarihinden'));
-    expect(BirthChartCopy.timeImportance, contains('hesaba katılmaz'));
-    expect(BirthChartCopy.placeImportance, contains('hesaba katılmaz'));
+    // Time and place are calculated now (reduced/full natal); their notes
+    // say what each one adds instead of claiming they are ignored.
+    expect(BirthChartCopy.timeImportance, contains('yükselen'));
+    expect(BirthChartCopy.placeImportance, contains('saat dilimine'));
     expect(BirthChartCopy.storedNotUsedNote, contains('hesaba katılmaz'));
     expect(BirthChartCopy.ephemerisNote, contains('sembolik'));
     expect(BirthChartCopy.ephemerisNote, contains('Güneş burcun'));

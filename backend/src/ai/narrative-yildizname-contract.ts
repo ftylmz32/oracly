@@ -55,6 +55,8 @@ export type YildiznameWireNarrative = {
   omittedLayers: string[];
   policy: { version: string; rules: string[] };
   calculationVersion?: string;
+  /** Optional preferred name; absent on every pre-name client request. */
+  addressName?: string;
 };
 
 export type YildiznameNarrativeValidated = {
@@ -82,6 +84,7 @@ const NARRATIVE_KEYS = new Set([
   'omittedLayers',
   'policy',
   'calculationVersion',
+  'addressName',
 ]);
 
 const FORBIDDEN = new Set([
@@ -141,6 +144,24 @@ function scanForbidden(value: unknown): void {
     if (FORBIDDEN.has(k)) reject();
     scanForbidden(rec[k]);
   }
+}
+
+const ADDRESS_WORD = /^[\p{L}][\p{L}\p{M}'.\-]*$/u;
+
+/**
+ * Mirrors Flutter `YildiznameAddressName.sanitize`: one or two letter words,
+ * at most [YILDIZNAME_LIMITS.maxAddressNameChars]. Returns null when the
+ * value is not already in that canonical shape.
+ */
+export function canonicalYildiznameAddressName(v: unknown): string | null {
+  if (typeof v !== 'string') return null;
+  if (v.length === 0 || v.length > YILDIZNAME_LIMITS.maxAddressNameChars) {
+    return null;
+  }
+  const words = v.split(' ');
+  if (words.length > 2) return null;
+  if (!words.every((w) => ADDRESS_WORD.test(w))) return null;
+  return v;
 }
 
 function exactLang(v: unknown): YildiznameWireLanguage | null {
@@ -246,6 +267,13 @@ function parseNarrative(
     );
   }
 
+  let addressName: string | undefined;
+  if ('addressName' in n) {
+    const name = canonicalYildiznameAddressName(n.addressName);
+    if (name === null) reject();
+    addressName = name;
+  }
+
   return {
     version: YILDIZNAME_NARRATIVE_VERSION,
     serializerVersion: YILDIZNAME_SERIALIZER_VERSION,
@@ -265,6 +293,7 @@ function parseNarrative(
       rules: [...YILDIZNAME_POLICY_RULES],
     },
     ...(calculationVersion ? { calculationVersion } : {}),
+    ...(addressName ? { addressName } : {}),
   };
 }
 

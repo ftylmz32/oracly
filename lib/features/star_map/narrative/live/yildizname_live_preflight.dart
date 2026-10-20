@@ -37,6 +37,11 @@ final class YildiznameLivePreflight {
 
     final history = await _safeHistory();
     final labels = await _safeDiscoveryLabels();
+    final name = await _safeAddressName();
+    // The name store is account-scoped; re-check before it shapes a request.
+    if (!expected.matches(_deps.storage)) {
+      return (plan: YildiznameLivePlan.ownerUnavailable(), chart: null);
+    }
     var plan = YildiznameLivePlanBuilder.build(
       featureEnabled: true,
       ownerId: expected.ownerId,
@@ -44,6 +49,7 @@ final class YildiznameLivePreflight {
       languageCode: languageCode,
       artifactHistory: history,
       personalDiscoveryLabels: labels,
+      addressName: name,
     );
 
     if (plan.kind == YildiznameLivePlanKind.invalidEvidence &&
@@ -60,6 +66,7 @@ final class YildiznameLivePreflight {
         languageCode: languageCode,
         artifactHistory: history,
         personalDiscoveryLabels: labels,
+        addressName: name,
       );
     }
     return (plan: plan, chart: chart);
@@ -78,6 +85,16 @@ final class YildiznameLivePreflight {
       return await _deps.artifacts.getAll();
     } catch (_) {
       return const [];
+    }
+  }
+
+  Future<String?> _safeAddressName() async {
+    final loader = _deps.addressName;
+    if (loader == null) return null;
+    try {
+      return await loader();
+    } catch (_) {
+      return null;
     }
   }
 

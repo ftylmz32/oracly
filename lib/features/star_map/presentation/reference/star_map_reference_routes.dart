@@ -24,6 +24,7 @@ abstract final class StarMapReferenceRoutes {
     BuildContext context, {
     VoidCallback? onReturn,
     bool continueToNarrative = false,
+    bool completeMissingPlace = false,
     StarMapReading? reading,
     BirthProfile? profile,
   }) async {
@@ -40,6 +41,7 @@ abstract final class StarMapReferenceRoutes {
             MaterialPageRoute<bool>(
               builder: (_) => BirthChartScreen(
                 returnWhenChartGenerated: continueToNarrative,
+                completeMissingPlace: completeMissingPlace,
               ),
             ),
           ) ??

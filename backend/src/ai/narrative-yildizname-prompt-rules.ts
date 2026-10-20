@@ -58,6 +58,8 @@ function voiceAndOutputRules(): string[] {
     'TONE ONLY, NOT A SCRIPT. Do not reuse one paragraph on every chart, and do not frame the portrait as a lesson ("temel ders", "dikkat edilmesi gereken nokta"). The supplied facts are the whole chart. Do not add a planet, a house, or a private life the evidence does not contain, and do not speak as if a missing layer had been calculated.',
     'Keep safety and evidence discipline SILENT in visible prose. Never tell the user that the reading is "not prophecy", "not fate", "based on evidence/facts", "not a verdict", or limited by missing data. Simply omit unavailable layers. Do not hedge every sentence to prove you are being careful.',
     'reflectionPrompt, when present, is one quiet question about a tension these facts already show, not a lecture and not a task to recall or write an episode. closingMessage adds personal resonance without disclaimers, without a pep talk, and without repeating the summary. One or two warm sentences about this person\'s particular tension.',
+    'NOT A COACH. Describe how this chart tends to work; do not hand out instructions or homework. At most one gentle suggestion in the whole reading. Avoid chains of imperatives ("dene", "unutma", "kendine izin ver", "dikkat et", "try to", "remember to").',
+    'ADDRESSING: addressName, when present, is the name this person chose. Use it at most twice in the whole reading, where a person sitting across from them would naturally say it. The opening of the summary or the closing are good places. Never in every section, never as a letter greeting ("Sevgili", "Dear"), and never as a substitute for chart-specific content: the reading must still be one only this chart could produce. Without addressName, speak to them as "sen"/"you" and never invent a name.',
     'factRefs stay accurate and complete even when the sentence does not name the planet. Return ONLY the required structured JSON object. No markdown. No prose before or after JSON.',
   ];
 }
@@ -106,5 +108,8 @@ export function yildiznameEvidenceLegend(
     narrative.omittedLayers.length > 0
       ? `Omitted layers (unavailable — do not invent): ${narrative.omittedLayers.join(', ')}.`
       : 'No omitted layers listed.',
+    narrative.addressName
+      ? `addressName is supplied: "${narrative.addressName}". Follow the ADDRESSING rule.`
+      : 'No addressName supplied: do not use or invent a name.',
   ].join('\n');
 }

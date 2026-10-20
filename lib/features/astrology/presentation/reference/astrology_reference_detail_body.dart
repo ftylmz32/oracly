@@ -64,7 +64,7 @@ class AstrologyReferenceDetailBody extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const AstrologyReferenceKindNote(),
+        AstrologyReferenceKindNote(basisNote: reading.basisNote),
         SizedBox(height: AstrologyReferenceTokens.tabsToSignCard),
         AstrologyReferenceSignCard(
           sign: sign,
@@ -128,6 +128,7 @@ class AstrologyReferenceDetailBody extends ConsumerWidget {
 List<Widget> _depthSection(AstrologyDailyReading reading) {
   final love = reading.love.trim();
   final career = reading.career.trim();
+  final money = reading.basis.isPersonal ? reading.money.trim() : '';
   final inner = AstrologyReadingPresentation.detailInnerBody(reading).trim();
   if (love.isEmpty && career.isEmpty && inner.isEmpty) {
     return const <Widget>[];
@@ -145,10 +146,16 @@ List<Widget> _depthSection(AstrologyDailyReading reading) {
       body: career,
       index: 1,
     ),
+    if (money.isNotEmpty)
+      AstrologyContentCard(
+        kind: AstrologyContentLaneKind.money,
+        body: money,
+        index: 2,
+      ),
     AstrologyContentCard(
       kind: AstrologyContentLaneKind.inner,
       body: inner,
-      index: 2,
+      index: money.isNotEmpty ? 3 : 2,
     ),
   ];
 }

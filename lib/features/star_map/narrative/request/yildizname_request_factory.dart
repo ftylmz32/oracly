@@ -4,6 +4,7 @@ library;
 import '../../../birth_chart/astronomy/natal_chart_evidence.dart';
 import '../../artifacts/yildizname_artifact_memory.dart';
 import '../../artifacts/yildizname_theme_merge.dart';
+import 'yildizname_address_name.dart';
 import 'yildizname_narrative_request.dart';
 import 'yildizname_narrative_scope.dart';
 import 'yildizname_request_extras.dart';
@@ -17,6 +18,7 @@ abstract final class YildiznameRequestFactory {
     required String languageCode,
     List<String>? observedRecurringLabels,
     List<YildiznameRecurringTheme>? artifactRecurringThemes,
+    String? addressName,
   }) {
     final scope =
         YildiznameNarrativeScopeMap.fromFidelity(evidence.fidelity);
@@ -40,6 +42,7 @@ abstract final class YildiznameRequestFactory {
       balances: YildiznameRequestExtras.balances(evidence, scope),
       discoveryThemes: YildiznameRequestExtras.themes(merged),
       omittedLayers: YildiznameRequestExtras.omittedLayers(evidence, scope),
+      addressName: YildiznameAddressName.sanitize(addressName),
     );
   }
 }

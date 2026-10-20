@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/auth/user_local_data_isolation.dart';
 import '../../../../core/feature_flags/feature_flag_runtime.dart';
 import '../../../../core/feature_flags/product_feature_flags.dart';
+import '../../../../app/providers/app_providers.dart' show userProfileProvider;
 import '../../../../core/providers/backend_providers.dart';
 import '../../../ai/production/oracly_ai_providers.dart';
 import '../../../ai/production/oracly_narrative_yildizname_ai_service.dart';
@@ -42,6 +43,14 @@ final yildiznameLiveOrchestratorProvider =
           return profile.observedRecurringLabels;
         } catch (_) {
           return const <String>[];
+        }
+      },
+      addressName: () async {
+        if (!YildiznameNarrativeLiveGate.addressNameEnabled) return null;
+        try {
+          return (await ref.read(userProfileProvider.future)).name;
+        } catch (_) {
+          return null;
         }
       },
       onArtifactPersisted: yildiznameArtifactPersistedHook(ref),

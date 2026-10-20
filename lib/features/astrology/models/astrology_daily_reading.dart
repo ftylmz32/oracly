@@ -3,6 +3,20 @@ library;
 
 import 'package:flutter/foundation.dart';
 
+/// What a reading was written from — shown to the reader, never hidden.
+enum AstrologyReadingBasis {
+  /// Sun-sign copy shared by everyone with this sign.
+  general,
+
+  /// Today's transits against an exact natal chart.
+  skyFull,
+
+  /// Today's transits against birth-day planet positions (no birth time).
+  skyDayOnly;
+
+  bool get isPersonal => this != AstrologyReadingBasis.general;
+}
+
 @immutable
 class AstrologyDailyReading {
   const AstrologyDailyReading({
@@ -19,6 +33,8 @@ class AstrologyDailyReading {
     this.innerTheme = '',
     this.lovePersonal = false,
     this.careerPersonal = false,
+    this.basis = AstrologyReadingBasis.general,
+    this.basisNote = '',
   });
 
   final String personality;
@@ -37,6 +53,12 @@ class AstrologyDailyReading {
   /// can keep love/work cards for personal themes.
   final bool lovePersonal;
   final bool careerPersonal;
+
+  final AstrologyReadingBasis basis;
+
+  /// One honest line on what this reading was calculated from; empty for
+  /// general sun-sign copy, which keeps its standing label.
+  final String basisNote;
 
   String get loveBrief => firstSentence(love);
   String get careerBrief => firstSentence(career);
@@ -82,6 +104,8 @@ class AstrologyDailyReading {
       innerTheme: innerTheme ?? this.innerTheme,
       lovePersonal: lovePersonal ?? this.lovePersonal,
       careerPersonal: careerPersonal ?? this.careerPersonal,
+      basis: basis,
+      basisNote: basisNote,
     );
   }
 }

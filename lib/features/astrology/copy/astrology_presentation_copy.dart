@@ -32,4 +32,5 @@ abstract final class AstrologyPresentationCopy {
   static String get reportAttention => _t('astro.report_attention');
   static String get reportNext => _t('astro.report_next');
   static String get reportDepths => _t('astro.report_depths');
+  static String get laneMoney => _t('astro.lane_money');
 }

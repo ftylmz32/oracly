@@ -17,10 +17,12 @@ abstract final class YildiznameRequestCanonical {
     return jsonEncode(toMap(request));
   }
 
-  /// Facts-only canonical (excludes discoveryThemes) for invariance tests.
+  /// Facts-only canonical (excludes discoveryThemes and addressName) for
+  /// invariance tests.
   static String encodeFactsOnly(YildiznameNarrativeRequest request) {
     final map = Map<String, dynamic>.from(toMap(request));
     map.remove('discoveryThemes');
+    map.remove('addressName');
     return jsonEncode(_sortDeep(map));
   }
 

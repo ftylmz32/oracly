@@ -13,6 +13,7 @@ import 'yildizname_narrative_live_service.dart';
 typedef YildiznameUtcClock = DateTime Function();
 typedef YildiznameFlagReader = bool Function();
 typedef YildiznamePersonalDiscoveryLabels = Future<List<String>> Function();
+typedef YildiznameAddressNameLoader = Future<String?> Function();
 typedef YildiznameChartLoader = Future<BirthChart?> Function();
 typedef YildiznameChartRepair = Future<BirthChart> Function(BirthChart chart);
 typedef YildiznameArtifactPersisted = void Function();
@@ -35,6 +36,7 @@ final class YildiznameLiveOrchestratorDeps {
     this.liveService,
     this.generateOverride,
     this.personalDiscoveryLabels,
+    this.addressName,
     this.onArtifactPersisted,
     this.readProviderCallCount = _zero,
   });
@@ -50,6 +52,9 @@ final class YildiznameLiveOrchestratorDeps {
   final YildiznameNarrativeLiveService? liveService;
   final YildiznameNarrativeGenerate? generateOverride;
   final YildiznamePersonalDiscoveryLabels? personalDiscoveryLabels;
+
+  /// The account's saved preferred name (raw; sanitized by the factory).
+  final YildiznameAddressNameLoader? addressName;
 
   /// Fires only after a durable save passed the post-save owner/epoch check,
   /// whether or not any screen is still showing the transaction.
