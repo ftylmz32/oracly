@@ -27,7 +27,7 @@ abstract final class CompanionOrConversationAccess {
   static bool isAllowed(BuildContext context) =>
       PremiumAccess.isActive(context);
 
-  /// Premium always; otherwise one matching unconsumed first-reading deepen.
+  /// Premium always; otherwise one unspent tarot handoff for this account.
   static bool canCompose(
     BuildContext context, {
     OracleReadingContext? readingContext,

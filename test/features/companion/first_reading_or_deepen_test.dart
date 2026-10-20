@@ -2,6 +2,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/core/auth/user_local_data_isolation.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/data/repositories/local_ai_conversation_repository.dart';
 import 'package:oracly_new/core/data/repositories/mock_history_repository.dart';
@@ -268,6 +269,118 @@ void main() {
         isTrue,
       );
       controller.dispose();
+    });
+  });
+
+  group('signed-in tarot handoff', () {
+    Future<void> signIn(LocalStorage storage, String uid) {
+      return storage.setString(UserLocalDataIsolation.ownerKey, uid);
+    }
+
+    test('an unused account can open a later tarot without the first-session mark',
+        () async {
+      final storage = LocalStorage.ephemeral();
+      await signIn(storage, 'account-a');
+      expect(FirstReadingOrDeepen.eligibleSessionId(storage), isNull);
+      expect(FirstReadingOrDeepen.allows(storage, tarot('nine-of-cups')), isTrue);
+      expect(FirstReadingOrDeepen.allows(storage, coffee('nine-of-cups')), isFalse);
+      expect(FirstReadingOrDeepen.allows(storage, null), isFalse);
+
+      final open = OrSessionResolver.resolve(
+        entitlement: PremiumEntitlementState.inactive,
+        link: CompanionLinkStatus.online,
+        voiceUnavailable: false,
+        contextualDeepenAllowed: FirstReadingOrDeepen.allows(
+          storage,
+          tarot('nine-of-cups'),
+        ),
+      );
+      expect(open.canCompose, isTrue);
+      expect(open.canUseMic, isFalse);
+      expect(open.showPaywallDock, isFalse);
+    });
+
+    test('a used account stays gated and another account does not inherit it',
+        () async {
+      final storage = LocalStorage.ephemeral();
+      await signIn(storage, 'account-a');
+      final controller = _controller(
+        storage: storage,
+        experience: _ScriptedExperience(fromAi: true, body: 'Yansima.'),
+        reading: tarot('nine-of-cups'),
+      );
+
+      await controller.send('Bu kart ne anlatıyor?');
+
+      expect(controller.readingContext?.sessionId, 'nine-of-cups');
+      expect(FirstReadingOrDeepen.allows(storage, tarot('nine-of-cups')), isFalse);
+      expect(FirstReadingOrDeepen.allows(storage, tarot('another-card')), isFalse);
+      final closed = OrSessionResolver.resolve(
+        entitlement: PremiumEntitlementState.inactive,
+        link: CompanionLinkStatus.online,
+        voiceUnavailable: false,
+        contextualDeepenAllowed: false,
+        chamberEmpty: false,
+      );
+      expect(closed.canCompose, isFalse);
+      expect(closed.showPaywallDock, isTrue);
+
+      await signIn(storage, 'account-b');
+      expect(FirstReadingOrDeepen.allows(storage, tarot('other')), isTrue);
+      controller.dispose();
+    });
+
+    test('a failed send and a server premium refusal keep the turn', () async {
+      final storage = LocalStorage.ephemeral();
+      await signIn(storage, 'account-a');
+      final failed = _controller(
+        storage: storage,
+        experience: _FailingExperience(),
+        reading: tarot('nine-of-cups'),
+      );
+      await failed.send('Bu kart ne anlatıyor?');
+      expect(FirstReadingOrDeepen.allows(storage, tarot('nine-of-cups')), isTrue);
+      expect(failed.state.conversation!.messages.last.isUser, isTrue);
+      expect(failed.readingContext?.cardsSummary, 'Ay');
+      failed.dispose();
+
+      final refused = OrSessionResolver.resolve(
+        entitlement: PremiumEntitlementState.inactive,
+        link: CompanionLinkStatus.online,
+        voiceUnavailable: false,
+        lastFailure: AiFailureKind.premiumRequired,
+        contextualDeepenAllowed: true,
+        chamberEmpty: false,
+      );
+      expect(refused.canCompose, isFalse);
+      expect(refused.showPaywallDock, isTrue);
+    });
+
+    test('lapsed Premium can still use an unspent tarot turn', () {
+      final open = OrSessionResolver.resolve(
+        entitlement: PremiumEntitlementState.inactive,
+        link: CompanionLinkStatus.online,
+        voiceUnavailable: false,
+        contextualDeepenAllowed: true,
+      );
+      expect(open.canCompose, isTrue);
+      expect(open.canUseMic, isFalse);
+
+      final member = OrSessionResolver.resolve(
+        entitlement: PremiumEntitlementState.active,
+        link: CompanionLinkStatus.online,
+        voiceUnavailable: false,
+      );
+      expect(member.canCompose, isTrue);
+      expect(member.canUseMic, isTrue);
+    });
+
+    test('a legacy consumed flag still blocks the signed-in account', () async {
+      final storage = LocalStorage.ephemeral();
+      await FirstReadingOrDeepen.markEligible(storage, 'session_first');
+      await storage.setBool(FirstReadingOrDeepen.consumedKey, true);
+      await signIn(storage, 'account-a');
+      expect(FirstReadingOrDeepen.allows(storage, tarot('later')), isFalse);
     });
   });
 }

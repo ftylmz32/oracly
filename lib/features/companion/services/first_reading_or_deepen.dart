@@ -1,18 +1,22 @@
-/// One free contextual OR deepen for the first-session Tarot reading.
+/// One free tarot-context OR turn. A signed-in account owns it; the server admits it.
 library;
 
+import '../../../core/auth/user_local_data_isolation.dart';
 import '../../../core/data/datasources/local_storage.dart';
 import '../../ai/oracle_conversation/models/oracle_reading_context.dart';
 
-/// Durable allowance bound to the first-session Tarot [sessionId].
+/// Local compose hint for one tarot handoff.
 ///
-/// Free compose requires a live matching [OracleReadingContext] — never
-/// unlocks generic OR, voice, or non-Tarot handoffs.
+/// A committed account may open any tarot reading once. The server still
+/// admits or rejects that turn. With no account on the device, only the
+/// marked first-session card matches. Never unlocks generic OR, voice,
+/// or a non-tarot handoff.
 abstract final class FirstReadingOrDeepen {
   FirstReadingOrDeepen._();
 
   static const sessionKey = 'first_reading_or_deepen_session_id';
   static const consumedKey = 'first_reading_or_deepen_consumed';
+  static const consumedOwnersKey = 'first_reading_or_deepen_consumed_owners';
 
   /// Call once when the first-session single-card Tarot session is created.
   static Future<void> markEligible(
@@ -38,12 +42,13 @@ abstract final class FirstReadingOrDeepen {
 
   /// True when a free user may compose one text turn for [context].
   static bool allows(LocalStorage storage, OracleReadingContext? context) {
-    if (context == null) return false;
-    if (context.kind != OracleReadingKind.tarot) return false;
+    if (!_isTarot(context)) return false;
+    final owner = _owner(storage);
+    if (owner != null) return !_spent(storage, owner);
     if (isConsumed(storage)) return false;
     final eligible = eligibleSessionId(storage);
     if (eligible == null) return false;
-    return context.sessionId.trim() == eligible;
+    return context!.sessionId.trim() == eligible;
   }
 
   /// Mark consumed only after a usable assistant response for that context.
@@ -52,7 +57,37 @@ abstract final class FirstReadingOrDeepen {
     OracleReadingContext? context,
   ) async {
     if (!allows(storage, context)) return false;
-    await storage.setBool(consumedKey, true);
+    final owner = _owner(storage);
+    if (owner == null) {
+      await storage.setBool(consumedKey, true);
+      return true;
+    }
+    final next = {..._owners(storage), owner};
+    await storage.setString(consumedOwnersKey, next.join('\n'));
     return true;
+  }
+
+  static bool _isTarot(OracleReadingContext? context) =>
+      context != null && context.kind == OracleReadingKind.tarot;
+
+  static String? _owner(LocalStorage storage) {
+    final id = storage.getString(UserLocalDataIsolation.ownerKey)?.trim() ?? '';
+    return id.isEmpty ? null : id;
+  }
+
+  static Set<String> _owners(LocalStorage storage) {
+    final raw = storage.getString(consumedOwnersKey) ?? '';
+    return raw
+        .split('\n')
+        .map((line) => line.trim())
+        .where((id) => id.isNotEmpty)
+        .toSet();
+  }
+
+  /// A legacy device flag, with no owner list, belongs to the signed-in account.
+  static bool _spent(LocalStorage storage, String owner) {
+    final owners = _owners(storage);
+    if (owners.contains(owner)) return true;
+    return owners.isEmpty && isConsumed(storage);
   }
 }
