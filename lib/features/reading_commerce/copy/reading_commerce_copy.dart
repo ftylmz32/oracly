@@ -17,8 +17,11 @@ abstract final class ReadingCommerceCopy {
       'Ödeme henüz tamamlanmadı.\nHak tanımlanmadı.';
   static const canceled = 'Ödeme tamamlanmadı.';
   static const failed =
-      'Ödemeyi doğrulayamadık.\nTekrar deneyebilirsin.';
+      'Ödemeyi doğrulayamadık.\nSatın alma duruyor; yeniden açınca tekrar deneriz.';
   static const granted = 'Hak hesabına eklendi.';
+  static const creditNeeded =
+      'Bu fal bir hak ister.\nHakların ve mağazanın durumu bir sonraki ekranda.';
+  static const openCredits = 'Fal haklarına bak';
 
   static String credits({required int coffee, required int palm}) =>
       'Kahve hakkı: $coffee\nEl falı hakkı: $palm';

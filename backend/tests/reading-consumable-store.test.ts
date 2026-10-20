@@ -92,7 +92,8 @@ describe('consumable store decisions without a live store', () => {
     const store = new MemoryDocumentStore();
     const ledger = new ReadingEntitlementLedger(store);
     await ledger.grantPurchase({
-      ownerUserId: owner, platform: 'android', productId: 'app.oracly.reading.palm',
+      ownerUserId: owner, platform: 'android', appId: 'app.oracly',
+      productId: 'app.oracly.reading.palm',
       purchaseToken: 'token-1', transactionId: 'GPA.1', atMs: 1_000,
     });
     const operationId = 'a'.repeat(32);
@@ -123,7 +124,8 @@ describe('consumable store decisions without a live store', () => {
     expect(kept.bound).toBe(1);
     expect((await ledger.balance(owner)).palm).toBe(0);
     expect(await ledger.noteStoreRefund({
-      ownerUserId: owner, platform: 'android', purchaseToken: 'token-1', atMs: 3_000,
+      ownerUserId: owner, platform: 'android', appId: 'app.oracly',
+      purchaseToken: 'token-1', transactionId: 'GPA.1', atMs: 3_000,
     })).toBe('noted');
     expect((await ledger.balance(owner)).palm).toBe(0);
     const names = [...store.docs.values()].map((doc) => doc.name);

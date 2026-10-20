@@ -48,9 +48,11 @@ export function createReadingConsumableVerifier(
             purchaseToken: request.purchaseToken,
             accessToken: await playToken(),
           });
-          if (!decision.ok) return decision.reason === 'provider_unavailable'
-            ? { ok: false, reason: 'provider_unavailable' }
-            : { ok: false, reason: decision.reason };
+          if (!decision.ok) return {
+            ok: false,
+            reason: decision.reason,
+            transactionId: 'transactionId' in decision ? decision.transactionId : undefined,
+          };
           return { ok: true, transactionId: decision.transactionId };
         } catch {
           return { ok: false, reason: 'provider_unavailable' };
@@ -76,7 +78,7 @@ export function createReadingConsumableVerifier(
         );
         return decision.ok
           ? { ok: true, transactionId: decision.transactionId, environment: decision.environment }
-          : { ok: false, reason: decision.reason };
+          : { ok: false, reason: decision.reason, transactionId: decision.transactionId };
       } catch {
         return { ok: false, reason: 'provider_unavailable' };
       }

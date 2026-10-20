@@ -6,15 +6,16 @@ import '../../../shared/widgets/oracly_scaffold.dart';
 import '../../reading_operation/providers/reading_live_provider.dart';
 import '../copy/reading_commerce_copy.dart';
 import '../models/reading_commerce_view.dart';
-import '../services/reading_commerce_buyer.dart';
+import '../services/reading_purchase_binding.dart';
+import '../services/reading_purchase_monitor.dart';
+import '../services/reading_purchase_tracker.dart';
 import 'reading_commerce_body.dart';
 
 class ReadingCommerceScreen extends ConsumerStatefulWidget {
-  const ReadingCommerceScreen({super.key, this.view, this.buyer});
+  const ReadingCommerceScreen({super.key, this.view});
 
   /// Test seam. Production loads the server catalog and the store.
   final ReadingCommerceView? view;
-  final ReadingCommerceBuyer? buyer;
 
   @override
   ConsumerState<ReadingCommerceScreen> createState() =>
@@ -24,18 +25,33 @@ class ReadingCommerceScreen extends ConsumerStatefulWidget {
 class _ReadingCommerceScreenState extends ConsumerState<ReadingCommerceScreen> {
   ReadingCommerceView? _view;
   String? _message;
+  ReadingPurchaseMonitor? _monitor;
 
   @override
   void initState() {
     super.initState();
     _view = widget.view;
-    if (widget.view == null) Future.microtask(_load);
+    if (widget.view != null) return;
+    _monitor = ref.read(readingPurchaseMonitorProvider);
+    _monitor!.addListener(_settled);
+    Future.microtask(_load);
+  }
+
+  @override
+  void dispose() {
+    _monitor?.removeListener(_settled);
+    super.dispose();
+  }
+
+  void _settled(ReadingBuyKind kind, String productId) {
+    if (!mounted || kind != ReadingBuyKind.granted) return;
+    if (Navigator.of(context).canPop()) Navigator.of(context).pop(true);
   }
 
   Future<void> _load() async {
     final send = ref.read(readingOperationSenderProvider);
-    final buyer = widget.buyer ?? ReadingCommerceBuyer();
-    if (send == null) {
+    final monitor = _monitor;
+    if (send == null || monitor == null) {
       if (mounted) setState(() => _view = ReadingCommerceView.closed());
       return;
     }
@@ -52,7 +68,7 @@ class _ReadingCommerceScreenState extends ConsumerState<ReadingCommerceScreen> {
         ? data['iosAdmitted'] == true
         : data['androidAdmitted'] == true;
     final prices = open && data['purchasable'] == true && platformAdmitted
-        ? await buyer.storePrices()
+        ? await monitor.storePrices()
         : const <String, String>{};
     final balance = data['balance'];
     final coffee = balance is Map ? balance['coffee'] : 0;
@@ -96,32 +112,17 @@ class _ReadingCommerceScreenState extends ConsumerState<ReadingCommerceScreen> {
   }
 
   Future<void> _buy(String productId) async {
-    final send = ref.read(readingOperationSenderProvider);
-    final buyer = widget.buyer ?? ReadingCommerceBuyer();
-    if (send == null) return;
-    final platform = Theme.of(context).platform == TargetPlatform.iOS
-        ? 'ios'
-        : 'android';
-    final result = await buyer.buy(
-      productId: productId,
-      verify: (token) async {
-        final wire = await send('POST', '/v1/reading-entitlements/verify', {
-          'platform': platform,
-          'productId': productId,
-          'purchaseToken': token,
-        });
-        return wire?.json?['data']?['granted'] == true;
-      },
-    );
-    if (!mounted) return;
+    final monitor = _monitor;
+    if (monitor == null) return;
+    final result = await monitor.buy(productId);
+    if (!mounted || result == ReadingBuyKind.granted) return;
     setState(() {
-      _message = switch (result.kind) {
+      _message = switch (result) {
         ReadingBuyKind.granted => ReadingCommerceCopy.granted,
         ReadingBuyKind.pending => ReadingCommerceCopy.pending,
         ReadingBuyKind.canceled => ReadingCommerceCopy.canceled,
         ReadingBuyKind.failed => ReadingCommerceCopy.failed,
       };
     });
-    if (result.kind == ReadingBuyKind.granted) await _load();
   }
 }

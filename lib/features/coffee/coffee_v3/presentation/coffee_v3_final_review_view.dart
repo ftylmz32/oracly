@@ -18,7 +18,7 @@ import '../../coffee_v2/models/coffee_v2_intention.dart';
 import '../../coffee_v2/presentation/coffee_v2_thumbnail.dart';
 import '../../presentation/reference/coffee_capture_hint.dart';
 import '../../presentation/reference/coffee_reference_tokens.dart';
-import '../../../reading_commerce/presentation/reading_commerce_route.dart';
+import '../../../reading_commerce/presentation/reading_credit_link.dart';
 import '../controllers/coffee_v3_flow_controller.dart';
 import '../copy/coffee_v3_copy.dart';
 import '../models/coffee_v3_photo_slot.dart';
@@ -111,10 +111,7 @@ class CoffeeV3FinalReviewView extends StatelessWidget {
           if (controller.createBlock ==
               CoffeeV3CreateBlock.entitlementRequired) ...[
             SizedBox(height: AppSpacing.s8),
-            OraclyQuietLink(
-              label: CoffeeV3Copy.openCommerce,
-              onTap: () => Navigator.of(context).push(readingCommerceRoute()),
-            ),
+            const ReadingCreditLink(),
           ],
           SizedBox(height: AppSpacing.s12),
           OraclyGoldButton(

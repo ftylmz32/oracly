@@ -2,17 +2,20 @@
  * Server-owned Coffee / Palm credits. Gems never convert into these.
  * A purchase token binds to the first account. Replay does not grant again.
  */
-import { createHash, randomBytes } from 'node:crypto';
+import { randomBytes } from 'node:crypto';
 import type { FirestoreLike, FirestoreTransactionLike } from '../billing/entitlement-repository.js';
+import { ReadingEntitlementError } from './reading-entitlement-error.js';
+import { readingDocId } from './reading-entitlement-ids.js';
+import { ENTITLEMENT_LOTS, giveLot, readLots, takeLot } from './reading-entitlement-lots.js';
+import { grantReadingPurchase } from './reading-entitlement-purchase.js';
+import { noteReadingPurchaseRefund } from './reading-entitlement-refund.js';
 import {
   READING_TRIAL_DAILY_CAP,
-  readingCommerceProduct,
   type ReadingCommerceFeature,
   type ReadingCommerceProductId,
 } from './reading-commerce-catalog.js';
 
 const BALANCES = 'readingEntitlementBalances';
-const PURCHASES = 'readingEntitlementPurchases';
 const HOLDS = 'readingEntitlementHolds';
 const BY_OPERATION = 'readingEntitlementByOperation';
 const TRIALS = 'readingEntitlementTrials';
@@ -21,12 +24,7 @@ const EVENTS = 'readingCommerceEvents';
 const OPEN = 'readingEntitlementOpen';
 const HOLD_LEASE_MS = 120_000;
 
-export class ReadingEntitlementError extends Error {
-  constructor(readonly code: 'owned_by_other' | 'invalid' | 'unavailable') {
-    super(code);
-    this.name = 'ReadingEntitlementError';
-  }
-}
+export { ReadingEntitlementError } from './reading-entitlement-error.js';
 
 type BalanceDoc = {
   coffee: number;
@@ -39,68 +37,20 @@ export class ReadingEntitlementLedger {
   constructor(private readonly store: FirestoreLike) {}
 
   async balance(ownerUserId: string): Promise<BalanceDoc> {
-    const snap = await this.store.collection(BALANCES).doc(docId(ownerUserId)).get();
+    const snap = await this.store.collection(BALANCES).doc(readingDocId(ownerUserId)).get();
     return readBalance(snap.data());
   }
 
-  async grantPurchase(input: {
+  grantPurchase(input: {
     ownerUserId: string;
     platform: 'android' | 'ios';
+    appId: string;
     productId: ReadingCommerceProductId;
     purchaseToken: string;
     transactionId: string;
     atMs: number;
   }): Promise<{ balance: BalanceDoc; idempotent: boolean }> {
-    const product = readingCommerceProduct(input.productId);
-    if (!product || !input.purchaseToken.trim() || !input.transactionId.trim()) {
-      throw new ReadingEntitlementError('invalid');
-    }
-    const purchaseId = docId(`${input.platform}\0${input.purchaseToken.trim()}`);
-    try {
-      return await this.store.runTransaction(async (tx) => {
-        const purchaseRef = this.store.collection(PURCHASES).doc(purchaseId);
-        const balanceRef = this.store.collection(BALANCES).doc(docId(input.ownerUserId));
-        const existing = await tx.get(purchaseRef);
-        const bound = existing.data();
-        if (existing.exists && bound?.ownerUserId !== input.ownerUserId) {
-          throw new ReadingEntitlementError('owned_by_other');
-        }
-        const balance = readBalance((await tx.get(balanceRef)).data());
-        if (existing.exists) return { balance, idempotent: true };
-        const next = add(balance, product.feature, product.grants);
-        const purchases = product.feature === 'coffee' ? balance.coffeePurchases : balance.palmPurchases;
-        next[product.feature === 'coffee' ? 'coffeePurchases' : 'palmPurchases'] = purchases + 1;
-        tx.set(balanceRef, next);
-        tx.set(purchaseRef, {
-          ownerUserId: input.ownerUserId,
-          productId: input.productId,
-          feature: product.feature,
-          units: product.grants,
-          transactionId: input.transactionId,
-          refunded: false,
-        });
-        this.writeEvent(tx, `purchase:${purchaseId}`, {
-          name: 'purchase_completed',
-          feature: product.feature,
-          productId: input.productId,
-          proposedTryMinor: product.proposedTryMinor,
-          atMs: input.atMs,
-        });
-        if (purchases >= 1) {
-          this.writeEvent(tx, `repurchase:${purchaseId}`, {
-            name: 'repurchase',
-            feature: product.feature,
-            productId: input.productId,
-            proposedTryMinor: product.proposedTryMinor,
-            atMs: input.atMs,
-          });
-        }
-        return { balance: next, idempotent: false };
-      });
-    } catch (error) {
-      if (error instanceof ReadingEntitlementError) throw error;
-      throw new ReadingEntitlementError('unavailable');
-    }
+    return grantReadingPurchase(this.store, input);
   }
 
   async grantTrial(input: {
@@ -112,9 +62,9 @@ export class ReadingEntitlementLedger {
     const day = new Date(input.atMs).toISOString().slice(0, 10);
     try {
       return await this.store.runTransaction(async (tx) => {
-        const trialRef = this.store.collection(TRIALS).doc(docId(input.ownerUserId));
+        const trialRef = this.store.collection(TRIALS).doc(readingDocId(input.ownerUserId));
         const dayRef = this.store.collection(TRIAL_DAYS).doc(day);
-        const balanceRef = this.store.collection(BALANCES).doc(docId(input.ownerUserId));
+        const balanceRef = this.store.collection(BALANCES).doc(readingDocId(input.ownerUserId));
         if ((await tx.get(trialRef)).exists) return 'already';
         const count = numberField((await tx.get(dayRef)).data(), 'count');
         if (count >= cap) return 'capped';
@@ -122,7 +72,7 @@ export class ReadingEntitlementLedger {
         tx.set(dayRef, { count: count + 1 });
         tx.set(trialRef, { grantedAtMs: input.atMs });
         tx.set(balanceRef, add(balance, 'coffee', 1));
-        this.writeEvent(tx, `trial:${docId(input.ownerUserId)}`, {
+        this.writeEvent(tx, `trial:${readingDocId(input.ownerUserId)}`, {
           name: 'trial_granted',
           feature: 'coffee',
           productId: null,
@@ -144,11 +94,12 @@ export class ReadingEntitlementLedger {
     operationId: string;
     atMs: number;
   }): Promise<{ ok: true; holdId: string } | { ok: false; reason: 'none' | 'closed' }> {
-    const holdId = docId(`${input.ownerUserId}\0${input.sourceRequestId}`);
+    const holdId = readingDocId(`${input.ownerUserId}\0${input.sourceRequestId}`);
     return this.store.runTransaction(async (tx) => {
       const holdRef = this.store.collection(HOLDS).doc(holdId);
-      const balanceRef = this.store.collection(BALANCES).doc(docId(input.ownerUserId));
-      const openRef = this.store.collection(OPEN).doc(docId(input.ownerUserId));
+      const balanceRef = this.store.collection(BALANCES).doc(readingDocId(input.ownerUserId));
+      const openRef = this.store.collection(OPEN).doc(readingDocId(input.ownerUserId));
+      const lotsRef = this.store.collection(ENTITLEMENT_LOTS).doc(readingDocId(input.ownerUserId));
       const hold = await tx.get(holdRef);
       const current = hold.data();
       const open = readOpen((await tx.get(openRef)).data());
@@ -167,7 +118,9 @@ export class ReadingEntitlementLedger {
       }
       const balance = readBalance((await tx.get(balanceRef)).data());
       if (balance[input.feature] < 1) return { ok: false as const, reason: 'none' as const };
+      const assigned = takeLot(readLots((await tx.get(lotsRef)).data()), input.feature);
       tx.set(balanceRef, add(balance, input.feature, -1));
+      tx.set(lotsRef, { items: assigned.lots });
       tx.set(holdRef, {
         ownerUserId: input.ownerUserId,
         feature: input.feature,
@@ -175,6 +128,7 @@ export class ReadingEntitlementLedger {
         operationId: input.operationId,
         atMs: input.atMs,
         state: 'held',
+        purchaseId: assigned.purchaseId,
       });
       tx.set(openRef, { items: upsertOpen(open, item) });
       return { ok: true as const, holdId };
@@ -193,14 +147,14 @@ export class ReadingEntitlementLedger {
     lookup: (operationId: string) => Promise<{ ownerUserId: string } | null>;
   }): Promise<{ restored: number; bound: number }> {
     const lease = input.leaseMs ?? HOLD_LEASE_MS;
-    const snap = await this.store.collection(OPEN).doc(docId(input.ownerUserId)).get();
+    const snap = await this.store.collection(OPEN).doc(readingDocId(input.ownerUserId)).get();
     let restored = 0;
     let bound = 0;
     for (const item of readOpen(snap.data())) {
       if (input.nowMs - item.atMs < lease) continue;
       const operation = await input.lookup(item.operationId);
       if (operation?.ownerUserId === input.ownerUserId) {
-        await this.bind(docId(`${input.ownerUserId}\0${item.sourceRequestId}`), item.operationId);
+        await this.bind(readingDocId(`${input.ownerUserId}\0${item.sourceRequestId}`), item.operationId);
         bound += 1;
       } else if (await this.restoreBySource(input.ownerUserId, item.sourceRequestId)) {
         restored += 1;
@@ -213,36 +167,15 @@ export class ReadingEntitlementLedger {
    * The store reversed the charge. Unused credits drop. A reading already
    * opened from this purchase is left alone. Not `entitlement_restored`.
    */
-  async noteStoreRefund(input: {
+  noteStoreRefund(input: {
     ownerUserId: string;
     platform: 'android' | 'ios';
+    appId: string;
     purchaseToken: string;
+    transactionId?: string;
     atMs: number;
   }): Promise<'noted' | 'absent' | 'already'> {
-    const purchaseId = docId(`${input.platform}\0${input.purchaseToken.trim()}`);
-    return this.store.runTransaction(async (tx) => {
-      const purchaseRef = this.store.collection(PURCHASES).doc(purchaseId);
-      const purchase = await tx.get(purchaseRef);
-      const data = purchase.data();
-      if (!purchase.exists || !data) return 'absent' as const;
-      if (data.ownerUserId !== input.ownerUserId) throw new ReadingEntitlementError('owned_by_other');
-      if (data.refunded === true) return 'already' as const;
-      const feature = data.feature === 'palm' ? 'palm' : 'coffee';
-      const units = numberField(data, 'units');
-      const balanceRef = this.store.collection(BALANCES).doc(docId(input.ownerUserId));
-      const balance = readBalance((await tx.get(balanceRef)).data());
-      const drop = Math.min(units, balance[feature]);
-      tx.set(balanceRef, add(balance, feature, -drop));
-      tx.set(purchaseRef, { ...data, refunded: true });
-      this.writeEvent(tx, `store-refund:${purchaseId}`, {
-        name: 'store_refund',
-        feature,
-        productId: typeof data.productId === 'string' ? data.productId : null,
-        proposedTryMinor: null,
-        atMs: input.atMs,
-      });
-      return 'noted' as const;
-    });
+    return noteReadingPurchaseRefund(this.store, input);
   }
 
   async bind(holdId: string, operationId: string): Promise<void> {
@@ -257,7 +190,7 @@ export class ReadingEntitlementLedger {
         ownerUserId: data.ownerUserId,
       });
       if (typeof data.ownerUserId === 'string' && typeof data.sourceRequestId === 'string') {
-        const openRef = this.store.collection(OPEN).doc(docId(data.ownerUserId));
+        const openRef = this.store.collection(OPEN).doc(readingDocId(data.ownerUserId));
         const open = readOpen((await tx.get(openRef)).data());
         tx.set(openRef, {
           items: open.filter((item) => item.sourceRequestId !== data.sourceRequestId),
@@ -267,7 +200,7 @@ export class ReadingEntitlementLedger {
   }
 
   async restoreBySource(ownerUserId: string, sourceRequestId: string): Promise<boolean> {
-    return this.restoreHold(docId(`${ownerUserId}\0${sourceRequestId}`), ownerUserId);
+    return this.restoreHold(readingDocId(`${ownerUserId}\0${sourceRequestId}`), ownerUserId);
   }
 
   async restoreByOperation(ownerUserId: string, operationId: string): Promise<boolean> {
@@ -297,13 +230,27 @@ export class ReadingEntitlementLedger {
       const hold = await tx.get(holdRef);
       const data = hold.data();
       if (!hold.exists || !data || data.ownerUserId !== ownerUserId) return false;
-      if (data.state === 'restored') return false;
+      if (data.state === 'restored' || data.state === 'forfeited') return false;
       if (data.state !== 'held' || (data.feature !== 'coffee' && data.feature !== 'palm')) return false;
-      const balanceRef = this.store.collection(BALANCES).doc(docId(ownerUserId));
+      const balanceRef = this.store.collection(BALANCES).doc(readingDocId(ownerUserId));
+      const lotsRef = this.store.collection(ENTITLEMENT_LOTS).doc(readingDocId(ownerUserId));
+      const lots = readLots((await tx.get(lotsRef)).data());
+      const purchaseId = typeof data.purchaseId === 'string' ? data.purchaseId : '';
+      const returned = purchaseId ? giveLot(lots, purchaseId) : { lots, refunded: false };
+      if (returned.refunded) {
+        tx.set(holdRef, { ...data, state: 'forfeited' });
+        const openRef = this.store.collection(OPEN).doc(readingDocId(ownerUserId));
+        const open = readOpen((await tx.get(openRef)).data());
+        tx.set(openRef, {
+          items: open.filter((item) => item.sourceRequestId !== data.sourceRequestId),
+        });
+        return false;
+      }
+      tx.set(lotsRef, { items: returned.lots });
       const balance = readBalance((await tx.get(balanceRef)).data());
       tx.set(balanceRef, add(balance, data.feature, 1));
       tx.set(holdRef, { ...data, state: 'restored' });
-      const openRef = this.store.collection(OPEN).doc(docId(ownerUserId));
+      const openRef = this.store.collection(OPEN).doc(readingDocId(ownerUserId));
       const open = readOpen((await tx.get(openRef)).data());
       tx.set(openRef, {
         items: open.filter((item) => item.sourceRequestId !== data.sourceRequestId),
@@ -330,7 +277,7 @@ export class ReadingEntitlementLedger {
       atMs: number;
     },
   ): void {
-    tx.set(this.store.collection(EVENTS).doc(docId(key)), {
+    tx.set(this.store.collection(EVENTS).doc(readingDocId(key)), {
       name: event.name,
       feature: event.feature,
       productId: event.productId,
@@ -393,8 +340,4 @@ function readOpen(data: Record<string, unknown> | undefined): OpenItem[] {
 
 function upsertOpen(items: OpenItem[], next: OpenItem): OpenItem[] {
   return [...items.filter((item) => item.sourceRequestId !== next.sourceRequestId), next];
-}
-
-function docId(value: string): string {
-  return createHash('sha256').update(value).digest('hex');
 }

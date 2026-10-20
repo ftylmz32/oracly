@@ -6,6 +6,7 @@ mixin PalmReadingCapture on ChangeNotifier {
   ReadingFeatureRunner? _live;
   ReadingPendingOperationStore? _pendingStore;
   ReadingLiveState? liveState;
+  bool needsReadingCredit = false;
 
   PalmPhase _phase = PalmPhase.entry;
   PalmHand _hand = PalmHand.right;
@@ -120,6 +121,7 @@ mixin PalmReadingCapture on ChangeNotifier {
     _reading = null;
     _error = null;
     _lastError = null;
+    needsReadingCredit = false;
     _qualityHint = null;
     liveState = null;
     _accelerating = false;

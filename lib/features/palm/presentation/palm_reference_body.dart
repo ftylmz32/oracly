@@ -4,6 +4,8 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../reading_commerce/copy/reading_commerce_copy.dart';
+import '../../reading_commerce/presentation/reading_credit_link.dart';
 import '../controllers/palm_reading_controller.dart';
 import '../copy/palm_copy.dart';
 import 'palm_capture_view.dart';
@@ -82,22 +84,31 @@ class PalmReferenceBody extends ConsumerWidget {
         onRetry: controller.image != null ? onAnalyze : controller.retryCapture,
         onBack: controller.backToEntry,
       ),
-      PalmPhase.error => PalmErrorView(
-        message: controller.errorMessage ?? PalmCopy.analysisFailed,
-        canRetrySameImage:
-            controller.lastError?.canRetrySameImage == true &&
-            controller.image != null,
-        onRetry: () {
-          final retrySame =
-              controller.lastError?.canRetrySameImage == true &&
-              controller.image != null;
-          if (retrySame) {
-            onAnalyze();
-          } else {
-            controller.retryCapture();
-          }
-        },
-        onBack: controller.backToEntry,
+      PalmPhase.error => Column(
+        children: [
+          Expanded(
+            child: PalmErrorView(
+            message: controller.needsReadingCredit
+                ? ReadingCommerceCopy.creditNeeded
+                : controller.errorMessage ?? PalmCopy.analysisFailed,
+            canRetrySameImage:
+                controller.lastError?.canRetrySameImage == true &&
+                controller.image != null,
+            onRetry: () {
+              final retrySame =
+                  controller.lastError?.canRetrySameImage == true &&
+                  controller.image != null;
+              if (retrySame) {
+                onAnalyze();
+              } else {
+                controller.retryCapture();
+              }
+            },
+            onBack: controller.backToEntry,
+          ),
+          ),
+          if (controller.needsReadingCredit) const ReadingCreditLink(),
+        ],
       ),
     };
   }

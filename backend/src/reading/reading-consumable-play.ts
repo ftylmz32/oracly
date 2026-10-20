@@ -4,7 +4,7 @@
  */
 export type PlayConsumableDecision =
   | { ok: true; transactionId: string; alreadyConsumed: boolean }
-  | { ok: false; reason: 'pending' | 'canceled' | 'invalid' | 'product_mismatch' };
+  | { ok: false; reason: 'pending' | 'canceled' | 'invalid' | 'product_mismatch'; transactionId?: string };
 
 export function interpretPlayConsumable(
   body: Record<string, unknown>,
@@ -14,11 +14,10 @@ export function interpretPlayConsumable(
     return { ok: false, reason: 'product_mismatch' };
   }
   const state = Number(body.purchaseState);
-  if (state === 2) return { ok: false, reason: 'pending' };
-  if (state === 1) return { ok: false, reason: 'canceled' };
-  if (state !== 0) return { ok: false, reason: 'invalid' };
   const orderId = typeof body.orderId === 'string' ? body.orderId.trim() : '';
-  if (!orderId) return { ok: false, reason: 'invalid' };
+  if (state === 2) return { ok: false, reason: 'pending', transactionId: orderId || undefined };
+  if (state === 1) return { ok: false, reason: 'canceled', transactionId: orderId || undefined };
+  if (state !== 0 || !orderId) return { ok: false, reason: 'invalid' };
   return {
     ok: true,
     transactionId: orderId,

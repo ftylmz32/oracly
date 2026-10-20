@@ -31,6 +31,11 @@ import {
 
 const PRICE_KEYS = ['price', 'priceMinor', 'amount', 'currency', 'grants', 'cost'];
 
+function commerceAppId(config: AppConfig, platform: 'android' | 'ios'): string {
+  const bundle = platform === 'ios' ? config.appleBundleId?.trim() : '';
+  return bundle || config.playPackageName.trim();
+}
+
 export type ReadingCommerceRouteOptions = {
   appCheck?: AppCheckVerifier;
   store?: FirestoreLike;
@@ -123,7 +128,9 @@ export async function registerReadingCommerceRoutes(
           await ledger.noteStoreRefund({
             ownerUserId: owner,
             platform,
+            appId: commerceAppId(config, platform),
             purchaseToken,
+            transactionId: verified.transactionId,
             atMs: toEpochMs(clock.now()),
           });
         } catch (error) {
@@ -142,6 +149,7 @@ export async function registerReadingCommerceRoutes(
       const granted = await ledger.grantPurchase({
         ownerUserId: owner,
         platform,
+        appId: commerceAppId(config, platform),
         productId: productId as ReadingCommerceProductId,
         purchaseToken,
         transactionId: verified.transactionId,
@@ -163,6 +171,9 @@ export async function registerReadingCommerceRoutes(
     } catch (error) {
       if (error instanceof ReadingEntitlementError && error.code === 'owned_by_other') {
         return reply.code(200).send(successEnvelope({ granted: false, reason: 'purchase_bound_to_other_account' }));
+      }
+      if (error instanceof ReadingEntitlementError && error.code === 'invalid') {
+        return reply.code(400).send(errorEnvelope(ErrorCode.invalidRequest));
       }
       return reply.code(503).send(errorEnvelope(ErrorCode.noConfiguration));
     }

@@ -33,6 +33,7 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
     _phase = PalmPhase.analyzing;
     _error = null;
     _lastError = null;
+    needsReadingCredit = false;
     safeNotify();
     final cleaned = image.path.replaceAll(RegExp(r'[^A-Za-z0-9]'), '');
     final tail = cleaned.length >= 12 ? cleaned.substring(cleaned.length - 12) : cleaned;
@@ -142,7 +143,8 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
         }
       case ReadingLiveKind.failed:
         _resumeTimer?.cancel();
-        unawaited(_pendingStore?.clear(ReadingType.palm));
+        needsReadingCredit = state.backendCode == 'reading_entitlement_required';
+        if (!needsReadingCredit) unawaited(_pendingStore?.clear(ReadingType.palm));
         _setAnalysisError(
           'analyze',
           PalmAnalysisError(

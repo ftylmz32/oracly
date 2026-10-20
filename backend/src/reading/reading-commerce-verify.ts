@@ -26,6 +26,7 @@ export type ConsumableVerifyResult =
         | 'invalid'
         | 'product_mismatch'
         | 'bundle_mismatch';
+      transactionId?: string;
     };
 
 export type ConsumableVerifier = {
