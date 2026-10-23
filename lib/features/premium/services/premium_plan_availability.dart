@@ -30,8 +30,9 @@ abstract final class PremiumPlanAvailability {
     ];
   }
 
-  /// iOS: only plans the store actually returned may be offered — never a
-  /// pending-price placeholder. Other platforms keep [visiblePlans].
+  /// All platforms offer only products returned by the live store query.
+  /// A fallback repository price is NEVER proof a product can be purchased.
+  /// This also prevents Android partial-catalogue ghost purchase cards.
   static List<PremiumPlanModel> offeredPlans(
     List<PremiumPlanModel> plans, {
     required bool Function(PremiumPlanKind kind) storeReturned,
@@ -39,7 +40,6 @@ abstract final class PremiumPlanAvailability {
   }) {
     final p = platform ?? defaultTargetPlatform;
     final visible = visiblePlans(plans, platform: p);
-    if (p != TargetPlatform.iOS) return visible;
     return [
       for (final plan in visible)
         if (storeReturned(plan.kind)) plan,
@@ -54,7 +54,6 @@ abstract final class PremiumPlanAvailability {
   }) {
     final p = platform ?? defaultTargetPlatform;
     if (!isPurchasable(kind, platform: p)) return false;
-    if (p != TargetPlatform.iOS) return true;
     return plans.any((plan) => plan.kind == kind);
   }
 

@@ -1,6 +1,6 @@
 # ORACLY Premium store setup
 
-**Status:** code-side Play / StoreKit port exists. Products are not created in any store console from this repository.
+**Status:** code-side Play / StoreKit port exists. A supplied Android screen (24 Oct 2026) shows local store price labels for monthly, yearly and lifetime; it does **not** by itself verify product-ID matching, charge success, or receipt/entitlement lifecycle. Store-console state must be verified separately.
 
 ## Product IDs (must match store consoles)
 
@@ -34,7 +34,7 @@ Application id: `app.oracly`
 
 No OpenAI or store secrets in the client. Prices come from the store query.
 
-When products are live, `StorePremiumPurchase.prepare()` sets `isConfigured` and the Premium CTA unlocks. Until then the UI stays on the honest unavailable plaque.
+When the store returns one or more queried products, `StorePremiumPurchase.prepare()` sets `isConfigured`. The Premium plan selector must display **only** actual returned products on Android and iOS (no fallback-price or missing-product cards). A missing catalog must not enable the purchase CTA. Actual purchase, restore, refund and cross-account tests are required before release.
 
 Public legal documents (store policy) are configured only via real HTTPS URLs:
 
@@ -50,11 +50,11 @@ client calls the backend `POST /v1/billing/verify` (`backend/src/routes/billing.
 performs real server-side Apple/Google receipt verification (`backend/src/billing/apple-store.ts`,
 `backend/src/billing/google-play.ts`) and requires an authenticated Firebase identity whenever
 auth is required — including when Firebase/JWT configuration is missing, which fails closed
-with 401 rather than allowing the request through. Purchase-token ownership is currently
-tracked in an in-process map (`backend/src/billing/entitlement-binding.ts`); it is not yet
-durable across restarts or safe with more than one backend instance (tracked P1 — see
-`docs/RELEASE_LEDGER.md`). Minimum client security: never grant from a UI tap; never grant on
-cancel/error/pending.
+with 401 rather than allowing the request through. Purchase-token ownership uses `backend/src/billing/entitlement-repository.ts`:
+production/staging require a durable Firestore transaction and fail closed on an unavailable repository;
+development may opt into in-memory bindings. This is a **source-code assessment**, not proof
+that live deployment credentials, Firestore permissions, or end-to-end payment verification work.
+Minimum client security: never grant from a UI tap; never grant on cancel/error/pending.
 
 ## Gems
 
