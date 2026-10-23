@@ -7,6 +7,7 @@ import '../../../../core/domain/models/premium_plan.dart';
 import '../../../../core/legal/legal_copy.dart';
 import '../../../../core/legal/legal_document_kind.dart';
 import '../../../../core/legal/legal_link_actions.dart';
+import '../../../../core/design_system/oracly_chrome.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/reading_typography.dart';
@@ -28,46 +29,47 @@ class PremiumLegalDisclosure extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF0D0A14).withValues(alpha: 0.96),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: OraclyChrome.goldLight.withValues(alpha: 0.25),
+        ),
+      ),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
         if (namePeriod)
           Text(
             LegalCopy.planDisclosure(selectedPlan),
-            textAlign: TextAlign.center,
-            style: ReadingTypography.footnote(
-              color: AppColors.textSecondary.withValues(alpha: 0.88),
-            ),
+            textAlign: TextAlign.start,
+            style: _disclosureStyle(),
           ),
         if (namePeriod) const SizedBox(height: 8),
         Text(
           LegalCopy.storeBillingNote,
-          textAlign: TextAlign.center,
-          style: ReadingTypography.footnote(
-            color: AppColors.textHint.withValues(alpha: 0.9),
-          ),
+          textAlign: TextAlign.start,
+          style: _disclosureStyle(),
         ),
         if (namePeriod && selectedPlan != PremiumPlanKind.lifetime) ...[
           const SizedBox(height: 6),
           Text(
             LegalCopy.cancelNote,
-            textAlign: TextAlign.center,
-            style: ReadingTypography.footnote(
-              color: AppColors.textHint.withValues(alpha: 0.9),
-            ),
+            textAlign: TextAlign.start,
+            style: _disclosureStyle(),
           ),
         ],
         if (showRestoreHint) ...[
           const SizedBox(height: 6),
           Text(
             LegalCopy.restoreNote,
-            textAlign: TextAlign.center,
-            style: ReadingTypography.footnote(
-              color: AppColors.textHint.withValues(alpha: 0.9),
-            ),
+            textAlign: TextAlign.start,
+            style: _disclosureStyle(),
           ),
         ],
-        const SizedBox(height: 14),
+        const SizedBox(height: 12),
         Wrap(
           alignment: WrapAlignment.center,
           spacing: 10,
@@ -95,9 +97,19 @@ class PremiumLegalDisclosure extends StatelessWidget {
             ),
           ],
         ),
-      ],
+        ],
+      ),
     );
   }
+
+  TextStyle _disclosureStyle() => ReadingTypography.metadata(
+    color: OraclyChrome.cream.withValues(alpha: 0.87),
+  ).copyWith(
+    fontSize: 13.5,
+    height: 1.42,
+    fontStyle: FontStyle.normal,
+    fontWeight: FontWeight.w400,
+  );
 }
 
 class _Dot extends StatelessWidget {
