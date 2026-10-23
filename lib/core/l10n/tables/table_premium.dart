@@ -5,19 +5,19 @@ import '../l10n_triple.dart';
 
 const kL10nPremium = <String, L10nTriple>{
   'premium.hero_title': L10nTriple(
-    'SANA ÖZEL DAHA FAZLASI',
-    'MORE THAT IS YOURS',
-    'БОЛЬШЕ — ЛИЧНО ТЕБЕ',
+    'KENDİNE AİT BİR DÜNYA',
+    'A WORLD OF YOUR OWN',
+    'ТВОЙ СОБСТВЕННЫЙ МИР',
   ),
   'premium.hero_lead': L10nTriple(
-    'Kahve ve el falı açık kalır.',
-    'Coffee and palm stay open.',
-    'Кофе и ладонь остаются открытыми.',
+    'Kahve ve el falı için Premium gerekmez.',
+    'Coffee and palm readings do not require Premium.',
+    'Для кофе и хиромантии Премиум не нужен.',
   ),
   'premium.hero_subtitle': L10nTriple(
-    'Ruh Eşi portresi ve beş bölümlük yorum. Ücretsiz sınırdan sonra Luna yazışması ve ses.',
-    'A Soulmate portrait and a five-part reading. After the free limit, Luna writing and voice.',
-    'Портрет родственной души и пятичастное толкование. После бесплатного предела — письмо и голос Luna.',
+    'Ruh Eşi portresi ve beş bölümlük kişisel yorum. İlk ücretsiz sohbetin ardından Luna ile yazışmaya ve sesli konuşmaya devam et.',
+    'A Soulmate portrait and a five-part personal reading. After your first free conversation, keep writing and speaking with Luna.',
+    'Портрет родственной души и личное толкование из пяти частей. После первого бесплатного разговора продолжай переписку и голосовое общение с Luna.',
   ),
   'premium.see_plans': L10nTriple(
     'Planları gör',
