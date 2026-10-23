@@ -68,7 +68,8 @@ class _StorePort implements PremiumPurchasePort {
   @override
   Future<void> prepare() async {}
   @override
-  String? priceLabel(PremiumPlanKind plan) => null;
+  String? priceLabel(PremiumPlanKind plan) =>
+      plan == PremiumPlanKind.monthly ? 'STORE-MONTHLY' : null;
 
   @override
   Future<PremiumPurchaseResult> purchase(PremiumPlanKind plan) async {
