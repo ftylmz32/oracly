@@ -72,9 +72,9 @@ const kL10nPremium = <String, L10nTriple>{
   ),
   'premium.exclusive': L10nTriple('Premium', 'Premium', 'Премиум'),
   'premium.gem_note': L10nTriple(
-    'Üç kart ve üzeri tarot · {n} Mücevher. Premium mücevher vermez.',
-    'Three-card tarot and above · {n} gems. Premium does not grant gems.',
-    'Таро из трёх карт и больше · {n} кристаллов. Премиум кристаллы не выдаёт.',
+    'Üç kart ve üzeri tarot · {n} Mücevher. Mücevherler üyelikten ayrıdır.',
+    'Three-card tarot and above · {n} gems. Gems are separate from membership.',
+    'Таро от трёх карт · {n} кристаллов. Кристаллы не входят в подписку.',
   ),
   'premium.benefit.soulmate.title': L10nTriple(
     'Ruh Eşi',
@@ -318,9 +318,9 @@ const kL10nPremium = <String, L10nTriple>{
   ),
   'premium.gem_section_title': L10nTriple('Mücevher', 'Gem', 'Кристалл'),
   'premium.cta_hint_configured': L10nTriple(
-    'Hazır olduğunda mağazadan sakinçe devam edebilirsin.',
-    'When you are ready, you can continue calmly through the store.',
-    'Когда будешь готов, можно спокойно продолжить через магазин.',
+    'Ödeme Google Play veya App Store üzerinden tamamlanır.',
+    'Payment is completed through Google Play or the App Store.',
+    'Оплата выполняется через Google Play или App Store.',
   ),
   'premium.plan_price_pending': L10nTriple(
     'Mağaza fiyatı',
