@@ -80,6 +80,8 @@ abstract final class PremiumCopy {
   static String get ctaExplore => _t('premium.cta_explore');
   static String get homeBannerTitle => _t('premium.home_banner_title');
   static String get homeBannerBody => _t('premium.home_banner_body');
+  static String get homeInviteAction => _t('premium.home_invite_action');
+  static String get homeMemberAction => _t('premium.home_member_action');
   static String get ctaJoin => _t('premium.cta_join');
   static String get ctaActive => _t('premium.cta_active');
   static String get ctaUnavailable => _t('premium.cta_unavailable');
