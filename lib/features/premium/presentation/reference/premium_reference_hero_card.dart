@@ -9,6 +9,7 @@ import '../../../../core/design_system/oracly_soft_reveal.dart';
 import '../../../../core/theme/reading_typography.dart';
 import 'premium_chamber_plate.dart';
 import 'premium_quiet_action.dart';
+import 'premium_reference_value_highlights.dart';
 
 class PremiumReferenceHeroCard extends StatelessWidget {
   const PremiumReferenceHeroCard({
@@ -69,6 +70,8 @@ class PremiumReferenceHeroCard extends StatelessWidget {
               ),
             ),
           ],
+          const SizedBox(height: 16),
+          const PremiumReferenceValueHighlights(),
           if (onSeePlans != null) ...[
             const SizedBox(height: 16),
             Align(
