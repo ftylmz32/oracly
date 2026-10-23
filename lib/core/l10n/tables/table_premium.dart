@@ -5,19 +5,19 @@ import '../l10n_triple.dart';
 
 const kL10nPremium = <String, L10nTriple>{
   'premium.hero_title': L10nTriple(
-    'SANA ÖZEL DAHA FAZLASI',
-    'MORE THAT IS YOURS',
-    'БОЛЬШЕ — ЛИЧНО ТЕБЕ',
+    'KENDİNE AİT BİR DÜNYA',
+    'A WORLD OF YOUR OWN',
+    'ТВОЙ СОБСТВЕННЫЙ МИР',
   ),
   'premium.hero_lead': L10nTriple(
-    'Kahve ve el falı açık kalır.',
-    'Coffee and palm stay open.',
-    'Кофе и ладонь остаются открытыми.',
+    'Kahve ve el falı için Premium gerekmez.',
+    'Coffee and palm readings do not require Premium.',
+    'Для кофе и хиромантии Премиум не нужен.',
   ),
   'premium.hero_subtitle': L10nTriple(
-    'Ruh Eşi portresi ve beş bölümlük yorum. Ücretsiz sınırdan sonra Luna yazışması ve ses.',
-    'A Soulmate portrait and a five-part reading. After the free limit, Luna writing and voice.',
-    'Портрет родственной души и пятичастное толкование. После бесплатного предела — письмо и голос Luna.',
+    'Ruh Eşi portresi ve beş bölümlük kişisel yorum. İlk ücretsiz sohbetin ardından Luna ile yazışmaya ve sesli konuşmaya devam et.',
+    'A Soulmate portrait and a five-part personal reading. After your first free conversation, keep writing and speaking with Luna.',
+    'Портрет родственной души и личное толкование из пяти частей. После первого бесплатного разговора продолжай переписку и голосовое общение с Luna.',
   ),
   'premium.see_plans': L10nTriple(
     'Planları gör',
@@ -72,9 +72,9 @@ const kL10nPremium = <String, L10nTriple>{
   ),
   'premium.exclusive': L10nTriple('Premium', 'Premium', 'Премиум'),
   'premium.gem_note': L10nTriple(
-    'Üç kart ve üzeri tarot · {n} Mücevher. Premium mücevher vermez.',
-    'Three-card tarot and above · {n} gems. Premium does not grant gems.',
-    'Таро из трёх карт и больше · {n} кристаллов. Премиум кристаллы не выдаёт.',
+    'Üç kart ve üzeri tarot · {n} Mücevher. Mücevherler üyelikten ayrıdır.',
+    'Three-card tarot and above · {n} gems. Gems are separate from membership.',
+    'Таро от трёх карт · {n} кристаллов. Кристаллы не входят в подписку.',
   ),
   'premium.benefit.soulmate.title': L10nTriple(
     'Ruh Eşi',
@@ -318,9 +318,9 @@ const kL10nPremium = <String, L10nTriple>{
   ),
   'premium.gem_section_title': L10nTriple('Mücevher', 'Gem', 'Кристалл'),
   'premium.cta_hint_configured': L10nTriple(
-    'Hazır olduğunda mağazadan sakinçe devam edebilirsin.',
-    'When you are ready, you can continue calmly through the store.',
-    'Когда будешь готов, можно спокойно продолжить через магазин.',
+    'Ödeme Google Play veya App Store üzerinden tamamlanır.',
+    'Payment is completed through Google Play or the App Store.',
+    'Оплата выполняется через Google Play или App Store.',
   ),
   'premium.plan_price_pending': L10nTriple(
     'Mağaza fiyatı',

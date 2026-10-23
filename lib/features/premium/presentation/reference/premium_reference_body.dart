@@ -57,7 +57,8 @@ class PremiumReferenceBody extends StatelessWidget {
         PremiumReferenceTokens.screenHorizontal,
         PremiumReferenceTokens.headerToHero,
         PremiumReferenceTokens.screenHorizontal,
-        AppLayout.scrollBottomInset(context) + AppSpacing.s16,
+        // Keep the legal links above the floating, translucent bottom navigation.
+        AppLayout.scrollBottomInset(context) + AppSpacing.s48,
       ),
       children: [
         Center(
