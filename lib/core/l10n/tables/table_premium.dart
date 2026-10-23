@@ -262,9 +262,19 @@ const kL10nPremium = <String, L10nTriple>{
     'С Премиумом',
   ),
   'premium.home_banner_body': L10nTriple(
-    'Ruh Eşi portresi ve süren Luna sohbeti. Kahve ve el falı ücretsiz kalır.',
-    'A Soulmate portrait and a Luna conversation that continues. Coffee and palm stay free.',
-    'Портрет родственной души и продолжающийся разговор с Luna. Кофе и ладонь остаются бесплатными.',
+    'Ruh Eşi portresi · Luna sohbeti · Tema izi',
+    'Soulmate portrait · Luna conversation · Theme trace',
+    'Портрет родственной души · Разговор с Luna · След темы',
+  ),
+  'premium.home_invite_action': L10nTriple(
+    'Keşfet',
+    'Explore',
+    'Узнать',
+  ),
+  'premium.home_member_action': L10nTriple(
+    'Üyeliğim',
+    'My membership',
+    'Мой Премиум',
   ),
   'premium.cta_active': L10nTriple(
     'Premium üyesin',
