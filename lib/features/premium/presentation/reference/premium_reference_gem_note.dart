@@ -29,15 +29,15 @@ class PremiumReferenceGemNote extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Row(
             children: [
-              const OraclyGemIcon(size: 48, glow: 0.8),
-              const SizedBox(width: 12),
+              const OraclyGemIcon(size: 28, glow: 0.55),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   PremiumCopy.gemNote(GemEconomy.tarotReading),
                   softWrap: true,
-                  style: ReadingTypography.secondary(
+                  style: ReadingTypography.metadata(
                     color: OraclyChrome.cream.withValues(alpha: 0.78),
-                  ),
+                  ).copyWith(fontSize: 12.5, height: 1.4),
                 ),
               ),
             ],
