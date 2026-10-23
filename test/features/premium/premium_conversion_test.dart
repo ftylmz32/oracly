@@ -30,14 +30,14 @@ void main() {
     expect(PremiumCopy.unlocks, contains(PremiumCopy.benefitJourneyTitle));
     expect(PremiumCopy.whatTitle, 'ÜCRETSİZ KALAN');
     expect(PremiumCopy.whyTitle, 'PREMIUM EKLER');
-    expect(PremiumCopy.heroTitle, 'SANA ÖZEL DAHA FAZLASI');
+    expect(PremiumCopy.heroTitle, 'KENDİNE AİT BİR DÜNYA');
     expect(PremiumCopy.heroSubtitle, contains('Ruh Eşi'));
     expect(PremiumCopy.benefitJourneyBody, contains('ana sayfa'));
     expect(PremiumCopy.benefitJourneyBody, contains('gözlem sayısı'));
     expect(PremiumCopy.benefitJourneyBody, contains('ücretsiz'));
     expect(PremiumCopy.benefitOrBody, contains('bir kez'));
     expect(PremiumCopy.benefitOrBody.toLowerCase(), contains('ses'));
-    expect(PremiumCopy.heroLead.toLowerCase(), contains('açık kalır'));
+    expect(PremiumCopy.heroLead.toLowerCase(), contains('gerekmez'));
     expect(PremiumCopy.gateTitle.toLowerCase(), isNot(contains('gerekli')));
     expect(PremiumCopy.ctaUnavailable, 'Mağaza satın alması henüz açılmadı.');
     expect(
