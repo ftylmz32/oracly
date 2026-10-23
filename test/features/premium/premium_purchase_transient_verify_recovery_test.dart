@@ -164,6 +164,55 @@ void main() {
   );
 
   test(
+    'charged purchase with unresolved proof blocks a second charge until verification resolves',
+    () async {
+      final h = await _freeUserOnPaywall([
+        PremiumVerifyResult.error('network_or_parse'),
+        PremiumVerifyResult.error('network_or_parse'),
+        PremiumVerifyResult.active('subscription_active'),
+      ]);
+
+      await h.controller.purchase();
+      expect(h.port.purchases, 1);
+      expect(h.controller.entitlement, PremiumEntitlementState.pending);
+      expect(h.controller.isPremium, isFalse,
+          reason: 'pending receipt never unlocks paid features');
+      expect(await h.premium.readPurchaseCredentials(), isNotNull);
+
+      final repeatedTap = await h.controller.purchase();
+      expect(repeatedTap.granted, isFalse);
+      expect(h.port.purchases, 1,
+          reason: 'no new billing attempt while a paid receipt remains unresolved');
+
+      h.clock.advance(PremiumStatusController.retryThrottle);
+      await h.controller.ensureFresh();
+      expect(h.controller.entitlement, PremiumEntitlementState.active);
+      expect(h.controller.isPremium, isTrue);
+      expect(h.port.purchases, 1,
+          reason: 'the stored receipt must unlock without another purchase');
+    },
+  );
+
+  test(
+    'definitively expired saved proof releases the purchase hold',
+    () async {
+      final h = await _freeUserOnPaywall([
+        PremiumVerifyResult.error('network_or_parse'),
+        PremiumVerifyResult.error('network_or_parse'),
+        PremiumVerifyResult.expired('subscription_expired'),
+      ]);
+      await h.controller.purchase();
+      expect(h.controller.entitlement, PremiumEntitlementState.pending);
+      h.clock.advance(PremiumStatusController.retryThrottle);
+      await h.controller.ensureFresh();
+      expect(h.controller.entitlement, PremiumEntitlementState.inactive);
+      expect(await h.premium.readPurchaseCredentials(), isNull,
+          reason: 'conclusively expired proof may be retired');
+      expect(h.controller.isPremium, isFalse);
+    },
+  );
+
+  test(
     'charged purchase + transient verify error -> the pre-purchase inactive '
     'verdict is no longer fresh, so the next gate re-verifies the SAME proof '
     'and unlocks Premium without a second purchase',

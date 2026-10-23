@@ -163,9 +163,13 @@ class PremiumEntitlementReconciler {
         (result.status == PremiumVerifyStatus.unverified &&
             _unusableCredentialReasons.contains(result.reason));
     if (!unusable) {
-      // Never grant, never retire; freshness throttles the next attempt.
+      // A store-acknowledged receipt is durably saved but has no definitive
+      // verdict. Blocking another purchase avoids charging a second time
+      // while the same proof is awaiting backend verification. The pending
+      // state grants no Premium access. A later reconcile can activate it
+      // or conclusively release the hold on expired/invalid evidence.
       return PremiumReconcileSnapshot(
-        entitlement: PremiumEntitlementState.inactive,
+        entitlement: PremiumEntitlementState.pending,
         message: result.reason,
         definitive: false,
       );
