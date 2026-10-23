@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/accessibility/oracly_a11y.dart';
-import '../../../core/copy/premium_copy.dart';
 import '../../../core/design_system/app_spacing.dart';
 import '../../../core/design_system/oracly_chrome.dart';
 import '../../../core/navigation/oracly_navigation_service.dart';
@@ -39,11 +38,7 @@ class HomeReferencePremiumCard extends ConsumerWidget {
     final pad =
         layout?.premiumPadding ?? const EdgeInsets.fromLTRB(12, 8, 10, 8);
     final crown = layout?.premiumCrownSize ?? 34;
-    final cta = !status.loaded
-        ? PremiumCopy.ctaBusy
-        : status.isPremium
-            ? PremiumCopy.ctaActive
-            : PremiumCopy.ctaJoin;
+    final cta = copy.actionLabel;
 
     return LayoutBuilder(
       builder: (context, constraints) {
