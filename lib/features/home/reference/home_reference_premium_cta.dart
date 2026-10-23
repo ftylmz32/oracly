@@ -25,7 +25,7 @@ class HomeReferencePremiumCta extends StatelessWidget {
       child: OraclyPressable(
         onTap: onTap,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 88, minHeight: 34),
+          constraints: const BoxConstraints(minWidth: 88, minHeight: 44),
           child: DecoratedBox(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(18),
