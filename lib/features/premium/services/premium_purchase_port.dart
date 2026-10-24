@@ -25,3 +25,12 @@ abstract class PremiumPurchasePort {
   /// Purchase completed while no waiter (kill / delay). Default: none.
   Future<PremiumPurchaseResult?> consumeUnsolicitedGrant() async => null;
 }
+
+/// Optional: a port that can re-read the store's own record of this
+/// device's purchases without buying or restoring. Returns the product ids
+/// the store still reports as unfinished, or null when it could not be
+/// read. A newly finished purchase found there (not yet acknowledged) is
+/// handled like a stream delivery: proof saved first, then acknowledged.
+abstract interface class StorePurchaseRefresher {
+  Future<Set<String>?> refreshStorePurchases();
+}

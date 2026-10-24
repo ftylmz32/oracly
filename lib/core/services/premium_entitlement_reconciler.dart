@@ -4,6 +4,7 @@ library;
 import 'package:flutter/foundation.dart';
 
 import '../../features/premium/models/premium_entitlement_state.dart';
+import '../../features/premium/models/premium_store_pending.dart';
 import '../../features/premium/models/premium_verify_result.dart';
 import '../../features/premium/services/premium_dev_override.dart';
 import '../../features/premium/services/premium_entitlement_verifier.dart';
@@ -16,10 +17,15 @@ class PremiumReconcileSnapshot {
     required this.entitlement,
     this.message,
     this.definitive = true,
+    this.pendingKind,
   });
 
   final PremiumEntitlementState entitlement;
   final String? message;
+
+  /// Set when [entitlement] is pending: an unfinished store transaction or
+  /// a finished one whose saved receipt awaits a backend verdict.
+  final PremiumPendingKind? pendingKind;
 
   /// False only for transient verify/transport failures that preserve a
   /// previously-proven active grant without freshly confirming it.
@@ -56,7 +62,9 @@ class PremiumEntitlementReconciler {
       // store, so a missing store connection must not strand a paid
       // purchase. Store availability decides only when nothing is saved.
       if (!await premium.isPremiumActive()) {
-        final recovered = await _recoverFromSavedCredentials();
+        final recovered = await _withStoreHold(
+          await _recoverFromSavedCredentials(),
+        );
         if (recovered != null) return recovered;
       }
       return const PremiumReconcileSnapshot(
@@ -85,10 +93,33 @@ class PremiumEntitlementReconciler {
     // recovery credentials whose first backend verify never succeeded
     // (transient failure, app killed, response lost). Their presence proves
     // nothing — only a fresh backend verify can grant.
-    return await _recoverFromSavedCredentials() ??
+    return await _withStoreHold(await _recoverFromSavedCredentials()) ??
         const PremiumReconcileSnapshot(
           entitlement: PremiumEntitlementState.inactive,
         );
+  }
+
+  /// A store transaction that has not finished yet holds new purchases
+  /// whenever no saved receipt already unlocks or holds them. It is never
+  /// proof of payment: no grant, not definitive.
+  Future<PremiumReconcileSnapshot?> _withStoreHold(
+    PremiumReconcileSnapshot? recovered,
+  ) async {
+    if (recovered != null &&
+        recovered.entitlement != PremiumEntitlementState.inactive) {
+      return recovered;
+    }
+    final repository = premium;
+    if (repository is! PremiumStorePendingStore) return recovered;
+    final unfinished =
+        await (repository as PremiumStorePendingStore).readStorePending();
+    if (unfinished == null) return recovered;
+    return const PremiumReconcileSnapshot(
+      entitlement: PremiumEntitlementState.pending,
+      message: 'store_transaction_unfinished',
+      definitive: false,
+      pendingKind: PremiumPendingKind.store,
+    );
   }
 
   /// Backend reasons that prove THIS token can never verify. Everything else
@@ -162,6 +193,7 @@ class PremiumEntitlementReconciler {
       return PremiumReconcileSnapshot(
         entitlement: PremiumEntitlementState.pending,
         message: result.reason,
+        pendingKind: PremiumPendingKind.verification,
       );
     }
 
@@ -180,6 +212,7 @@ class PremiumEntitlementReconciler {
         entitlement: PremiumEntitlementState.pending,
         message: result.reason,
         definitive: false,
+        pendingKind: PremiumPendingKind.verification,
       );
     }
 
@@ -233,6 +266,7 @@ class PremiumEntitlementReconciler {
       return PremiumReconcileSnapshot(
         entitlement: PremiumEntitlementState.pending,
         message: result.reason,
+        pendingKind: PremiumPendingKind.verification,
       );
     }
 

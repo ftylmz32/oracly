@@ -58,6 +58,8 @@ dependencies:
   url_launcher: ^6.3.2
   camera: ^0.12.0+2
   in_app_purchase: ^3.3.0
+  # Play-only purchase query (queryPurchasesAsync) for unfinished payments.
+  in_app_purchase_android: ^0.5.2
   flutter_image_compress: ^2.5.1
   image: ^4.9.2
   firebase_app_check: 0.4.6

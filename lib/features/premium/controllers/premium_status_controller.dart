@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import '../../../core/domain/models/premium_plan.dart';
 import '../../../core/services/premium_service.dart';
 import '../models/premium_entitlement_state.dart';
+import '../models/premium_store_pending.dart';
 import '../models/premium_purchase_result.dart';
 import '../models/review_access_result.dart';
 import '../services/premium_plan_availability.dart';
@@ -21,6 +22,7 @@ class PremiumStatusController extends ChangeNotifier {
   bool _loaded = false;
   PremiumEntitlementState _entitlement = PremiumEntitlementState.inactive;
   String? _entitlementMessage;
+  PremiumPendingKind? _pendingKind;
   PremiumPlanKind _selectedPlan = PremiumPlanKind.yearly;
   PremiumPlanKind? _activePlan;
   List<PremiumPlanModel> _plans = const [];
@@ -65,6 +67,11 @@ class PremiumStatusController extends ChangeNotifier {
   PremiumEntitlementState get entitlement => _entitlement;
   String? get entitlementMessage => _entitlementMessage;
 
+  /// While [entitlement] is pending: whether the store itself has not
+  /// finished the transaction, or a finished one awaits verification.
+  PremiumPendingKind? get pendingKind =>
+      _entitlement == PremiumEntitlementState.pending ? _pendingKind : null;
+
   /// Commerce entitlement OR an active Play/App Store reviewer grant —
   /// distinguishable via [isReviewAccessActive]; never written back into
   /// [entitlement], and never mixed with purchase credentials.
@@ -107,7 +114,7 @@ class PremiumStatusController extends ChangeNotifier {
           _plans,
         );
       }
-      await _guardedReconcile(keepActiveWhileRefreshing: true);
+      await _guardedReconcile(keepActiveWhileRefreshing: true, scanStore: true);
       _loaded = true;
     } catch (_) {
       _fail(PremiumPurchaseResult.failed().message);
@@ -133,22 +140,34 @@ class PremiumStatusController extends ChangeNotifier {
 
   /// R3.1 — bypass definitive freshness + retry throttle after a definite
   /// server entitlement denial. Still single-flight.
-  Future<void> forceReconcile() async {
+  Future<void> forceReconcile({bool userInitiated = false}) async {
     _freshness.bypassCaches();
     if (!_loaded) {
       await load();
       return;
     }
-    await _guardedReconcile(keepActiveWhileRefreshing: true);
+    await _guardedReconcile(
+      keepActiveWhileRefreshing: true,
+      scanStore: userInitiated,
+      userInitiated: userInitiated,
+    );
     _publish();
   }
 
   /// R3 — single-flight: concurrent callers share one in-flight reconcile.
-  Future<void> _guardedReconcile({required bool keepActiveWhileRefreshing}) {
+  Future<void> _guardedReconcile({
+    required bool keepActiveWhileRefreshing,
+    bool scanStore = false,
+    bool userInitiated = false,
+  }) {
     final existing = _inFlight;
     if (existing != null) return existing;
     final future =
-        _reconcile(keepActiveWhileRefreshing: keepActiveWhileRefreshing)
+        _reconcile(
+              keepActiveWhileRefreshing: keepActiveWhileRefreshing,
+              scanStore: scanStore,
+              userInitiated: userInitiated,
+            )
             .then((definitive) {
               _freshness.recordAttempt(definitive: definitive, now: _now());
             })
@@ -191,7 +210,7 @@ class PremiumStatusController extends ChangeNotifier {
         _storeTransactionInFlight) {
       return Future.value();
     }
-    final future = forceReconcile().whenComplete(() {
+    final future = forceReconcile(userInitiated: true).whenComplete(() {
       _pendingCheck = null;
       _publish();
     });
@@ -238,6 +257,7 @@ class PremiumStatusController extends ChangeNotifier {
       return PremiumPurchaseResult.unavailable();
     }
     _storeTransactionInFlight = true;
+    _pendingKind = PremiumPendingKind.store;
     _set(
       PremiumEntitlementState.pending,
       PremiumPurchaseResult.pending().message,
@@ -285,7 +305,11 @@ class PremiumStatusController extends ChangeNotifier {
   }
 
   /// Returns whether the reconcile conclusion was definitive.
-  Future<bool> _reconcile({required bool keepActiveWhileRefreshing}) async {
+  Future<bool> _reconcile({
+    required bool keepActiveWhileRefreshing,
+    bool scanStore = false,
+    bool userInitiated = false,
+  }) async {
     final wasActive =
         keepActiveWhileRefreshing &&
         _entitlement == PremiumEntitlementState.active &&
@@ -295,9 +319,13 @@ class PremiumStatusController extends ChangeNotifier {
       _entitlement = PremiumEntitlementState.active;
       _entitlementMessage = null;
     }
-    final snap = await _service.reconcile();
+    final snap = await _service.reconcile(
+      scanStore: scanStore,
+      userInitiated: userInitiated,
+    );
     _entitlement = snap.entitlement;
     _entitlementMessage = snap.message;
+    _pendingKind = snap.pendingKind;
     // Review access is a fallback only — real commerce entitlement above
     // is untouched and always takes priority.
     _reviewAccessActive = _entitlement.allowsPremiumFeatures

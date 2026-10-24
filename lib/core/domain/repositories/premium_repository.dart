@@ -2,10 +2,21 @@
 library;
 
 import '../../../features/premium/models/premium_purchase_credentials.dart';
+import '../../../features/premium/models/premium_store_pending.dart';
 import '../models/premium_plan.dart';
 
 abstract interface class PremiumOwnerBoundary {
   bool get ownerAccessReady;
+}
+
+/// Durable, owner-bound record of a store transaction that has not
+/// finished yet. Cleared at the account boundary with the rest of Premium.
+abstract interface class PremiumStorePendingStore {
+  Future<PremiumStorePending?> readStorePending();
+
+  Future<void> saveStorePending(PremiumStorePending pending);
+
+  Future<void> clearStorePending();
 }
 
 abstract class PremiumRepository {

@@ -7,6 +7,7 @@ library;
 import 'package:flutter/foundation.dart';
 
 import '../../features/premium/models/premium_purchase_result.dart';
+import '../../features/premium/models/premium_store_pending.dart';
 import '../../features/premium/models/review_access_result.dart';
 import '../../features/premium/services/local_cache_entitlement_verifier.dart';
 import '../../features/premium/services/premium_entitlement_verifier.dart';
@@ -97,14 +98,42 @@ class PremiumService {
       _purchase.isConfigured && _purchase.priceLabel(kind) != null;
 
   Future<PremiumPurchaseResult> purchase(PremiumPlanKind plan) async {
+    // Defence in depth below any UI state: an unfinished store transaction
+    // or a saved, unresolved receipt means money may already be on its way.
+    // No plan, tap or restart may start another payment until it settles.
+    if (await _holdsUnresolvedPurchase()) {
+      return PremiumPurchaseResult.pending();
+    }
     return _grants.applyStoreOutcome(await _purchase.purchase(plan));
+  }
+
+  Future<bool> _holdsUnresolvedPurchase() async {
+    if (await _readStorePending() != null) return true;
+    final creds = await _premium.readPurchaseCredentials();
+    return creds != null && creds.isComplete && !_premium.isActiveNow;
+  }
+
+  Future<PremiumStorePending?> _readStorePending() async {
+    final premium = _premium;
+    if (premium is! PremiumStorePendingStore) return null;
+    return (premium as PremiumStorePendingStore).readStorePending();
   }
 
   Future<PremiumPurchaseResult> restore() async {
     return _grants.applyStoreOutcome(await _purchase.restore());
   }
 
-  Future<PremiumReconcileSnapshot> reconcile({bool forceReleaseMode = false}) {
+  /// [scanStore] also re-reads the store's own purchase list (load and a
+  /// user's status check); with a recorded unfinished transaction it is
+  /// always re-read. [userInitiated] is the only case where a successful
+  /// read that no longer lists the transaction releases the hold: an empty
+  /// or failed automatic read never counts as a decline.
+  Future<PremiumReconcileSnapshot> reconcile({
+    bool forceReleaseMode = false,
+    bool scanStore = false,
+    bool userInitiated = false,
+  }) async {
+    await _refreshStore(scanStore: scanStore, userInitiated: userInitiated);
     return PremiumEntitlementReconciler(
       premium: _premium,
       purchaseConfigured: purchaseConfigured,
@@ -112,6 +141,62 @@ class PremiumService {
       verifier: _verifier,
       forceReleaseMode: forceReleaseMode || this.forceReleaseMode,
     ).reconcile();
+  }
+
+  Future<void> _refreshStore({
+    required bool scanStore,
+    required bool userInitiated,
+  }) async {
+    final port = _purchase;
+    if (port is! StorePurchaseRefresher) return;
+    if (_premium.isActiveNow && _premium.wasAuthoritativelyVerified) return;
+    final recorded = await _readStorePending();
+    if (recorded == null && !scanStore && !userInitiated) return;
+
+    final unfinished =
+        await (port as StorePurchaseRefresher).refreshStorePurchases();
+    // A purchase the store finished while we were away was saved and
+    // acknowledged by the refresh; verify it like any late delivery.
+    final late = await _purchase.consumeUnsolicitedGrant();
+    if (late != null && late.granted && late.plan != null) {
+      await _grants.applyStoreOutcome(late);
+    }
+    if (unfinished == null) return; // store unreadable: keep what we have
+    if (unfinished.isNotEmpty) {
+      if (recorded == null) await _recordStorePending(unfinished.first);
+      return;
+    }
+    if (recorded != null && userInitiated) {
+      // The store answered and no longer lists the transaction as pending
+      // or newly finished: it was declined or cancelled while we were away.
+      await _clearStorePending(recorded.productId);
+    }
+  }
+
+  Future<void> _recordStorePending(String productId) {
+    return UserLocalDataIsolation.runOwnerScopedMutation(() async {
+      final premium = _premium;
+      if (premium is! PremiumStorePendingStore || !ownerAccessReady) return;
+      await (premium as PremiumStorePendingStore).saveStorePending(
+        PremiumStorePending(
+          platform: defaultTargetPlatform == TargetPlatform.iOS
+              ? 'ios'
+              : 'android',
+          productId: productId,
+          sinceUtc: DateTime.now().toUtc(),
+        ),
+      );
+    });
+  }
+
+  Future<void> _clearStorePending(String productId) {
+    return UserLocalDataIsolation.runOwnerScopedMutation(() async {
+      final premium = _premium;
+      if (premium is! PremiumStorePendingStore || !ownerAccessReady) return;
+      final store = premium as PremiumStorePendingStore;
+      if ((await store.readStorePending())?.productId != productId) return;
+      await store.clearStorePending();
+    });
   }
 
   /// Google Play / App Store closed-test reviewer entitlement — entirely

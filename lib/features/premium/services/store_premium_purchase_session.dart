@@ -14,7 +14,22 @@ import 'store_purchase_terminal_handler.dart';
 
 export 'store_purchase_terminal_handler.dart' show PersistRetryCredentials;
 
+/// Durably records / clears a store transaction that is not finished yet,
+/// keyed by product id. Never a receipt; never grants.
+typedef StorePendingWrite = Future<void> Function(String productId);
+
 class StorePremiumPurchaseSession {
+  StorePremiumPurchaseSession({
+    StorePendingWrite? onStorePending,
+    StorePendingWrite? onStoreSettled,
+  })
+    // ignore: prefer_initializing_formals
+    : _onStorePending = onStorePending,
+       // ignore: prefer_initializing_formals
+       _onStoreSettled = onStoreSettled;
+
+  final StorePendingWrite? _onStorePending;
+  final StorePendingWrite? _onStoreSettled;
   StreamSubscription<List<PurchaseDetails>>? _sub;
   Completer<PremiumPurchaseResult>? _wait;
   PremiumPlanKind? _expected;
@@ -67,16 +82,18 @@ class StorePremiumPurchaseSession {
     return grant;
   }
 
-  Future<PremiumPurchaseResult> wait(Duration timeout) async {
+  /// [onTimeout] decides what silence from the store means: a purchase
+  /// that never answered is unfinished, not failed.
+  Future<PremiumPurchaseResult> wait(
+    Duration timeout, {
+    PremiumPurchaseResult Function() onTimeout = PremiumPurchaseResult.failed,
+  }) async {
     final wait = _wait;
     if (wait == null) return PremiumPurchaseResult.failed();
     try {
-      return await wait.future.timeout(
-        timeout,
-        onTimeout: () => PremiumPurchaseResult.failed(),
-      );
+      return await wait.future.timeout(timeout, onTimeout: onTimeout);
     } on TimeoutException {
-      return PremiumPurchaseResult.failed();
+      return onTimeout();
     }
   }
 
@@ -103,14 +120,24 @@ class StorePremiumPurchaseSession {
     Future<void> Function(PurchaseDetails purchase) completePurchase,
     PersistRetryCredentials? persistRetryCredentials,
   ) async {
+    final recognized = PremiumStoreCatalog.kindFor(purchase.productID) != null;
     switch (purchase.status) {
       case PurchaseStatus.pending:
-        // Keep waiting for a terminal status; UI stays busy.
+        // Play PENDING (slow payment, cash, approval): nothing is paid yet
+        // and there is no receipt to verify or acknowledge. Record it
+        // durably so no second purchase starts, even after a restart, and
+        // answer the waiter now instead of letting it time out as failed.
+        if (!recognized) return;
+        await _write(_onStorePending, purchase.productID);
+        _complete(PremiumPurchaseResult.pending());
         return;
       case PurchaseStatus.error:
+        // A terminal store answer (e.g. a slow payment declined).
+        if (recognized) await _write(_onStoreSettled, purchase.productID);
         _complete(PremiumPurchaseResult.failed());
         return;
       case PurchaseStatus.canceled:
+        if (recognized) await _write(_onStoreSettled, purchase.productID);
         _complete(PremiumPurchaseResult.cancelled());
         return;
       case PurchaseStatus.purchased:
@@ -126,7 +153,20 @@ class StorePremiumPurchaseSession {
           persistRetryCredentials: persistRetryCredentials,
           completePurchase: completePurchase,
         );
+        // The receipt is saved now; the unfinished-store record is done.
+        if (result != null && result.granted) {
+          await _write(_onStoreSettled, purchase.productID);
+        }
         if (result != null) _complete(result);
+    }
+  }
+
+  static Future<void> _write(StorePendingWrite? write, String productId) async {
+    if (write == null) return;
+    try {
+      await write(productId);
+    } catch (_) {
+      // Storage failed: the next store query or redelivery decides again.
     }
   }
 
