@@ -13,6 +13,17 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/copy/premium_copy.dart';
+import 'package:oracly_new/app/providers/app_providers.dart';
+import 'package:oracly_new/core/data/repositories/mock_premium_repository.dart';
+import 'package:oracly_new/core/design_system/app_layout.dart';
+import 'package:oracly_new/core/storage/in_memory_secure_storage.dart';
+import 'package:oracly_new/features/premium/models/premium_purchase_credentials.dart';
+import 'package:oracly_new/features/premium/models/premium_verify_result.dart';
+import 'package:oracly_new/features/premium/presentation/reference/premium_pending_verify_panel.dart';
+import 'package:oracly_new/features/premium/providers/premium_entitlement_verifier_provider.dart';
+import 'package:oracly_new/features/premium/services/premium_entitlement_verifier.dart';
+import 'package:oracly_new/features/premium/services/premium_store_catalog.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/domain/models/premium_plan.dart';
 import 'package:oracly_new/core/theme/app_theme.dart';
@@ -99,17 +110,58 @@ Future<void> _capture(WidgetTester tester, String name) async {
   });
 }
 
-Future<void> _pump(WidgetTester tester, Size size, double scale) async {
+/// Backend that never gives a definitive verdict: the saved proof stays held.
+class _UndecidedVerifier implements PremiumEntitlementVerifier {
+  @override
+  bool get isRemoteVerifierConfigured => true;
+  @override
+  Future<PremiumVerifyResult> verify({
+    required String platform,
+    required String productId,
+    required String purchaseToken,
+    String? transactionId,
+  }) async => PremiumVerifyResult.error('network');
+}
+
+Future<void> _pump(
+  WidgetTester tester,
+  Size size,
+  double scale, {
+  bool heldProof = false,
+}) async {
   await tester.binding.setSurfaceSize(size);
   addTearDown(() => tester.binding.setSurfaceSize(null));
   SharedPreferences.setMockInitialValues({});
   final storage = await LocalStorage.open();
+  final overrides = <Override>[];
+  if (heldProof) {
+    final premium = MockPremiumRepository(
+      storage,
+      secureStorage: InMemorySecureStorage(),
+    );
+    await premium.savePurchaseCredentials(
+      const PremiumPurchaseCredentials(
+        platform: 'android',
+        productId: PremiumStoreCatalog.monthlyId,
+        purchaseToken: 'held-token',
+        transactionId: 'held-txn',
+      ),
+    );
+    overrides
+      ..add(premiumRepositoryProvider.overrideWithValue(premium))
+      ..add(
+        premiumEntitlementVerifierProvider.overrideWithValue(
+          _UndecidedVerifier(),
+        ),
+      );
+  }
   await tester.pumpWidget(
     RepaintBoundary(
       key: _boundary,
       child: buildProviderScopeHarness(
         storage: storage,
         purchasePort: _PricedStore(),
+        overrides: overrides,
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           // Production always runs the dark theme (light is not selectable).
@@ -214,6 +266,57 @@ void main() {
         expect(find.textContaining('₺', skipOffstage: false), findsNothing,
             reason: 'no price is invented outside the store label');
         await _capture(tester, '${label}_bottom');
+      });
+    }
+  }
+
+  for (final size in _viewports) {
+    for (final scale in _scales) {
+      final label = '${size.width.toInt()}x${size.height.toInt()}@${scale}x';
+      testWidgets('pending purchase panel $label', (tester) async {
+        await _pump(tester, size, scale, heldProof: true);
+        expect(tester.takeException(), isNull);
+        expect(find.byType(PremiumPendingVerifyPanel), findsOneWidget);
+        expect(find.byType(PremiumReferencePlanCard), findsNothing);
+        expect(find.byType(OraclyGoldButton), findsNothing);
+        expect(find.textContaining('STORE-'), findsNothing);
+
+        final check = find.text(PremiumCopy.pendingVerifyCheck);
+        await tester.scrollUntilVisible(
+          check,
+          300,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.ensureVisible(check);
+        await tester.pump(const Duration(milliseconds: 80));
+        expect(tester.takeException(), isNull);
+        final panel = find.byType(PremiumPendingVerifyPanel);
+        await Scrollable.ensureVisible(
+          tester.element(panel),
+          alignment: 0.5,
+        );
+        await tester.pump(const Duration(milliseconds: 80));
+        for (final paragraph in tester.renderObjectList<RenderParagraph>(
+          find.descendant(of: panel, matching: find.byType(RichText)),
+        )) {
+          expect(paragraph.didExceedMaxLines, isFalse,
+              reason: 'status text is never cut off: '
+                  '"${paragraph.text.toPlainText()}"');
+        }
+        await _capture(tester, '${label}_pending');
+
+        // Scrolled fully down, the check still clears the floating nav.
+        await tester.drag(find.byType(Scrollable).first, const Offset(0, -4000));
+        await tester.pump(const Duration(milliseconds: 80));
+        final navTop = size.height -
+            24 -
+            AppLayout.navBarHeight -
+            AppLayout.navBarMarginBottom;
+        if (check.evaluate().isNotEmpty &&
+            tester.getRect(check).bottom > 0) {
+          expect(tester.getRect(check).bottom, lessThanOrEqualTo(navTop),
+              reason: 'the floating bottom nav never covers the check');
+        }
       });
     }
   }
