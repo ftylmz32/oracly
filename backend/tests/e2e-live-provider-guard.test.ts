@@ -36,8 +36,39 @@ const observer = (images = 3) =>
     messages: [{ role: 'user', content: Array.from({ length: images }, () => ({ type: 'image_url', image_url: { url: 'data:image/jpeg;base64,AAAA' } })) }],
   });
 const writer = () => init({ model: 'gpt-5.6-sol', response_format: { type: 'json_object' }, messages: [] });
+const direct = (images = 3) =>
+  init({
+    model: 'gpt-5.6-sol',
+    messages: [{ role: 'user', content: Array.from({ length: images }, () => ({ type: 'image_url', image_url: { url: 'data:image/jpeg;base64,AAAA' } })) }],
+  });
 
 describe('Slice 6 live-provider guard', () => {
+  describe('V3D direct-only mode', () => {
+    it('allows only two three-image direct samples for one operation', async () => {
+      const { fetch, seen } = fakeFetch();
+      const g = createLiveProviderGuard({ realFetch: fetch, baseUrl: OFFICIAL_OPENAI_BASE_URL, directOnly: true });
+      await g.fetch(ENDPOINT, direct());
+      await g.fetch(ENDPOINT, direct());
+      await expect(g.fetch(ENDPOINT, direct())).rejects.toThrow(/budget_exhausted/);
+      expect(seen).toHaveLength(2);
+      expect(g.attempts()).toBe(1);
+      expect(g.records().map((r) => [r.kind, r.attempt, r.imageCount])).toEqual([
+        ['direct', 1, 3], ['direct', 1, 3],
+      ]);
+      expect(g.writerOutputs()).toHaveLength(2);
+    });
+
+    it('refuses V3N requests, malformed image counts and incompatible modes before sending', async () => {
+      const { fetch, seen } = fakeFetch();
+      expect(() => createLiveProviderGuard({ realFetch: fetch, baseUrl: OFFICIAL_OPENAI_BASE_URL, directOnly: true, writerOnly: true })).toThrow(/incompatible_modes/);
+      const g = createLiveProviderGuard({ realFetch: fetch, baseUrl: OFFICIAL_OPENAI_BASE_URL, directOnly: true });
+      await expect(g.fetch(ENDPOINT, observer())).rejects.toThrow(/non_direct_request/);
+      await expect(g.fetch(ENDPOINT, writer())).rejects.toThrow(/non_direct_request/);
+      await expect(g.fetch(ENDPOINT, direct(2))).rejects.toThrow(/direct_image_count/);
+      expect(seen).toHaveLength(0);
+    });
+  });
+
   it('only the official endpoint may ever be configured or called', async () => {
     const { fetch, seen } = fakeFetch();
     expect(() => createLiveProviderGuard({ realFetch: fetch, baseUrl: 'https://evil.example/v1' })).toThrow(LiveProviderBudgetError);

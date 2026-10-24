@@ -392,6 +392,65 @@ describe('billing-only Play QA', () => {
     expect((await entitlements.balance(owner)).coffee).toBe(1);
     expect((await entitlements.balance(owner)).palm).toBe(0);
   });
+
+  it('pending, declined, and canceled purchases grant nothing; a voided order drops once', async () => {
+    let listed = 0;
+    const verifier: ConsumableVerifier = {
+      admitted: true,
+      androidAdmitted: true,
+      async verify(request) {
+        if (request.purchaseToken === 'pending') return { ok: false, reason: 'pending' };
+        if (request.purchaseToken === 'declined') return { ok: false, reason: 'invalid' };
+        if (request.purchaseToken === 'canceled') {
+          return { ok: false, reason: 'canceled', transactionId: 'GPA.void' };
+        }
+        if (request.purchaseToken === 'test-void') {
+          return { ok: true, transactionId: 'GPA.void', licenseTest: true };
+        }
+        return { ok: false, reason: 'unverified' };
+      },
+      async listVoided() {
+        listed += 1;
+        return [{ orderId: 'GPA.void', purchaseToken: 'test-void' }];
+      },
+    };
+    const { app, headers, entitlements } = await harness(verifier, commerceConfig(qaEnv));
+    const owner = identityKeyFromSubject('user-a');
+    for (const purchaseToken of ['pending', 'declined', 'canceled']) {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/v1/reading-entitlements/verify',
+        headers: headers(),
+        payload: { platform: 'android', productId: 'app.oracly.reading.coffee', purchaseToken },
+      });
+      expect(response.json().data.granted).toBe(false);
+    }
+    expect((await entitlements.balance(owner)).coffee).toBe(0);
+    const bought = await app.inject({
+      method: 'POST',
+      url: '/v1/reading-entitlements/verify',
+      headers: headers(),
+      payload: { platform: 'android', productId: 'app.oracly.reading.coffee', purchaseToken: 'test-void' },
+    });
+    expect(bought.json().data.balance.coffee).toBe(1);
+    const again = await app.inject({
+      method: 'POST',
+      url: '/v1/reading-entitlements/verify',
+      headers: headers(),
+      payload: { platform: 'android', productId: 'app.oracly.reading.coffee', purchaseToken: 'test-void' },
+    });
+    expect(again.json().data).toMatchObject({ granted: true, idempotent: true });
+    expect((await entitlements.balance(owner)).coffee).toBe(1);
+    const first = await app.inject({
+      method: 'GET', url: '/v1/reading-entitlements/catalog', headers: headers(),
+    });
+    expect(first.json().data.balance.coffee).toBe(0);
+    const second = await app.inject({
+      method: 'GET', url: '/v1/reading-entitlements/catalog', headers: headers(),
+    });
+    expect(second.json().data.balance.coffee).toBe(0);
+    expect(listed).toBe(2);
+  });
 });
 
 function openV3(

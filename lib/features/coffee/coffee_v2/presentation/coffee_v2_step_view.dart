@@ -20,6 +20,7 @@ import '../../presentation/reference/coffee_capture_hint.dart';
 import '../../presentation/reference/coffee_reference_tokens.dart';
 import '../../providers/coffee_providers.dart';
 import '../../services/coffee_image_pick_exception.dart';
+import '../../../reading_commerce/presentation/reading_billing_qa_entry_link.dart';
 import '../copy/coffee_v2_copy.dart';
 import '../models/coffee_v2_photo_slot.dart';
 import '../services/coffee_v2_validation.dart';
@@ -121,6 +122,7 @@ class _CoffeeV2StepViewState extends ConsumerState<CoffeeV2StepView> {
             label: CoffeeV2Copy.actionPickGallery,
             onTap: _pickGallery,
           ),
+          const ReadingBillingQaEntryLink(),
           if (controller.replacingSlot != null) ...[
             SizedBox(height: AppSpacing.s8),
             OraclyQuietLink(

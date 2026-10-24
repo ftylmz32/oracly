@@ -8,6 +8,7 @@ import { decodeSignedAppleTransaction, type AppleStoreConfig } from '../billing/
 import { readingCommerceProduct, type ReadingCommerceProductId } from './reading-commerce-catalog.js';
 import { interpretAppleConsumable } from './reading-consumable-apple.js';
 import { consumePlayPurchase, readPlayConsumable } from './reading-consumable-play.js';
+import { listPlayVoidedPurchases } from './reading-voided-sync.js';
 import {
   createClosedConsumableVerifier,
   type ConsumableVerifier,
@@ -85,6 +86,18 @@ export function createReadingConsumableVerifier(
           : { ok: false, reason: decision.reason, transactionId: decision.transactionId };
       } catch {
         return { ok: false, reason: 'provider_unavailable' };
+      }
+    },
+    async listVoided() {
+      if (!playReady || !playToken) return null;
+      try {
+        return await listPlayVoidedPurchases({
+          fetchImpl,
+          packageName: config.playPackageName,
+          accessToken: await playToken(),
+        });
+      } catch {
+        return null;
       }
     },
     async consume(request) {

@@ -31,6 +31,28 @@ export function interpretPlayConsumable(
   };
 }
 
+export function playVoidedPurchasesUrl(packageName: string, pageToken = ''): string {
+  const page = pageToken ? `&token=${encodeURIComponent(pageToken)}` : '';
+  return 'https://androidpublisher.googleapis.com/androidpublisher/v3/applications/'
+    + `${encodeURIComponent(packageName)}/purchases/voidedpurchases?maxResults=100${page}`;
+}
+
+export function readVoidedPurchases(body: unknown): Array<{ orderId: string; purchaseToken: string }> {
+  if (!body || typeof body !== 'object') return [];
+  const rows = (body as { voidedPurchases?: unknown }).voidedPurchases;
+  if (!Array.isArray(rows)) return [];
+  return rows.flatMap((row) => {
+    if (!row || typeof row !== 'object') return [];
+    const orderId = (row as { orderId?: unknown }).orderId;
+    const purchaseToken = (row as { purchaseToken?: unknown }).purchaseToken;
+    if (typeof orderId !== 'string' || typeof purchaseToken !== 'string') return [];
+    const id = orderId.trim();
+    const token = purchaseToken.trim();
+    if (!id || !token) return [];
+    return [{ orderId: id, purchaseToken: token }];
+  });
+}
+
 export function playProductUrl(packageName: string, productId: string, token: string): string {
   return 'https://androidpublisher.googleapis.com/androidpublisher/v3/applications/'
     + `${encodeURIComponent(packageName)}/purchases/products/`

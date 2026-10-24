@@ -35,6 +35,8 @@ export type ConsumableVerifier = {
   readonly iosAdmitted?: boolean;
   verify(request: ConsumableVerifyRequest): Promise<ConsumableVerifyResult>;
   consume?(request: ConsumableVerifyRequest): Promise<'done' | 'pending' | 'skipped'>;
+  /** Null means the voided list could not be read. Credits stay as they are. */
+  listVoided?(): Promise<Array<{ orderId: string; purchaseToken: string }> | null>;
 };
 
 export function createClosedConsumableVerifier(): ConsumableVerifier {

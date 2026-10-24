@@ -35,7 +35,7 @@ const kL10nDreamRead = <String, L10nTriple>{
     'Чувство ещё не ясно; {scene} всё же оставляет тихий след.',
   ),
   'dream.read.detail.empty': L10nTriple(
-    '',
+    'Keskin bir ayrıntı henüz durmuyor; uydurmadan burada bekliyorum.',
     'No sharp detail sits yet; I stay here without inventing one.',
     'Яркой детали пока нет; остаюсь здесь, ничего не выдумывая.',
   ),

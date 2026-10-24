@@ -9,6 +9,7 @@ import '../../../../core/theme/reading_typography.dart';
 import '../../../../shared/widgets/oracly_gold_button.dart';
 import '../../presentation/reference/coffee_cup_hero.dart';
 import '../../presentation/reference/coffee_reference_tokens.dart';
+import '../../../reading_commerce/presentation/reading_billing_qa_entry_link.dart';
 import '../copy/coffee_v3_copy.dart';
 
 class CoffeeV3IntroView extends StatelessWidget {
@@ -58,6 +59,7 @@ class CoffeeV3IntroView extends StatelessWidget {
             expanded: true,
             onPressed: onStart,
           ),
+          const ReadingBillingQaEntryLink(),
           SizedBox(height: AppSpacing.s24),
         ],
       ),

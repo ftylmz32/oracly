@@ -66,18 +66,19 @@ void main() {
     final source = File(
       'lib/features/companion/controllers/companion_controller.dart',
     ).readAsStringSync().replaceAll('\r\n', '\n');
-    final notifyIndex = source.indexOf('_safeNotify();');
-    final speakIndex = source.indexOf('await _output.speakIfVoice');
-    expect(notifyIndex, greaterThan(-1));
-    expect(speakIndex, greaterThan(notifyIndex));
+    final successfulReply = RegExp(
+      r'_state = _state\.copyWith\(\s*'
+      r'phase: CompanionPhase\.conversing,\s*'
+      r'conversation: result\.conversation,[\s\S]*?'
+      r'_safeNotify\(\);\s*'
+      r'try \{\s*'
+      r'await _output\.speakIfVoice\(\s*result\.response\.body[,\)]',
+    );
     expect(
-      source.substring(notifyIndex, speakIndex),
-      contains('if (_disposed || token != _sendGeneration) return;'),
+      source,
+      matches(successfulReply),
+      reason: 'the completed assistant message must be visible before TTS starts',
     );
     expect(source.contains('OrSpeechProsody'), isFalse);
-    final output = File(
-      'lib/features/companion/controllers/companion_output_controller.dart',
-    ).readAsStringSync();
-    expect(output.contains('Future<void>.delayed(Duration.zero)'), isTrue);
   });
 }

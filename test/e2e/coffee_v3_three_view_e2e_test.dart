@@ -662,4 +662,47 @@ void main() {
       expect(calls.where((x) => x == 'coffee_v3_observation').length, v3CallsBefore);
     }, skip: _skip, timeout: const Timeout(Duration(minutes: 2)));
   });
+
+  group('V3D release-default controlled acceptance', () {
+    test('V3D: three photos -> one operation -> persisted exact result -> reopen', () async {
+      expect((_hs['pipeline'] as Map)['engine'], 'coffee-v3d-direct-pipeline');
+      final s = sender();
+      final c = build(s);
+      await captureThree(c);
+      await _script('unused', ['direct_good']);
+      await c.beginSubmission();
+      final opId = c.operationId!;
+      await _waitFor(() async => c.reading != null, what: 'V3D restored reading');
+      final st = await _state(opId);
+      expect((st['operation'] as Map)['status'], 'ready');
+      expect(st['resultCount'], 1);
+      expect(st['providerCalls'], ['direct']);
+      expect(st['providerImageCounts'], [3]);
+      expect((st['v3Slots'] as List), isEmpty);
+      final server = Map<String, dynamic>.from((st['result'] as Map)['data'] as Map);
+      expect(server['coffeeResultContract'], 'v3_narrative_v1');
+      expect(CoffeeResultText.overall(c.reading!), server['overall']);
+      final reopened = CoffeeReadingStore(storage).byId(c.reading!.id);
+      expect(reopened?.overall, server['overall']);
+      expect(ai.calls, 0);
+    }, skip: _skip, timeout: const Timeout(Duration(minutes: 2)));
+
+    test('V3D: two unsafe samples close terminally, persist no result and clean views', () async {
+      expect((_hs['pipeline'] as Map)['engine'], 'coffee-v3d-direct-pipeline');
+      final c = build(sender());
+      await captureThree(c);
+      await _script('unused', ['direct_leak', 'direct_leak']);
+      await c.beginSubmission();
+      final opId = c.operationId!;
+      await _waitFor(() async => c.observeError != null, what: 'V3D terminal failure');
+      final st = await _state(opId);
+      expect(st['operation'], containsPair('status', 'failed'));
+      expect(st['operation'], containsPair('failureCode', 'unavailable'));
+      expect(st['result'], isNull);
+      expect((st['providerCalls'] as List).cast<String>().sublist((st['providerCalls'] as List).length - 2), ['direct', 'direct']);
+      expect((st['providerImageCounts'] as List).cast<int>().sublist((st['providerImageCounts'] as List).length - 2), [3, 3]);
+      expect(st['v3Slots'], isEmpty);
+      expect(readings.all(), isEmpty);
+    }, skip: _skip, timeout: const Timeout(Duration(minutes: 2)));
+  });
 }

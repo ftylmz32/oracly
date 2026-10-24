@@ -20,6 +20,7 @@ import {
   type ReadingCommerceProductId,
 } from '../reading/reading-commerce-catalog.js';
 import { billingQaRejectsPurchase, catalogPurchasable } from '../reading/reading-billing-qa.js';
+import { syncVoidedReadingPurchases } from '../reading/reading-voided-sync.js';
 import { readingBudgetOpen, readingFulfillmentOpen } from '../reading/reading-commerce-gate.js';
 import {
   ReadingEntitlementError,
@@ -75,6 +76,22 @@ export async function registerReadingCommerceRoutes(
         nowMs,
         lookup: (operationId) => options.lookupOperation!(owner, operationId),
       });
+    }
+    if (verifier.listVoided) {
+      try {
+        const voided = await verifier.listVoided();
+        if (voided) {
+          await syncVoidedReadingPurchases({
+            store: options.store,
+            ownerUserId: owner,
+            appId: commerceAppId(config, 'android'),
+            atMs: nowMs,
+            voided,
+          });
+        }
+      } catch {
+        // A missed voided list must not change a balance.
+      }
     }
     const store = options.store;
     await store.runTransaction(async (tx) => {

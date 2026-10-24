@@ -160,9 +160,21 @@ void main() {
       final st = await state(opId);
       final provider = Map<String, dynamic>.from(st['liveProvider'] as Map);
       final records = (provider['records'] as List).cast<Map>();
+      final pipeline = Map<String, dynamic>.from(hs['pipeline'] as Map);
+      final isDirect = pipeline['engine'] == 'coffee-v3d-direct-pipeline';
       final observers = records.where((r) => r['kind'] == 'observer').toList();
       final writers = records.where((r) => r['kind'] == 'writer').toList();
-      if (hs['replay'] != null) {
+      final directs = records.where((r) => r['kind'] == 'direct').toList();
+      if (isDirect) {
+        expect(hs['replay'], isNull);
+        expect(observers, isEmpty);
+        expect(writers, isEmpty);
+        expect(directs.length, inInclusiveRange(1, 2));
+        for (final d in directs) {
+          expect(d['imageCount'], 3);
+          expect(d['systemPromptSha256'], pipeline['writerPromptSha256']);
+        }
+      } else if (hs['replay'] != null) {
         // Writer-only replay of a recorded real observation: no image left.
         expect(observers, isEmpty);
         expect(records.length, lessThanOrEqualTo(2));
@@ -176,7 +188,6 @@ void main() {
       }
       expect(writers.length, lessThanOrEqualTo(2));
       // The real run used the V3N narrative writer, never the retired M2/W4 one.
-      final pipeline = Map<String, dynamic>.from(hs['pipeline'] as Map);
       expect(pipeline['resultContract'], 'v3_narrative_v1');
       for (final w in writers) {
         expect(w['systemPromptSha256'], pipeline['writerPromptSha256']);

@@ -26,6 +26,7 @@ abstract final class OraclyRuntimeKeys {
   static const devPremium = 'ORACLY_DEV_PREMIUM';
   static const openAiApiKey = 'OPENAI_API_KEY';
   static const appCheckDebugProvider = 'ORACLY_APP_CHECK_DEBUG_PROVIDER';
+  static const readingBillingQa = 'ORACLY_READING_BILLING_QA';
   static const gemEconomyProbe = 'ORACLY_GEM_ECONOMY_PROBE';
 
   /// Public client keys only — never secrets.
@@ -46,6 +47,7 @@ abstract final class OraclyRuntimeKeys {
     OraclyRuntimeKey(devPremium, OraclyRuntimeKeyClass.debugOnly),
     OraclyRuntimeKey(openAiApiKey, OraclyRuntimeKeyClass.debugOnly),
     OraclyRuntimeKey(appCheckDebugProvider, OraclyRuntimeKeyClass.debugOnly),
+    OraclyRuntimeKey(readingBillingQa, OraclyRuntimeKeyClass.debugOnly),
     OraclyRuntimeKey(gemEconomyProbe, OraclyRuntimeKeyClass.debugOnly),
   ];
 

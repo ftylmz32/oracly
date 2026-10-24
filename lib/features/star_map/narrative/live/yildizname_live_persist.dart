@@ -49,6 +49,11 @@ final class YildiznameLivePersist {
         semanticFingerprint: pending.semanticFingerprint,
         createdAtUtc: pending.createdAtUtc,
       );
+    } on YildiznameArtifactOwnerUnavailableException {
+      return YildiznameLiveExecution.failure(
+        YildiznameLiveExecutionKind.ownerChanged,
+        providerCallCount: pending.providerCallCount,
+      );
     } catch (_) {
       return YildiznameLiveExecution.failure(
         YildiznameLiveExecutionKind.persistencePending,

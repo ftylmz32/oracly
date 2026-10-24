@@ -39,7 +39,7 @@ export function systemPromptSha256(body: Record<string, unknown>): string | null
 /** The product contract: two genuine cup photos + one saucer photo, in ONE observer request. */
 export const COFFEE_V3_LIVE_IMAGE_COUNT = 3;
 
-export type LiveRequestKind = 'observer' | 'writer';
+export type LiveRequestKind = 'observer' | 'writer' | 'direct';
 
 export type LiveRequestRecord = {
   index: number;
@@ -95,10 +95,14 @@ export function createLiveProviderGuard(input: {
    * attempt, at most two writer requests in total.
    */
   writerOnly?: boolean;
+  /** V3D: one operation, at most two three-image direct samples. */
+  directOnly?: boolean;
 }): LiveProviderGuard {
   const writerOnly = input.writerOnly === true;
-  const maxTotal = writerOnly ? Math.min(input.maxTotal ?? 2, 2) : input.maxTotal ?? 6;
-  const maxAttempts = writerOnly ? 1 : input.maxAttempts ?? 2;
+  const directOnly = input.directOnly === true;
+  if (writerOnly && directOnly) throw new LiveProviderBudgetError('incompatible_modes');
+  const maxTotal = writerOnly || directOnly ? Math.min(input.maxTotal ?? 2, 2) : input.maxTotal ?? 6;
+  const maxAttempts = writerOnly || directOnly ? 1 : input.maxAttempts ?? 2;
   const maxObserver = input.maxObserverPerAttempt ?? 1;
   const maxWriter = input.maxWriterPerAttempt ?? 2;
   if (input.baseUrl !== OFFICIAL_OPENAI_BASE_URL) {
@@ -138,10 +142,12 @@ export function createLiveProviderGuard(input: {
     }
     const format = body.response_format as { type?: string; json_schema?: { name?: string } } | undefined;
     let kind: LiveRequestKind;
-    if (format?.json_schema?.name === 'coffee_v3_observation') kind = 'observer';
+    if (directOnly && !format) kind = 'direct';
+    else if (format?.json_schema?.name === 'coffee_v3_observation') kind = 'observer';
     else if (format?.type === 'json_object') kind = 'writer';
     else return refuse('request_kind_not_allowed');
     if (writerOnly && kind === 'observer') refuse('observer_not_allowed_writer_only');
+    if (directOnly && kind !== 'direct') refuse('non_direct_request');
 
     const imageCount = (Array.isArray(body.messages) ? body.messages : [])
       .flatMap((m) => {
@@ -151,8 +157,13 @@ export function createLiveProviderGuard(input: {
       .filter((part) => (part as { type?: unknown }).type === 'image_url').length;
     if (kind === 'observer' && imageCount !== COFFEE_V3_LIVE_IMAGE_COUNT) refuse('observer_image_count');
     if (kind === 'writer' && imageCount !== 0) refuse('writer_with_images');
+    if (kind === 'direct' && imageCount !== COFFEE_V3_LIVE_IMAGE_COUNT) refuse('direct_image_count');
 
-    if (kind === 'observer') {
+    if (kind === 'direct') {
+      if (attempt === 0) attempt = 1;
+      if (writerInAttempt >= maxWriter) refuse('direct_budget_exhausted');
+      writerInAttempt += 1;
+    } else if (kind === 'observer') {
       if (attempt >= maxAttempts) refuse('attempt_budget_exhausted');
       attempt += 1;
       observerInAttempt = 0;
@@ -201,7 +212,7 @@ export function createLiveProviderGuard(input: {
             totalTokens: usage.total_tokens,
           };
         }
-        const text = kind === 'writer' && response.ok ? extractMessageContent(json.choices?.[0]?.message?.content) : '';
+        const text = (kind === 'writer' || kind === 'direct') && response.ok ? extractMessageContent(json.choices?.[0]?.message?.content) : '';
         if (text) {
           writerOutputs.push({
             index: record.index,

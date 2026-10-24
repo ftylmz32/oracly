@@ -35,6 +35,7 @@ import { interpretCoffeeM2 } from '../../src/ai/reading/coffee-m2-semantic-engin
 import { planCoffeeM2Writer } from '../../src/ai/reading/coffee-m2-writer-beat-plan.js';
 import { planCoffeeV3Narrative } from '../../src/ai/reading/coffee-v3n-narrative-plan.js';
 import { COFFEE_V3N_RESULT_CONTRACT, COFFEE_V3N_WRITER_REJECTIONS_STAGE, FROZEN_COFFEE_V3N_PROMPT_SHA256 } from '../../src/ai/reading/coffee-v3n-narrative-pipeline.js';
+import { COFFEE_V3D_DIRECT_PROMPT, COFFEE_V3D_REJECTIONS_STAGE, FROZEN_COFFEE_V3D_PROMPT_SHA256 } from '../../src/ai/reading/coffee-v3d-direct-pipeline.js';
 import { FROZEN_COFFEE_M2_PROMPT_SHA256 } from '../../src/ai/reading/coffee-v3-live-pipeline.js';
 import type { CoffeeMultiViewObservationV3 } from '../../src/ai/reading/types.js';
 import { buildServer } from '../../src/server.js';
@@ -73,15 +74,22 @@ import {
  * narrative pipeline → V3N writer → v3_narrative_v1. The retired M2/W4 writer
  * sha is listed only so a run can prove it was NOT used.
  */
-const PIPELINE = {
-  resultContract: COFFEE_V3N_RESULT_CONTRACT,
-  engine: 'coffee-v3n-narrative-pipeline',
-  writerPromptSha256: FROZEN_COFFEE_V3N_PROMPT_SHA256,
-  retiredM2WriterPromptSha256: FROZEN_COFFEE_M2_PROMPT_SHA256,
-} as const;
-
 const handshakePath = process.argv[2];
-if (!handshakePath) throw new Error('usage: coffee-v3-e2e-harness.ts <handshake.json> [--live]');
+if (!handshakePath) throw new Error('usage: coffee-v3-e2e-harness.ts <handshake.json> [--live] [--engine=direct]');
+const ENGINE = process.argv.includes('--engine=direct') ? 'direct' : 'narrative';
+const PIPELINE = ENGINE === 'direct'
+  ? {
+      resultContract: COFFEE_V3N_RESULT_CONTRACT,
+      engine: 'coffee-v3d-direct-pipeline',
+      writerPromptSha256: FROZEN_COFFEE_V3D_PROMPT_SHA256,
+      retiredM2WriterPromptSha256: FROZEN_COFFEE_M2_PROMPT_SHA256,
+    }
+  : {
+      resultContract: COFFEE_V3N_RESULT_CONTRACT,
+      engine: 'coffee-v3n-narrative-pipeline',
+      writerPromptSha256: FROZEN_COFFEE_V3N_PROMPT_SHA256,
+      retiredM2WriterPromptSha256: FROZEN_COFFEE_M2_PROMPT_SHA256,
+    };
 
 // --------------------------------------------------- Slice 6: live preflight
 // `--live` replaces ONLY the scripted fake provider with the real OpenAI
@@ -167,11 +175,13 @@ function loadReplay(path: string, blocked: string[]): LiveReplay | null {
   };
 }
 
-function livePreflight(): { apiKey: string; visionModel: string; replay: LiveReplay | null } {
+function livePreflight(): { apiKey: string; visionModel: string; replay: LiveReplay | null; photoHashes: Record<string, string> } {
   const blocked: string[] = [];
+  if (ENGINE === 'direct' && REPLAY_PATH) blocked.push('v3d_does_not_accept_v3n_observation_replay');
   const replay = REPLAY_PATH ? loadReplay(REPLAY_PATH, blocked) : null;
   if (!existsSync(liveInputDir)) blocked.push(`input_dir_missing:${liveInputDir}`);
   const hashes = new Set<string>();
+  const photoHashes: Record<string, string> = {};
   for (const slot of LIVE_SLOTS) {
     const path = join(liveInputDir, `${slot}.jpg`);
     if (!existsSync(path)) {
@@ -188,7 +198,9 @@ function livePreflight(): { apiKey: string; visionModel: string; replay: LiveRep
     if (bytes[0] !== 0xff || bytes[1] !== 0xd8 || bytes[2] !== 0xff) blocked.push(`photo_not_jpeg:${slot}.jpg`);
     if (bytes.length < 8 * 1024 || bytes.length > 8 * 1024 * 1024) blocked.push(`photo_size_out_of_range:${slot}.jpg`);
     if (hasExifSegment(bytes)) blocked.push(`photo_has_exif_host_normalizer_unsupported:${slot}.jpg`);
-    hashes.add(createHash('sha256').update(bytes).digest('hex'));
+    const digest = createHash('sha256').update(bytes).digest('hex');
+    hashes.add(digest);
+    photoHashes[slot] = digest;
   }
   if (hashes.size > 0 && hashes.size < LIVE_SLOTS.length) blocked.push('photos_not_distinct');
   const rights = join(liveInputDir, 'rights.txt');
@@ -207,7 +219,7 @@ function livePreflight(): { apiKey: string; visionModel: string; replay: LiveRep
     console.log(`LIVE_PREFLIGHT_BLOCKED ${JSON.stringify(blocked)}`);
     process.exit(2);
   }
-  return { apiKey, visionModel, replay };
+  return { apiKey, visionModel, replay, photoHashes };
 }
 const liveSetup = LIVE ? livePreflight() : null;
 let liveGuard: LiveProviderGuard | null = null;
@@ -220,6 +232,8 @@ let liveGuard: LiveProviderGuard | null = null;
 // V3N narrative successor. Proof of plumbing and gates, not of real quality.
 const WRITER: Record<string, string> = {
   good: COFFEE_V3N_PREMIUM_WRITER_OUTPUT,
+  direct_good: 'Uzun zamandır beklettiğin bir konuşma yeniden önüne geliyor. Bu kez karşı tarafın yaklaşımı daha açık; sen de ne istediğini saklamadan söylediğinde aradaki düğüm çözülmeye başlayacak. İş tarafında ise küçük görünen bir teklif, düşündüğünden daha kalıcı bir kapı açabilir. Acele bir kesinlik yerine gelişmelerin yönünü izlediğinde iki konunun da aynı dönemde netleştiğini göreceksin.',
+  direct_leak: 'Fincanında bir kuş görüyorum; bu sana yakında gelecek bir haberi anlatıyor. Uzun zamandır beklediğin konuşma yeniden açılacak ve önündeki seçeneklerden biri daha belirgin hale gelecek. İş tarafında da yeni bir kapı açılıyor gibi görünüyor.',
   // Gate failures (thin / generic): each is refused by the V3N acceptance.
   scenario_fail: JSON.stringify({ paragraphs: [{ claims: ['c1', 'c2'], text: 'Bir yol beliriyor gibi.' }, { claims: ['c3', 'c4'], text: 'Güzel şeyler olacak.' }] }),
   checker_fail: JSON.stringify({ paragraphs: [{ claims: ['c1', 'c2'], text: 'Her şey yoluna girecek.' }, { claims: ['c3', 'c4'], text: 'Kesinlikle.' }] }),
@@ -307,7 +321,7 @@ const providerCalls: Array<{ kind: string; at: number; images: number; promptSha
 const fakeFetch = async (_url: unknown, init?: RequestInit) => {
   const body = JSON.parse(String(init?.body ?? '{}')) as Record<string, unknown>;
   const schema = (body.response_format as { json_schema?: { name?: string }; type?: string } | undefined);
-  const name = schema?.json_schema?.name ?? (schema?.type === 'json_object' ? 'writer' : 'unknown');
+  const name = schema?.json_schema?.name ?? (schema?.type === 'json_object' ? 'writer' : (ENGINE === 'direct' ? 'direct' : 'unknown'));
   const images = (Array.isArray(body.messages) ? body.messages : [])
     .flatMap((m) => (Array.isArray((m as { content?: unknown }).content) ? ((m as { content: unknown[] }).content) : []))
     .filter((p) => (p as { type?: unknown }).type === 'image_url').length;
@@ -319,7 +333,7 @@ const fakeFetch = async (_url: unknown, init?: RequestInit) => {
     content = JSON.stringify(OBSERVATIONS[script.observation]());
     // An observer-only script (no writer step expected) is consumed here.
     if (name === 'coffee_v2_observation' || script.writer.length === 0) scripts.shift();
-  } else if (name === 'writer') {
+  } else if (name === 'writer' || name === 'direct') {
     const key = script.writer.shift();
     content = key === undefined ? undefined : WRITER[key];
     if (script.writer.length === 0) scripts.shift();
@@ -345,7 +359,7 @@ async function createStack(
     AI_MAX_CONCURRENT: '50',
     ORACLY_COFFEE_V3_ENABLED: flagOn ? 'true' : 'false',
     // This harness scripts and asserts the V3N chain (observer → plan → writer).
-    ORACLY_COFFEE_V3_ENGINE: 'narrative',
+    ORACLY_COFFEE_V3_ENGINE: ENGINE,
     ...(provider.env ?? {}),
   });
   const maxTaskAttempts = provider.maxTaskAttempts ?? 5;
@@ -501,6 +515,7 @@ if (liveSetup) {
     realFetch: globalThis.fetch.bind(globalThis),
     baseUrl: OFFICIAL_OPENAI_BASE_URL,
     writerOnly: liveSetup.replay !== null,
+    directOnly: ENGINE === 'direct',
   });
   const env = {
     OPENAI_API_KEY: liveSetup.apiKey,
@@ -537,7 +552,7 @@ async function buildEvidence(
   provider: { records: ReadonlyArray<{ kind: string; systemPromptSha256: string | null }> } & Record<string, unknown>,
   writerOutputs: ReadonlyArray<{ index: number; attempt: number; outputSha256: string; text: string }> = [],
 ) {
-  const writerShas = provider.records.filter((r) => r.kind === 'writer').map((r) => r.systemPromptSha256);
+  const writerShas = provider.records.filter((r) => r.kind === 'writer' || r.kind === 'direct').map((r) => r.systemPromptSha256);
   const results = await Promise.all(operationIds.map((id) => evidenceFor(id)));
   // Live only: every real writer text, verbatim, with the acceptance verdict
   // (matched by the pipeline's own rejection hash). Local evidence file only.
@@ -550,13 +565,20 @@ async function buildEvidence(
     pipeline: {
       ...PIPELINE,
       writerPromptShasSeen: writerShas,
-      usedV3NWriter: writerShas.length > 0 && writerShas.every((s) => s === PIPELINE.writerPromptSha256),
+      usedExpectedWriter: writerShas.length > 0 && writerShas.every((s) => s === PIPELINE.writerPromptSha256),
+      usedV3NWriter: ENGINE === 'narrative' && writerShas.length > 0 && writerShas.every((s) => s === PIPELINE.writerPromptSha256),
       usedRetiredM2Writer: writerShas.some((s) => s === PIPELINE.retiredM2WriterPromptSha256),
     },
     provider,
     replay: liveSetup?.replay
       ? { source: liveSetup.replay.source, fileSha256: liveSetup.replay.fileSha256, observationSha256: liveSetup.replay.observationSha256, observerRequestsSent: 0 }
       : null,
+    inputEvidence: liveSetup ? { photoSha256BySlot: liveSetup.photoHashes } : null,
+    qualityProtocol: {
+      verdicts: ['grounded_in_visible_differences', 'specific_not_generic', 'natural_turkish', 'coherent_depth', 'non_repetitive', 'no_invented_certainty', 'worth_paying_for'],
+      comparison: 'Blind A/B: run the same intention on a second genuinely different three-photo cup set; hide filenames and order from the reviewer; require materially different themes/details while preserving safety and coherence.',
+      prohibition: 'A single set or two resamples of the same set cannot prove image sensitivity.',
+    },
     operations: operationIds,
     results,
     writerOutputs: writerOutputs.map((o) => ({
@@ -574,7 +596,7 @@ async function buildEvidence(
 async function evidenceFor(id: string) {
   const operation = await on.repository.getById(id);
   const result = (await on.results.get(id))?.data ?? null;
-  const funnel = operation ? semanticFunnel(operation.ownerUserId, id, operation.coffeeIntention) : null;
+  const funnel = operation && ENGINE === 'narrative' ? semanticFunnel(operation.ownerUserId, id, operation.coffeeIntention) : null;
   const v3n = funnel && 'v3n' in funnel ? funnel.v3n : null;
   return {
     operationId: id,
@@ -595,7 +617,7 @@ async function evidenceFor(id: string) {
     // Why each refused writer sample failed: codes, paragraph / claim, matched
     // term and the output sha256 (a live run adds the texts under writerOutputs).
     writerRejections: operation
-      ? readingStageStore.get(operation.ownerUserId, `reading-operation:${id}`, COFFEE_V3N_WRITER_REJECTIONS_STAGE)
+      ? readingStageStore.get(operation.ownerUserId, `reading-operation:${id}`, ENGINE === 'direct' ? COFFEE_V3D_REJECTIONS_STAGE : COFFEE_V3N_WRITER_REJECTIONS_STAGE)
       : null,
     semanticFunnel: funnel,
   };
@@ -662,7 +684,7 @@ const control = createServer(async (req, res) => {
             { records: liveGuard.records(), refusals: liveGuard.refusals(), attempts: liveGuard.attempts(), sealed: liveGuard.sealed() },
             liveGuard.writerOutputs(),
           );
-          writeFileSync(join(liveOutputDir, `coffee_v3_live_${Date.now()}.json`), JSON.stringify(evidence, null, 2));
+          writeFileSync(join(liveOutputDir, `coffee_v3${ENGINE === 'direct' ? 'd' : 'n'}_live_${Date.now()}.json`), JSON.stringify(evidence, null, 2));
         }
         reply(200, { bye: true });
         setTimeout(() => process.exit(0), 50);

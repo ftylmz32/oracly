@@ -68,6 +68,41 @@ void main() {
     expect(completes, 2);
   });
 
+  test('a declined or canceled purchase never becomes a credit', () async {
+    final memory = MemoryReadingPurchases();
+    var verifies = 0;
+    final tracker = ReadingPurchaseTracker(
+      memory: memory,
+      verify: (_) async {
+        verifies += 1;
+        return ReadingVerifyOutcome.granted;
+      },
+      complete: (_) async {},
+    );
+    expect(
+      await tracker.accept(const ReadingPurchaseUpdate(
+        productId: 'app.oracly.reading.coffee',
+        token: 'declined',
+        purchaseId: 'd',
+        status: ReadingPurchaseStatus.failed,
+      )),
+      ReadingBuyKind.failed,
+    );
+    expect(
+      await tracker.accept(const ReadingPurchaseUpdate(
+        productId: 'app.oracly.reading.coffee',
+        token: 'canceled',
+        purchaseId: 'c',
+        status: ReadingPurchaseStatus.canceled,
+      )),
+      ReadingBuyKind.canceled,
+    );
+    expect(verifies, 0);
+    expect(await memory.load(), isEmpty);
+    await tracker.resume();
+    expect(verifies, 0);
+  });
+
   test('a purchase that arrives after the wait is still verified', () async {
     final memory = MemoryReadingPurchases();
     final updates = StreamController<List<ReadingPurchaseUpdate>>();
