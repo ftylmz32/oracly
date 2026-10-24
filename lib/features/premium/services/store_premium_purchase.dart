@@ -29,8 +29,11 @@ class StorePremiumPurchase
     // Only tests shorten it; production keeps [purchaseAnswerWindow].
     Duration answerWindow = purchaseAnswerWindow,
     DateTime Function()? clock,
+    bool tokenlessRetryEnabled = tokenlessSamePlanRetryDefault,
   }) : _iap = client ?? PluginStoreIapClient(iap),
        _clock = clock ?? DateTime.now,
+       // ignore: prefer_initializing_formals
+       _tokenlessRetryEnabled = tokenlessRetryEnabled,
        // ignore: prefer_initializing_formals
        _answerWindow = answerWindow,
        // ignore: prefer_initializing_formals
@@ -67,6 +70,13 @@ class StorePremiumPurchase
   final StorePremiumPurchaseSession _session;
   final Duration _answerWindow;
   final DateTime Function() _clock;
+  final bool _tokenlessRetryEnabled;
+
+  /// Off: nothing proves a lost, token-less attempt was not charged, and
+  /// the store's duplicate protection does not span store accounts, so the
+  /// same-plan retry stays unavailable until a real store test and a
+  /// product decision enable it. The lock then waits for store evidence.
+  static const tokenlessSamePlanRetryDefault = false;
 
   /// How old a token-less attempt must be, and how late its clean store
   /// check, before the same plan may be retried. A UX gate, not evidence.
@@ -203,6 +213,7 @@ class StorePremiumPurchase
 
   @override
   Future<PremiumPlanKind?> retryablePlan() async {
+    if (!_tokenlessRetryEnabled) return null;
     final attempts = _attempts;
     final tag = _tagOf(_currentOwnerUid?.call());
     if (attempts == null || tag == null) return null;

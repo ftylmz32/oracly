@@ -155,17 +155,30 @@ class _Device {
     await storage.setString(UserLocalDataIsolation.ownerKey, uid);
   }
 
-  Future<PremiumStatusController> launch() async {
+  /// [productionDefault] wires the port exactly as the app does, without
+  /// naming the retry setting, so the shipped default is what is tested.
+  Future<PremiumStatusController> launch({bool productionDefault = false}) async {
     await _port?.dispose();
     final repo = MockPremiumRepository(storage, secureStorage: secure);
-    final port = createStorePremiumPurchase(
-      () => repo,
-      client: play,
-      answerWindow: const Duration(milliseconds: 30),
-      attempts: attempts,
-      currentOwnerUid: () => storage.getString(UserLocalDataIsolation.ownerKey),
-      clock: () => now,
-    );
+    String? owner() => storage.getString(UserLocalDataIsolation.ownerKey);
+    final port = productionDefault
+        ? createStorePremiumPurchase(
+            () => repo,
+            client: play,
+            answerWindow: const Duration(milliseconds: 30),
+            attempts: attempts,
+            currentOwnerUid: owner,
+            clock: () => now,
+          )
+        : createStorePremiumPurchase(
+            () => repo,
+            client: play,
+            answerWindow: const Duration(milliseconds: 30),
+            attempts: attempts,
+            currentOwnerUid: owner,
+            clock: () => now,
+            tokenlessRetryEnabled: true,
+          );
     _port = port;
     final controller = PremiumStatusController(
       PremiumService(repo, MockUserRepository(storage), port, _Backend())
@@ -263,6 +276,19 @@ void main() {
     expect(device.attempts.all(), isEmpty, reason: 'retry superseded the lost one');
   });
 
+  test('production default: no retry is offered and nothing can be bought, '
+      'even when every retry condition holds', () async {
+    await device.lostAttempt();
+    device.now = device.now.add(const Duration(minutes: 11));
+    final c = await device.launch(productionDefault: true);
+    expect(c.pendingKind, PremiumPendingKind.store);
+    expect(c.retryablePlan, isNull);
+    await c.retrySamePlan();
+    await c.purchase();
+    expect(device.play.bought, hasLength(1));
+    expect(device.attempts.all(), hasLength(1), reason: 'the lock stays');
+  });
+
   test('below any UI, the service refuses every plan but the retryable one',
       () async {
     await device.lostAttempt();
@@ -276,6 +302,7 @@ void main() {
       currentOwnerUid: () =>
           device.storage.getString(UserLocalDataIsolation.ownerKey),
       clock: () => device.now,
+      tokenlessRetryEnabled: true,
     );
     final service = PremiumService(
       repo,

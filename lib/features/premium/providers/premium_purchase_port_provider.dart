@@ -49,11 +49,14 @@ StorePremiumPurchase createStorePremiumPurchase(
   @visibleForTesting
   Duration answerWindow = StorePremiumPurchase.purchaseAnswerWindow,
   @visibleForTesting DateTime Function()? clock,
+  @visibleForTesting
+  bool tokenlessRetryEnabled = StorePremiumPurchase.tokenlessSamePlanRetryDefault,
 }) {
   return StorePremiumPurchase(
     client: client,
     answerWindow: answerWindow,
     clock: clock,
+    tokenlessRetryEnabled: tokenlessRetryEnabled,
     attempts: attempts,
     currentOwnerUid: currentOwnerUid,
     persistRetryCredentials: (credentials) =>
