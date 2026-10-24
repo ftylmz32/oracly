@@ -39,6 +39,7 @@ class PremiumEntitlementReconciler {
     required this.verifier,
     this.canAttemptRestore = false,
     this.forceReleaseMode = false,
+    this.storeHold = false,
   });
 
   final PremiumRepository premium;
@@ -46,6 +47,9 @@ class PremiumEntitlementReconciler {
   final bool canAttemptRestore;
   final PremiumEntitlementVerifier verifier;
   final bool forceReleaseMode;
+
+  /// An unfinished store purchase (any account) is recorded on this device.
+  final bool storeHold;
 
   bool get _releaseLocked => kReleaseMode || forceReleaseMode;
 
@@ -109,11 +113,7 @@ class PremiumEntitlementReconciler {
         recovered.entitlement != PremiumEntitlementState.inactive) {
       return recovered;
     }
-    final repository = premium;
-    if (repository is! PremiumStorePendingStore) return recovered;
-    final unfinished =
-        await (repository as PremiumStorePendingStore).readStorePending();
-    if (unfinished == null) return recovered;
+    if (!storeHold) return recovered;
     return const PremiumReconcileSnapshot(
       entitlement: PremiumEntitlementState.pending,
       message: 'store_transaction_unfinished',

@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
 import '../../../core/domain/models/premium_plan.dart';
+import '../../../core/storage/premium_purchase_attempt_store.dart';
 import '../models/premium_purchase_result.dart';
 import '../models/store_catalog_snapshot.dart';
 import 'premium_plan_availability.dart';
@@ -23,8 +24,8 @@ class StorePremiumPurchase
     InAppPurchase? iap,
     StoreIapClient? client,
     PersistRetryCredentials? persistRetryCredentials,
-    StorePendingWrite? persistStorePending,
-    StorePendingWrite? clearStorePending,
+    PremiumPurchaseAttemptStore? attempts,
+    String? Function()? currentOwnerUid,
     // Only tests shorten it; production keeps [purchaseAnswerWindow].
     Duration answerWindow = purchaseAnswerWindow,
   }) : _iap = client ?? PluginStoreIapClient(iap),
@@ -33,10 +34,12 @@ class StorePremiumPurchase
        // ignore: prefer_initializing_formals
        _persistRetryCredentials = persistRetryCredentials,
        // ignore: prefer_initializing_formals
-       _persistStorePending = persistStorePending,
+       _attempts = attempts,
+       // ignore: prefer_initializing_formals
+       _currentOwnerUid = currentOwnerUid,
        _session = StorePremiumPurchaseSession(
-         onStorePending: persistStorePending,
-         onStoreSettled: clearStorePending,
+         attempts: attempts,
+         currentOwnerTag: () => _tagOf(currentOwnerUid?.call()),
        );
 
   final StoreIapClient _iap;
@@ -50,8 +53,14 @@ class StorePremiumPurchase
   @visibleForTesting
   bool get persistsRecovery => _persistRetryCredentials != null;
 
-  /// Durable record of a purchase the store has not finished.
-  final StorePendingWrite? _persistStorePending;
+  /// Device ledger of unfinished purchases, owner-tagged. Production
+  /// wiring always supplies it with [_currentOwnerUid].
+  final PremiumPurchaseAttemptStore? _attempts;
+  final String? Function()? _currentOwnerUid;
+
+  static String? _tagOf(String? uid) => uid == null || uid.isEmpty
+      ? null
+      : PremiumPurchaseAttemptStore.ownerTag(uid);
 
   final StorePremiumPurchaseSession _session;
   final Duration _answerWindow;
@@ -118,32 +127,91 @@ class StorePremiumPurchase
     }
     final product = _products[PremiumStoreCatalog.idFor(plan)];
     if (product == null) return PremiumPurchaseResult.unavailable();
-    if (!_session.begin(expected: plan, restore: false)) {
+    if (_session.busy) return PremiumPurchaseResult.failed();
+
+    // The lock must be durable BEFORE the store sheet exists: no record,
+    // no sheet. It names the account that pays (as an opaque tag, also
+    // sent to Play), so whatever the store answers later, and whoever is
+    // signed in then, it can only ever be credited to that account.
+    final attempts = _attempts;
+    String? ownerTag;
+    String? attemptId;
+    if (attempts != null) {
+      ownerTag = _tagOf(_currentOwnerUid?.call());
+      if (ownerTag == null) return PremiumPurchaseResult.unavailable();
+      attemptId = '${DateTime.now().microsecondsSinceEpoch}-${product.id}';
+      try {
+        await attempts.begin(
+          PremiumPurchaseAttempt(
+            ownerTag: ownerTag,
+            platform: defaultTargetPlatform == TargetPlatform.iOS
+                ? 'ios'
+                : 'android',
+            productId: product.id,
+            attemptId: attemptId,
+            sinceUtc: DateTime.now().toUtc(),
+          ),
+        );
+      } catch (_) {
+        return PremiumPurchaseResult.failed();
+      }
+    }
+    if (!_session.begin(expected: plan, restore: false, attemptId: attemptId)) {
+      await _releaseAttempt(attemptId);
       return PremiumPurchaseResult.failed();
     }
     try {
       final started = await _iap.buyNonConsumable(
-        purchaseParam: PurchaseParam(productDetails: product),
+        purchaseParam: PurchaseParam(
+          productDetails: product,
+          applicationUserName: ownerTag,
+        ),
       );
-      if (!started) return PremiumPurchaseResult.failed();
-      var silent = false;
-      final result = await _session.wait(
+      if (!started) {
+        // The store refused to open the sheet: no transaction exists.
+        await _releaseAttempt(attemptId);
+        return PremiumPurchaseResult.failed();
+      }
+      // Silence past the window is unfinished, not failed: the lock stays
+      // until a store answer for this transaction arrives.
+      return await _session.wait(
         _answerWindow,
-        onTimeout: () {
-          silent = true;
-          return PremiumPurchaseResult.pending();
-        },
+        onTimeout: PremiumPurchaseResult.pending,
       );
-      // A launched purchase with no terminal answer may still be charged
-      // later (slow payment). Hold it like a reported PENDING; a late
-      // purchased / declined event or a store query settles it.
-      if (silent) await _recordUnfinished(product.id);
-      return result;
     } catch (_) {
+      // Unknown whether a transaction started: keep the lock.
       return PremiumPurchaseResult.failed();
     } finally {
       _session.end();
     }
+  }
+
+  Future<void> _releaseAttempt(String? attemptId) async {
+    final attempts = _attempts;
+    if (attempts == null || attemptId == null) return;
+    try {
+      await attempts.release((a) => a.attemptId == attemptId);
+    } catch (_) {}
+  }
+
+  @override
+  bool get holdsUnfinishedPurchase => _attempts?.holdsAny ?? false;
+
+  @override
+  Future<bool> recoverParked(PersistRetryCredentials save) async {
+    final attempts = _attempts;
+    final tag = _tagOf(_currentOwnerUid?.call());
+    if (attempts == null || tag == null) return false;
+    final proof = await attempts.readParked(tag);
+    if (proof == null) return false;
+    // Into the owner's own credential store first; only then are the
+    // parked copy and its device lock dropped. A kill in between repeats.
+    await save(proof);
+    await attempts.clearParked(tag);
+    await attempts.release(
+      (a) => a.ownerTag == tag && a.parked && a.productId == proof.productId,
+    );
+    return true;
   }
 
   @override
@@ -171,14 +239,6 @@ class StorePremiumPurchase
 
   void _listen() => _session.listen(_iap, _persistRetryCredentials);
 
-  Future<void> _recordUnfinished(String productId) async {
-    final write = _persistStorePending;
-    if (write == null) return;
-    try {
-      await write(productId);
-    } catch (_) {}
-  }
-
   @override
   Future<Set<String>?> refreshStorePurchases() async {
     final client = _iap;
@@ -188,23 +248,25 @@ class StorePremiumPurchase
         .queryPurchases();
     if (purchases == null) return null;
     final unfinished = <String>{};
-    final finished = <PurchaseDetails>[];
+    final routed = <PurchaseDetails>[];
     for (final purchase in purchases) {
       if (PremiumStoreCatalog.kindFor(purchase.productID) == null) continue;
       if (purchase.status == PurchaseStatus.pending) {
+        // Owner-routed like a stream delivery: keeps or creates the lock.
         unfinished.add(purchase.productID);
+        routed.add(purchase);
       } else if ((purchase.status == PurchaseStatus.purchased ||
               purchase.status == PurchaseStatus.restored) &&
           purchase.pendingCompletePurchase) {
         // Finished after the app stopped listening (e.g. a slow payment
         // approved later). Only unacknowledged ones: an older, already
         // acknowledged purchase is Restore's job, never a silent grant.
-        finished.add(purchase);
+        routed.add(purchase);
       }
     }
-    if (finished.isNotEmpty) {
+    if (routed.isNotEmpty) {
       await _session.onPurchases(
-        finished,
+        routed,
         _iap.completePurchase,
         persistRetryCredentials: _persistRetryCredentials,
       );

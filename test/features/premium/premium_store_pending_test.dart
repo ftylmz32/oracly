@@ -10,12 +10,14 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:oracly_new/core/auth/user_local_data_isolation.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/data/repositories/mock_premium_repository.dart';
 import 'package:oracly_new/core/data/repositories/mock_user_repository.dart';
 import 'package:oracly_new/core/domain/models/premium_plan.dart';
 import 'package:oracly_new/core/services/premium_service.dart';
 import 'package:oracly_new/core/storage/in_memory_secure_storage.dart';
+import 'package:oracly_new/core/storage/premium_purchase_attempt_store.dart';
 import 'package:oracly_new/features/premium/controllers/premium_status_controller.dart';
 import 'package:oracly_new/features/premium/models/premium_entitlement_state.dart';
 import 'package:oracly_new/features/premium/models/premium_purchase_credentials.dart';
@@ -123,8 +125,9 @@ class _Verifier implements PremiumEntitlementVerifier {
 }
 
 class _App {
-  _App(this.repo, this.play, this.verifier, this.controller);
+  _App(this.repo, this.play, this.verifier, this.controller, this.attempts);
   final MockPremiumRepository repo;
+  final PremiumPurchaseAttemptStore attempts;
   final _FakePlay play;
   final _Verifier verifier;
   final PremiumStatusController controller;
@@ -141,10 +144,13 @@ Future<_App> _launch(
   final repo = MockPremiumRepository(storage, secureStorage: secure);
   final store = play ?? _FakePlay();
   final verify = verifier ?? _Verifier();
+  final attempts = PremiumPurchaseAttemptStore(storage, secure);
   final port = createStorePremiumPurchase(
     () => repo,
     client: store,
     answerWindow: answerWindow,
+    attempts: attempts,
+    currentOwnerUid: () => storage.getString(UserLocalDataIsolation.ownerKey),
   );
   final service = PremiumService(
     repo,
@@ -154,7 +160,7 @@ Future<_App> _launch(
   )..forceReleaseMode = true;
   final controller = PremiumStatusController(service);
   await controller.load();
-  return _App(repo, store, verify, controller);
+  return _App(repo, store, verify, controller, attempts);
 }
 
 Future<void> _settle() async {
@@ -171,6 +177,7 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     storage = await LocalStorage.open();
+    await storage.setString(UserLocalDataIsolation.ownerKey, 'uid-a');
     secure = InMemorySecureStorage();
   });
 
@@ -186,8 +193,7 @@ void main() {
     expect(app.controller.entitlement, PremiumEntitlementState.pending);
     expect(app.controller.pendingKind, PremiumPendingKind.store);
     expect(app.controller.isPremium, isFalse);
-    expect((await app.repo.readStorePending())?.productId,
-        PremiumStoreCatalog.monthlyId);
+    expect(app.attempts.all().single.productId, PremiumStoreCatalog.monthlyId);
     expect(await app.repo.readPurchaseCredentials(), isNull,
         reason: 'no receipt exists while the store is pending');
     expect(app.play.completed, isEmpty, reason: 'PENDING is never acknowledged');
@@ -202,7 +208,7 @@ void main() {
     expect((await app.repo.readPurchaseCredentials())?.purchaseToken,
         'play-token-${PremiumStoreCatalog.monthlyId}');
     expect(app.play.completed, [PremiumStoreCatalog.monthlyId]);
-    expect(await app.repo.readStorePending(), isNull);
+    expect(app.attempts.all(), isEmpty);
     expect(app.controller.isPremium, isFalse, reason: 'not before verification');
 
     await app.controller.checkPendingStatus();
@@ -224,7 +230,7 @@ void main() {
 
     app.play.emit([_play(PremiumStoreCatalog.monthlyId, PurchaseStatus.error)]);
     await _settle();
-    expect(await app.repo.readStorePending(), isNull);
+    expect(app.attempts.all(), isEmpty);
     await app.controller.forceReconcile();
     expect(app.controller.entitlement, PremiumEntitlementState.inactive);
     expect(app.controller.isPremium, isFalse);
@@ -239,7 +245,7 @@ void main() {
     expect(result.outcome, isNot(PremiumPurchaseOutcome.failed));
     expect(app.controller.entitlement, PremiumEntitlementState.pending);
     expect(app.controller.pendingKind, PremiumPendingKind.store);
-    expect(await app.repo.readStorePending(), isNotNull);
+    expect(app.attempts.all(), isNotEmpty);
 
     await app.controller.purchase();
     await app.controller.purchase();
@@ -266,7 +272,7 @@ void main() {
     app.controller.selectPlan(PremiumPlanKind.monthly);
     final result = await app.controller.purchase();
     expect(result.outcome, PremiumPurchaseOutcome.cancelled);
-    expect(await app.repo.readStorePending(), isNull);
+    expect(app.attempts.all(), isEmpty);
     expect(app.controller.entitlement, isNot(PremiumEntitlementState.pending));
   });
 
@@ -309,7 +315,7 @@ void main() {
         ];
       final app = await _launch(storage, secure, play: play);
       expect(play.completed, [PremiumStoreCatalog.monthlyId]);
-      expect(await app.repo.readStorePending(), isNull);
+      expect(app.attempts.all(), isEmpty);
       expect(app.controller.entitlement, PremiumEntitlementState.active);
       expect(play.buyCalls, 0);
     });
@@ -322,24 +328,23 @@ void main() {
       expect(app.controller.pendingKind, PremiumPendingKind.store);
       await app.controller.checkPendingStatus();
       expect(app.controller.pendingKind, PremiumPendingKind.store);
-      expect(await app.repo.readStorePending(), isNotNull);
+      expect(app.attempts.all(), isNotEmpty);
     });
 
-    test('an empty store answer never releases on its own; the user check '
-        'does, and grants nothing', () async {
+    test('an empty store answer is never a decline: not on load, not on '
+        'one or two user checks apart in time', () async {
       await leavePending();
       final play = _FakePlay()..query = const [];
       final app = await _launch(storage, secure, play: play);
-      expect(app.controller.pendingKind, PremiumPendingKind.store,
-          reason: 'automatic load keeps the hold');
-      await app.controller.ensureFresh();
-      expect(await app.repo.readStorePending(), isNotNull);
-
+      expect(app.controller.pendingKind, PremiumPendingKind.store);
       await app.controller.checkPendingStatus();
-      expect(await app.repo.readStorePending(), isNull);
-      expect(app.controller.entitlement, PremiumEntitlementState.inactive);
-      expect(app.controller.isPremium, isFalse);
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      await app.controller.checkPendingStatus();
+      expect(app.controller.pendingKind, PremiumPendingKind.store);
+      app.controller.selectPlan(PremiumPlanKind.yearly);
+      await app.controller.purchase();
       expect(play.buyCalls, 0);
+      expect(app.controller.isPremium, isFalse);
       expect(play.restoreCalls, 0);
     });
 
@@ -366,13 +371,14 @@ void main() {
     a.play.onBuy = [_play(PremiumStoreCatalog.monthlyId, PurchaseStatus.pending)];
     a.controller.selectPlan(PremiumPlanKind.monthly);
     await a.controller.purchase();
-    expect(await a.repo.readStorePending(), isNotNull);
+    expect(a.attempts.all(), isNotEmpty);
 
     // Account boundary wipe, exactly as UserLocalDataWipe runs it.
     await MockPremiumRepository.clearPersistedLocalState(
       storage,
       secureStorage: secure,
     );
+    await storage.setString(UserLocalDataIsolation.ownerKey, 'uid-b');
 
     final devicePending = _FakePlay()
       ..query = [_play(PremiumStoreCatalog.monthlyId, PurchaseStatus.pending)];
@@ -387,6 +393,7 @@ void main() {
       storage,
       secureStorage: secure,
     );
+    await storage.setString(UserLocalDataIsolation.ownerKey, 'uid-a');
     final backToA = await _launch(storage, secure, play: devicePending);
     expect(backToA.controller.pendingKind, PremiumPendingKind.store);
     expect(backToA.controller.isPremium, isFalse);
@@ -399,7 +406,13 @@ void main() {
     // unresolved receipt, each keep the store untouched.
     final repo = MockPremiumRepository(storage, secureStorage: secure);
     final play = _FakePlay();
-    final port = createStorePremiumPurchase(() => repo, client: play);
+    final attempts = PremiumPurchaseAttemptStore(storage, secure);
+    final port = createStorePremiumPurchase(
+      () => repo,
+      client: play,
+      attempts: attempts,
+      currentOwnerUid: () => 'uid-a',
+    );
     final service = PremiumService(
       repo,
       MockUserRepository(storage),
@@ -408,10 +421,12 @@ void main() {
     )..forceReleaseMode = true;
     await service.preparePurchase();
 
-    await repo.saveStorePending(
-      PremiumStorePending(
+    await attempts.begin(
+      PremiumPurchaseAttempt(
+        ownerTag: PremiumPurchaseAttemptStore.ownerTag('uid-a'),
         platform: 'android',
         productId: PremiumStoreCatalog.monthlyId,
+        attemptId: 'stale-ui',
         sinceUtc: DateTime.utc(2026, 10, 24),
       ),
     );
@@ -419,7 +434,7 @@ void main() {
     expect(whileUnfinished.outcome, PremiumPurchaseOutcome.pending);
     expect(play.buyCalls, 0);
 
-    await repo.clearStorePending();
+    await attempts.release((_) => true);
     await repo.savePurchaseCredentials(
       const PremiumPurchaseCredentials(
         platform: 'android',
@@ -444,7 +459,7 @@ void main() {
     await app.controller.purchase();
     expect(app.controller.entitlement, PremiumEntitlementState.pending);
     expect(app.controller.pendingKind, PremiumPendingKind.verification);
-    expect(await app.repo.readStorePending(), isNull);
+    expect(app.attempts.all(), isEmpty);
     expect(app.controller.isPremium, isFalse);
     await app.controller.purchase();
     expect(app.play.buyCalls, 1);

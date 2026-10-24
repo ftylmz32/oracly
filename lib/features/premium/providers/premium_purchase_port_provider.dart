@@ -8,9 +8,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers/app_providers.dart';
 import '../../../core/auth/user_local_data_isolation.dart';
+import '../../../core/storage/premium_purchase_attempt_store.dart';
 import '../../../core/domain/repositories/premium_repository.dart';
 import '../models/premium_purchase_credentials.dart';
-import '../models/premium_store_pending.dart';
 import '../services/premium_purchase_port.dart';
 import '../services/store_iap_client.dart';
 import '../services/premium_store_test_env_io.dart'
@@ -25,8 +25,14 @@ final premiumPurchasePortProvider = Provider<PremiumPurchasePort>((ref) {
       !StorePremiumPurchase.supportedPlatform) {
     return const UnavailablePremiumPurchase();
   }
+  final storage = ref.read(localStorageProvider);
   final port = createStorePremiumPurchase(
     () => ref.read(premiumRepositoryProvider),
+    attempts: PremiumPurchaseAttemptStore(
+      storage,
+      ref.read(secureStorageProvider),
+    ),
+    currentOwnerUid: () => storage.getString(UserLocalDataIsolation.ownerKey),
   );
   ref.onDispose(() => unawaited(port.dispose()));
   return port;
@@ -38,18 +44,18 @@ final premiumPurchasePortProvider = Provider<PremiumPurchasePort>((ref) {
 StorePremiumPurchase createStorePremiumPurchase(
   PremiumRepository Function() currentRepository, {
   StoreIapClient? client,
+  PremiumPurchaseAttemptStore? attempts,
+  String? Function()? currentOwnerUid,
   @visibleForTesting
   Duration answerWindow = StorePremiumPurchase.purchaseAnswerWindow,
 }) {
   return StorePremiumPurchase(
     client: client,
     answerWindow: answerWindow,
+    attempts: attempts,
+    currentOwnerUid: currentOwnerUid,
     persistRetryCredentials: (credentials) =>
         persistPurchaseRecovery(currentRepository, credentials),
-    persistStorePending: (productId) =>
-        recordStorePending(currentRepository, productId),
-    clearStorePending: (productId) =>
-        settleStorePending(currentRepository, productId),
   );
 }
 
@@ -71,54 +77,5 @@ Future<void> persistPurchaseRecovery(
       throw StateError('premium owner boundary not isolated');
     }
     await repository.savePurchaseCredentials(credentials);
-  });
-}
-
-/// Records an unfinished store transaction for the CURRENT owner, inside
-/// the owner gate, so a second purchase stays blocked across restarts. An
-/// existing record keeps its original start time.
-Future<void> recordStorePending(
-  PremiumRepository Function() currentRepository,
-  String productId,
-) {
-  return UserLocalDataIsolation.runOwnerScopedMutation(() async {
-    final repository = currentRepository();
-    if (repository is! PremiumStorePendingStore) return;
-    if (repository is PremiumOwnerBoundary &&
-        !(repository as PremiumOwnerBoundary).ownerAccessReady) {
-      throw StateError('premium owner boundary not isolated');
-    }
-    final store = repository as PremiumStorePendingStore;
-    final existing = await store.readStorePending();
-    if (existing != null && existing.productId == productId) return;
-    await store.saveStorePending(
-      PremiumStorePending(
-        platform: defaultTargetPlatform == TargetPlatform.iOS
-            ? 'ios'
-            : 'android',
-        productId: productId,
-        sinceUtc: DateTime.now().toUtc(),
-      ),
-    );
-  });
-}
-
-/// Clears the unfinished record once the store answered terminally for the
-/// SAME product (purchased with proof saved, declined or cancelled).
-Future<void> settleStorePending(
-  PremiumRepository Function() currentRepository,
-  String productId,
-) {
-  return UserLocalDataIsolation.runOwnerScopedMutation(() async {
-    final repository = currentRepository();
-    if (repository is! PremiumStorePendingStore) return;
-    if (repository is PremiumOwnerBoundary &&
-        !(repository as PremiumOwnerBoundary).ownerAccessReady) {
-      return;
-    }
-    final store = repository as PremiumStorePendingStore;
-    final existing = await store.readStorePending();
-    if (existing == null || existing.productId != productId) return;
-    await store.clearStorePending();
   });
 }

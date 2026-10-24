@@ -5,6 +5,7 @@ import '../data/datasources/local_storage.dart';
 import '../data/datasources/storage_result.dart';
 import '../network/api_result.dart';
 import '../network/network_exception.dart';
+import '../storage/premium_purchase_attempt_store.dart';
 import '../storage/secure_storage.dart';
 import 'account_deletion_markers.dart';
 import 'account_deletion_pending_state.dart';
@@ -62,6 +63,15 @@ abstract final class AccountDeletionFinalizer {
     }
 
     try {
+      // The device purchase ledger survives account switches on purpose;
+      // a deleted account takes its own unfinished/parked purchases along.
+      final deletedUid = storage.getString(UserLocalDataIsolation.ownerKey);
+      if (deletedUid != null && deletedUid.isNotEmpty) {
+        await PremiumPurchaseAttemptStore(
+          storage,
+          secureStorage,
+        ).forgetOwner(deletedUid);
+      }
       await storage.setBool(anonymousBootstrapKey, true).requireDurable();
       await storage.remove(localWipePendingKey).requireDurable();
       await storage.remove(UserLocalDataIsolation.ownerKey).requireDurable();

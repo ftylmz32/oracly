@@ -1,11 +1,15 @@
-/// In-flight purchase/restore wait — one active session at a time.
+/// In-flight purchase/restore wait — one active session at a time — and the
+/// owner routing of every store delivery.
 library;
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 
 import '../../../core/domain/models/premium_plan.dart';
+import '../../../core/storage/premium_purchase_attempt_store.dart';
 import '../models/premium_purchase_result.dart';
 import 'premium_store_catalog.dart';
 import 'store_iap_client.dart';
@@ -14,28 +18,29 @@ import 'store_purchase_terminal_handler.dart';
 
 export 'store_purchase_terminal_handler.dart' show PersistRetryCredentials;
 
-/// Durably records / clears a store transaction that is not finished yet,
-/// keyed by product id. Never a receipt; never grants.
-typedef StorePendingWrite = Future<void> Function(String productId);
-
 class StorePremiumPurchaseSession {
   StorePremiumPurchaseSession({
-    StorePendingWrite? onStorePending,
-    StorePendingWrite? onStoreSettled,
+    this.attempts,
+    String? Function()? currentOwnerTag,
   })
     // ignore: prefer_initializing_formals
-    : _onStorePending = onStorePending,
-       // ignore: prefer_initializing_formals
-       _onStoreSettled = onStoreSettled;
+    : _currentOwnerTag = currentOwnerTag;
 
-  final StorePendingWrite? _onStorePending;
-  final StorePendingWrite? _onStoreSettled;
+  /// Device ledger of unfinished purchases. Null only for direct, unwired
+  /// constructions; production always supplies it.
+  final PremiumPurchaseAttemptStore? attempts;
+  final String? Function()? _currentOwnerTag;
+
   StreamSubscription<List<PurchaseDetails>>? _sub;
   Completer<PremiumPurchaseResult>? _wait;
   PremiumPlanKind? _expected;
+  String? _attemptId;
   bool _restore = false;
   bool _busy = false;
   PremiumPurchaseResult? _unsolicitedGrant;
+
+  /// A purchase or restore sheet is open.
+  bool get busy => _busy;
 
   /// Attaches the single purchase-stream listener (idempotent).
   void listen(StoreIapClient iap, PersistRetryCredentials? persist) {
@@ -59,11 +64,16 @@ class StorePremiumPurchaseSession {
     _sub = null;
   }
 
-  bool begin({PremiumPlanKind? expected, bool restore = false}) {
+  bool begin({
+    PremiumPlanKind? expected,
+    bool restore = false,
+    String? attemptId,
+  }) {
     if (_busy) return false;
     _busy = true;
     _restore = restore;
     _expected = expected;
+    _attemptId = attemptId;
     _wait = Completer<PremiumPurchaseResult>();
     return true;
   }
@@ -72,6 +82,7 @@ class StorePremiumPurchaseSession {
     _busy = false;
     _wait = null;
     _expected = null;
+    _attemptId = null;
     _restore = false;
   }
 
@@ -120,24 +131,220 @@ class StorePremiumPurchaseSession {
     Future<void> Function(PurchaseDetails purchase) completePurchase,
     PersistRetryCredentials? persistRetryCredentials,
   ) async {
+    final ledger = attempts;
     final recognized = PremiumStoreCatalog.kindFor(purchase.productID) != null;
+    if (ledger == null || !recognized) {
+      return _handleUnrouted(purchase, completePurchase, persistRetryCredentials);
+    }
+    final route = _route(ledger, purchase);
     switch (purchase.status) {
       case PurchaseStatus.pending:
-        // Play PENDING (slow payment, cash, approval): nothing is paid yet
-        // and there is no receipt to verify or acknowledge. Record it
-        // durably so no second purchase starts, even after a restart, and
-        // answer the waiter now instead of letting it time out as failed.
-        if (!recognized) return;
-        await _write(_onStorePending, purchase.productID);
+        // Store PENDING: nothing paid, no receipt, never acknowledged or
+        // granted. Keep (or create) the device lock, remember the store's
+        // id so a later answer can be matched, and answer the waiter now.
+        await _try(() async {
+          final match = route.match;
+          if (match != null) {
+            if (route.ref != null && match.storeRef != route.ref) {
+              await ledger.replace(match.copyWith(storeRef: route.ref));
+            }
+          } else {
+            await ledger.begin(
+              PremiumPurchaseAttempt(
+                ownerTag: route.owner ?? 'unattributed',
+                platform: _platform,
+                productId: purchase.productID,
+                attemptId:
+                    'store-${route.ref ?? DateTime.now().toIso8601String()}',
+                sinceUtc: DateTime.now().toUtc(),
+                storeRef: route.ref,
+              ),
+            );
+          }
+        });
         _complete(PremiumPurchaseResult.pending());
         return;
       case PurchaseStatus.error:
-        // A terminal store answer (e.g. a slow payment declined).
-        if (recognized) await _write(_onStoreSettled, purchase.productID);
+      case PurchaseStatus.canceled:
+        // Only an answer matched to THIS transaction (its store id, or the
+        // sheet we have open) releases its lock. Anything else is ignored.
+        final match = route.match;
+        if (match != null) {
+          await _try(
+            () => ledger.release((a) => a.attemptId == match.attemptId),
+          );
+        }
+        _complete(
+          purchase.status == PurchaseStatus.canceled
+              ? PremiumPurchaseResult.cancelled()
+              : PremiumPurchaseResult.failed(),
+        );
+        return;
+      case PurchaseStatus.purchased:
+      case PurchaseStatus.restored:
+        final current = _currentOwnerTag?.call();
+        // An explicit Restore claims untagged purchases for the signed-in
+        // account; the backend still refuses one bound to another account.
+        final owner = route.owner ?? (_restore ? current : null);
+        if (owner == null) {
+          // Fail closed: no owner can be established. Not saved, not
+          // acknowledged; the store keeps redelivering it.
+          StorePurchaseStreamDiagnostics.logDropped(
+            reason: 'unattributed_delivery',
+            status: purchase.status,
+            recognized: true,
+            expected: _expected,
+          );
+          return;
+        }
+        if (owner == current) {
+          final result = await StorePurchaseTerminalHandler.apply(
+            purchase: purchase,
+            kind: PremiumStoreCatalog.kindFor(purchase.productID),
+            expected: _expected,
+            restore: _restore,
+            persistRetryCredentials: persistRetryCredentials,
+            completePurchase: completePurchase,
+          );
+          // The receipt is saved for its owner: the lock is done.
+          if (result != null && result.granted) {
+            final match = route.match;
+            await _try(
+              () => ledger.release(
+                (a) =>
+                    (match != null && a.attemptId == match.attemptId) ||
+                    (a.ownerTag == owner &&
+                        a.productId == purchase.productID &&
+                        !a.parked),
+              ),
+            );
+          }
+          if (result != null) _complete(result);
+          return;
+        }
+        await _park(ledger, purchase, owner, route, completePurchase);
+        return;
+    }
+  }
+
+  /// Another account's purchase finished here. Its proof goes to that
+  /// owner's slot only; the signed-in account gets no token, no save, no
+  /// verify and no grant. It is acknowledged only once the proof is
+  /// durable, so the store keeps it, and the device stays locked until
+  /// the owner signs in and verifies it.
+  Future<void> _park(
+    PremiumPurchaseAttemptStore ledger,
+    PurchaseDetails purchase,
+    String owner,
+    _Route route,
+    Future<void> Function(PurchaseDetails purchase) completePurchase,
+  ) async {
+    final proof = StorePurchaseTerminalHandler.credentialsOf(purchase);
+    if (!proof.isComplete) return;
+    try {
+      await ledger.park(owner, proof);
+      final match = route.match;
+      if (match != null) {
+        await ledger.replace(
+          match.copyWith(parked: true, storeRef: route.ref),
+        );
+      } else {
+        await ledger.begin(
+          PremiumPurchaseAttempt(
+            ownerTag: owner,
+            platform: _platform,
+            productId: purchase.productID,
+            attemptId: 'parked-${route.ref ?? proof.purchaseToken}',
+            sinceUtc: DateTime.now().toUtc(),
+            storeRef: route.ref,
+            parked: true,
+          ),
+        );
+      }
+    } catch (_) {
+      StorePurchaseStreamDiagnostics.logDropped(
+        reason: 'park_persist_failed',
+        status: purchase.status,
+        recognized: true,
+        expected: _expected,
+      );
+      return;
+    }
+    if (purchase.pendingCompletePurchase) await completePurchase(purchase);
+  }
+
+  _Route _route(PremiumPurchaseAttemptStore ledger, PurchaseDetails purchase) {
+    final ref = _refOf(purchase);
+    final all = ledger.all();
+    PremiumPurchaseAttempt? match;
+    if (ref != null) {
+      for (final a in all) {
+        if (a.storeRef == ref) match = a;
+      }
+    }
+    final expected = _expected;
+    final expectedId = expected == null
+        ? null
+        : PremiumStoreCatalog.idFor(expected);
+    if (match == null &&
+        _attemptId != null &&
+        expectedId == purchase.productID) {
+      for (final a in all) {
+        if (a.attemptId == _attemptId) match = a;
+      }
+    }
+    var owner = _accountTagOf(purchase) ?? match?.ownerTag;
+    if (owner == null) {
+      final sameProduct = [
+        for (final a in all)
+          if (a.productId == purchase.productID) a,
+      ];
+      if (sameProduct.length == 1) owner = sameProduct.single.ownerTag;
+    }
+    return _Route(ref: ref, match: match, owner: owner);
+  }
+
+  static String? _refOf(PurchaseDetails purchase) {
+    final token = purchase.verificationData.serverVerificationData;
+    if (token.isNotEmpty) return token;
+    final id = purchase.purchaseID;
+    return id != null && id.isNotEmpty ? id : null;
+  }
+
+  /// The obfuscated account the purchase was launched for (Play only).
+  static String? _accountTagOf(PurchaseDetails purchase) {
+    if (purchase is! GooglePlayPurchaseDetails) return null;
+    final tag = purchase.billingClientPurchase.obfuscatedAccountId;
+    return tag != null && tag.isNotEmpty ? tag : null;
+  }
+
+  static String get _platform =>
+      defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android';
+
+  static Future<void> _try(Future<void> Function() body) async {
+    try {
+      await body();
+    } catch (_) {
+      // The next store answer or query decides again; the lock written
+      // before the sheet opened still stands.
+    }
+  }
+
+  /// Direct constructions without a ledger, and unknown products.
+  Future<void> _handleUnrouted(
+    PurchaseDetails purchase,
+    Future<void> Function(PurchaseDetails purchase) completePurchase,
+    PersistRetryCredentials? persistRetryCredentials,
+  ) async {
+    switch (purchase.status) {
+      case PurchaseStatus.pending:
+        if (PremiumStoreCatalog.kindFor(purchase.productID) == null) return;
+        _complete(PremiumPurchaseResult.pending());
+        return;
+      case PurchaseStatus.error:
         _complete(PremiumPurchaseResult.failed());
         return;
       case PurchaseStatus.canceled:
-        if (recognized) await _write(_onStoreSettled, purchase.productID);
         _complete(PremiumPurchaseResult.cancelled());
         return;
       case PurchaseStatus.purchased:
@@ -153,20 +360,7 @@ class StorePremiumPurchaseSession {
           persistRetryCredentials: persistRetryCredentials,
           completePurchase: completePurchase,
         );
-        // The receipt is saved now; the unfinished-store record is done.
-        if (result != null && result.granted) {
-          await _write(_onStoreSettled, purchase.productID);
-        }
         if (result != null) _complete(result);
-    }
-  }
-
-  static Future<void> _write(StorePendingWrite? write, String productId) async {
-    if (write == null) return;
-    try {
-      await write(productId);
-    } catch (_) {
-      // Storage failed: the next store query or redelivery decides again.
     }
   }
 
@@ -181,4 +375,17 @@ class StorePremiumPurchaseSession {
       _unsolicitedGrant = result;
     }
   }
+}
+
+class _Route {
+  const _Route({required this.ref, required this.match, required this.owner});
+
+  /// The store's own id for this transaction, when it has one.
+  final String? ref;
+
+  /// The ledger entry this delivery belongs to, if it can be matched.
+  final PremiumPurchaseAttempt? match;
+
+  /// The account tag it belongs to, if it can be established.
+  final String? owner;
 }

@@ -2,7 +2,6 @@
 library;
 
 import '../../../features/premium/models/premium_purchase_credentials.dart';
-import '../../../features/premium/models/premium_store_pending.dart';
 import '../../copy/premium_copy.dart';
 import '../../domain/models/premium_plan.dart';
 import '../../domain/repositories/premium_repository.dart';
@@ -13,8 +12,7 @@ import '../../storage/secure_storage.dart';
 import '../datasources/local_storage.dart';
 import '../datasources/storage_result.dart';
 
-class MockPremiumRepository
-    implements PremiumRepository, PremiumOwnerBoundary, PremiumStorePendingStore {
+class MockPremiumRepository implements PremiumRepository, PremiumOwnerBoundary {
   MockPremiumRepository(
     this._storage, {
     SecureStorage? secureStorage,
@@ -47,11 +45,6 @@ class MockPremiumRepository
   static const platformKey = 'or_premium_platform';
   static const productIdKey = 'or_premium_product_id';
 
-  /// Unfinished store transaction (no receipt): user-bound, non-secret.
-  static const storePendingPlatformKey = 'or_premium_store_pending_platform';
-  static const storePendingProductKey = 'or_premium_store_pending_product';
-  static const storePendingSinceKey = 'or_premium_store_pending_since';
-
   /// Legacy plaintext credential keys — migrated into secure storage only.
   static const purchaseTokenKey = 'or_premium_purchase_token';
   static const transactionIdKey = 'or_premium_transaction_id';
@@ -68,9 +61,6 @@ class MockPremiumRepository
     authoritativeKey,
     platformKey,
     productIdKey,
-    storePendingPlatformKey,
-    storePendingProductKey,
-    storePendingSinceKey,
   ];
 
   SecureStorage get secureStorage => _secure;
@@ -250,51 +240,6 @@ class MockPremiumRepository
         await _storage.remove(key);
       } catch (_) {}
     }
-  }
-
-  @override
-  Future<PremiumStorePending?> readStorePending() async {
-    if (!_ownerAllowed) return null;
-    final platform = _storage.getString(storePendingPlatformKey);
-    final productId = _storage.getString(storePendingProductKey);
-    final since = DateTime.tryParse(
-      _storage.getString(storePendingSinceKey) ?? '',
-    );
-    if (platform == null || productId == null || since == null) return null;
-    return PremiumStorePending(
-      platform: platform,
-      productId: productId,
-      sinceUtc: since.toUtc(),
-    );
-  }
-
-  @override
-  Future<void> saveStorePending(PremiumStorePending pending) async {
-    _requireOwnerAccess();
-    // The product key is written last: it is what makes the record visible.
-    await _storage
-        .setString(storePendingPlatformKey, pending.platform)
-        .requireDurable(storePendingPlatformKey);
-    await _storage
-        .setString(storePendingSinceKey, pending.sinceUtc.toIso8601String())
-        .requireDurable(storePendingSinceKey);
-    await _storage
-        .setString(storePendingProductKey, pending.productId)
-        .requireDurable(storePendingProductKey);
-  }
-
-  @override
-  Future<void> clearStorePending() async {
-    _requireOwnerAccess();
-    await _storage
-        .remove(storePendingProductKey)
-        .requireDurable(storePendingProductKey);
-    await _storage
-        .remove(storePendingPlatformKey)
-        .requireDurable(storePendingPlatformKey);
-    await _storage
-        .remove(storePendingSinceKey)
-        .requireDurable(storePendingSinceKey);
   }
 
   @override

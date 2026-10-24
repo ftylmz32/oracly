@@ -18,6 +18,17 @@ typedef PersistRetryCredentials =
 abstract final class StorePurchaseTerminalHandler {
   StorePurchaseTerminalHandler._();
 
+  /// The verifiable proof a finished store purchase carries.
+  static PremiumPurchaseCredentials credentialsOf(PurchaseDetails purchase) =>
+      PremiumPurchaseCredentials(
+        platform: defaultTargetPlatform == TargetPlatform.iOS
+            ? 'ios'
+            : 'android',
+        productId: purchase.productID,
+        purchaseToken: purchase.verificationData.serverVerificationData,
+        transactionId: purchase.purchaseID,
+      );
+
   static Future<PremiumPurchaseResult?> apply({
     required PurchaseDetails purchase,
     required PremiumPlanKind? kind,
@@ -59,12 +70,7 @@ abstract final class StorePurchaseTerminalHandler {
       );
       return PremiumPurchaseResult.unverified();
     }
-    final creds = PremiumPurchaseCredentials(
-      platform: defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
-      productId: purchase.productID,
-      purchaseToken: purchase.verificationData.serverVerificationData,
-      transactionId: purchase.purchaseID,
-    );
+    final creds = credentialsOf(purchase);
     if (!creds.isComplete) {
       StorePurchaseStreamDiagnostics.logDropped(
         reason: 'incomplete_credentials',

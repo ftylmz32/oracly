@@ -3,6 +3,7 @@ library;
 
 import '../../../core/domain/models/premium_plan.dart';
 import '../models/premium_purchase_result.dart';
+import 'store_purchase_terminal_handler.dart';
 
 abstract class PremiumPurchasePort {
   /// Product catalogue loaded - required for new purchases / price labels.
@@ -33,4 +34,11 @@ abstract class PremiumPurchasePort {
 /// handled like a stream delivery: proof saved first, then acknowledged.
 abstract interface class StorePurchaseRefresher {
   Future<Set<String>?> refreshStorePurchases();
+
+  /// Any account's unfinished or parked purchase on this device.
+  bool get holdsUnfinishedPurchase;
+
+  /// Hands a purchase finished for the signed-in account while another
+  /// account was active (parked for it) to [save]. Never to anyone else.
+  Future<bool> recoverParked(PersistRetryCredentials save);
 }
