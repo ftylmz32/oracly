@@ -8,7 +8,6 @@ import '../../../../core/navigation/oracly_navigation_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/widgets/oracly_pressable.dart';
-import '../../../daily_rewards/copy/daily_rewards_copy.dart';
 import '../../../gems/copy/gems_copy.dart';
 import 'review_access_sheet.dart';
 
@@ -17,41 +16,25 @@ class PremiumReferenceLinks extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Spacing separates the links; a separator glyph was left dangling at
+    // the end of a wrapped line at narrow widths and large text.
     return Wrap(
       alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
-      spacing: 10,
-      runSpacing: 4,
+      spacing: 16,
+      runSpacing: 0,
       children: [
         _Link(
           label: GemsCopy.openGemsAction,
           onTap: () => OraclyNavigationService.openGems(context),
         ),
-        Text(
-          '·',
-          style: AppTextStyles.caption.copyWith(
-            color: AppColors.gold.withValues(alpha: 0.55),
-          ),
-        ),
         _Link(
-          label: DailyRewardsCopy.screenTitle,
+          label: OraclyL10n.t(L10nKeys.dailyRewardsTitle),
           onTap: () => OraclyNavigationService.openDailyRewards(context),
-        ),
-        Text(
-          '·',
-          style: AppTextStyles.caption.copyWith(
-            color: AppColors.gold.withValues(alpha: 0.55),
-          ),
         ),
         _Link(
           label: OraclyL10n.t(L10nKeys.privacy),
           onTap: () => OraclyNavigationService.openPrivacy(context),
-        ),
-        Text(
-          '·',
-          style: AppTextStyles.caption.copyWith(
-            color: AppColors.gold.withValues(alpha: 0.55),
-          ),
         ),
         _Link(
           label: OraclyL10n.t('premium.review_access'),

@@ -70,10 +70,13 @@ class PremiumLegalDisclosure extends StatelessWidget {
           ),
         ],
         const SizedBox(height: 12),
+        // No separator glyphs: on a wrapped run they were left dangling at
+        // line ends and sat above the link baseline. Spacing separates.
         Wrap(
           alignment: WrapAlignment.center,
-          spacing: 10,
-          runSpacing: 6,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 16,
+          runSpacing: 0,
           children: [
             _Link(
               label: LegalCopy.privacyPolicy,
@@ -82,7 +85,6 @@ class PremiumLegalDisclosure extends StatelessWidget {
                 LegalDocumentKind.privacyPolicy,
               ),
             ),
-            _Dot(),
             _Link(
               label: LegalCopy.termsOfUse,
               onTap: () => LegalLinkActions.openDocument(
@@ -90,7 +92,6 @@ class PremiumLegalDisclosure extends StatelessWidget {
                 LegalDocumentKind.termsOfUse,
               ),
             ),
-            _Dot(),
             _Link(
               label: LegalCopy.manageSubscription,
               onTap: () => LegalLinkActions.openManageSubscription(context),
@@ -110,18 +111,6 @@ class PremiumLegalDisclosure extends StatelessWidget {
     fontStyle: FontStyle.normal,
     fontWeight: FontWeight.w400,
   );
-}
-
-class _Dot extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      '·',
-      style: AppTextStyles.caption.copyWith(
-        color: AppColors.gold.withValues(alpha: 0.55),
-      ),
-    );
-  }
 }
 
 class _Link extends StatelessWidget {
