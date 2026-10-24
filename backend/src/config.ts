@@ -169,6 +169,16 @@ export type AppConfig = {
   aiSpendKillSwitch: boolean;
   readingTaskServiceAccount: string | null;
   /**
+   * Dedicated Cloud Tasks queue and OIDC identity for Play acknowledgement
+   * retries (never the reading queue). Unset: retries cannot be scheduled
+   * and every attempt to is logged as an error for the sweep to repair.
+   */
+  billingAckQueue: string | null;
+  billingAckLocation: string;
+  billingAckTargetUrl: string | null;
+  billingAckAudience: string | null;
+  billingAckServiceAccount: string | null;
+  /**
    * Candidate-only diagnostic: stop the durable worker after staged GCS
    * retrieval succeeds, before any provider call. Default false. Must never
    * be left enabled on a traffic-serving revision.
@@ -495,6 +505,11 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     aiSpendKillSwitch: parseBool(env.AI_SPEND_KILL_SWITCH, false),
     readingTaskServiceAccount:
       nonEmpty(env.READING_TASK_SERVICE_ACCOUNT),
+    billingAckQueue: nonEmpty(env.BILLING_ACK_QUEUE),
+    billingAckLocation: nonEmpty(env.BILLING_ACK_LOCATION) ?? 'europe-west1',
+    billingAckTargetUrl: nonEmpty(env.BILLING_ACK_TARGET_URL),
+    billingAckAudience: nonEmpty(env.BILLING_ACK_AUDIENCE),
+    billingAckServiceAccount: nonEmpty(env.BILLING_ACK_SERVICE_ACCOUNT),
     readingWorkerStopAfterStaged: parseBool(
       env.READING_WORKER_STOP_AFTER_STAGED,
       false,

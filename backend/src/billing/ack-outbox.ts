@@ -1,7 +1,8 @@
 /**
  * Durable, server-only outbox for Play acknowledgements that failed after a
  * purchase was verified and bound to its owner. A delayed Cloud Task on the
- * existing reading queue retries each one, so a paid purchase no longer
+ * dedicated billing-acknowledge queue retries each one (a sweep re-creates
+ * lost tasks), so a paid purchase no longer
  * depends on the app reopening to escape Play's automatic refund.
  *
  * Entries hold the raw purchase token (needed to call Play later), so the
@@ -28,6 +29,12 @@ export const ACK_RETRY_DELAYS_MS: readonly number[] = [
   24 * 3_600_000,
 ];
 
+/** A task due longer ago than this and still pending is treated as lost. */
+export const ACK_LOST_GRACE_MS = 15 * 60_000;
+
+/** Pending this long is overdue: alert, Play's 3-day window is closing. */
+export const ACK_OVERDUE_MS = 60 * 3_600_000;
+
 export type AckOutboxStatus = 'pending' | 'done' | 'closed';
 
 export type AckOutboxEntry = {
@@ -42,6 +49,10 @@ export type AckOutboxEntry = {
   lastReason?: string;
   createdAtMs: number;
   updatedAtMs: number;
+  /** When the next retry task is due to run. */
+  nextAttemptAtMs?: number;
+  /** The retry task could not be created; the sweep re-creates it. */
+  scheduleFailed?: boolean;
 };
 
 export interface AckOutbox {
@@ -49,10 +60,24 @@ export interface AckOutbox {
   create(entry: AckOutboxEntry): Promise<boolean>;
   get(id: string): Promise<AckOutboxEntry | null>;
   update(id: string, patch: Partial<AckOutboxEntry>): Promise<void>;
+  /** Pending entries, for the sweep. */
+  listPending(limit: number): Promise<AckOutboxEntry[]>;
 }
 
+export type AckRetryInput = {
+  id: string;
+  attempt: number;
+  atMs: number;
+  /**
+   * Suffix for a re-created task. Cloud Tasks reserves a used task name
+   * for a while, so a sweep re-creation needs its own name or the 409
+   * would be taken for an existing task and the retry lost.
+   */
+  key?: string;
+};
+
 export interface AckRetryScheduler {
-  schedule(input: { id: string; attempt: number; atMs: number }): Promise<void>;
+  schedule(input: AckRetryInput): Promise<void>;
 }
 
 export type BillingAckOptions = {
@@ -86,9 +111,15 @@ export class InMemoryAckOutbox implements AckOutbox {
     if (entry) this.entries.set(id, { ...entry, ...patch });
   }
 
+  async listPending(limit: number): Promise<AckOutboxEntry[]> {
+    return (await this.all()).slice(0, limit);
+  }
+
   /** Pending ones only, as tests and support see the queue. */
   async all(): Promise<AckOutboxEntry[]> {
-    return [...this.entries.values()].filter((e) => e.status === 'pending');
+    return [...this.entries.values()]
+      .filter((e) => e.status === 'pending')
+      .map((e) => ({ ...e }));
   }
 
   async rewriteOwnerForTest(id: string, owner: string): Promise<void> {
@@ -124,6 +155,15 @@ export class FirestoreAckOutbox implements AckOutbox {
   async update(id: string, patch: Partial<AckOutboxEntry>): Promise<void> {
     await this.doc(id).update(patch);
   }
+
+  async listPending(limit: number): Promise<AckOutboxEntry[]> {
+    const snap = await this.db
+      .collection('billingAckOutbox')
+      .where('status', '==', 'pending')
+      .limit(limit)
+      .get();
+    return snap.docs.map((d) => d.data() as AckOutboxEntry);
+  }
 }
 
 let sharedFirestore: Firestore | null = null;
@@ -143,14 +183,17 @@ export function createAckOutbox(config: AppConfig): AckOutbox | null {
   }
 }
 
-export class NoopAckRetryScheduler implements AckRetryScheduler {
-  async schedule(): Promise<void> {}
+/** No billing queue configured: scheduling fails loudly, never silently. */
+export class UnconfiguredAckRetryScheduler implements AckRetryScheduler {
+  async schedule(): Promise<void> {
+    throw new Error('ack_retry_scheduler_unconfigured');
+  }
 }
 
 /**
- * Delayed retry on the existing reading Cloud Tasks queue, authenticated
- * with the same OIDC service account and audience. Targets this service's
- * own origin. A duplicate task name (same entry and attempt) is ignored.
+ * Delayed retry on the dedicated billing-acknowledge Cloud Tasks queue,
+ * authenticated with the billing task service account. A duplicate task
+ * name (same entry and attempt) is ignored.
  */
 export class CloudTasksAckRetryScheduler implements AckRetryScheduler {
   constructor(
@@ -160,28 +203,24 @@ export class CloudTasksAckRetryScheduler implements AckRetryScheduler {
     }),
   ) {}
 
-  async schedule(input: { id: string; attempt: number; atMs: number }) {
+  async schedule(input: AckRetryInput) {
     const c = this.config;
-    if (
-      !c.firebaseProjectId ||
-      !c.readingTaskQueue ||
-      !c.readingTaskTargetUrl ||
-      !c.readingTaskAudience ||
-      !c.readingTaskServiceAccount
-    ) {
+    if (!billingAckConfigured(c)) {
       throw new Error('ack_retry_scheduler_unconfigured');
     }
     const parent =
-      `projects/${c.firebaseProjectId}/locations/${c.readingTaskLocation}` +
-      `/queues/${c.readingTaskQueue}`;
-    const target = `${new URL(c.readingTaskTargetUrl).origin}/internal/billing/acknowledge-retry`;
+      `projects/${c.firebaseProjectId}/locations/${c.billingAckLocation}` +
+      `/queues/${c.billingAckQueue}`;
+    const target = c.billingAckTargetUrl!;
     try {
       await this.auth.request({
         url: `https://cloudtasks.googleapis.com/v2/${parent}/tasks`,
         method: 'POST',
         data: {
           task: {
-            name: `${parent}/tasks/billing-ack-${input.id}-${input.attempt}`,
+            name:
+              `${parent}/tasks/billing-ack-${input.id}-${input.attempt}` +
+              (input.key ? `-${input.key}` : ''),
             scheduleTime: new Date(input.atMs).toISOString(),
             httpRequest: {
               httpMethod: 'POST',
@@ -189,8 +228,8 @@ export class CloudTasksAckRetryScheduler implements AckRetryScheduler {
               headers: { 'Content-Type': 'application/json' },
               body: Buffer.from(JSON.stringify({ id: input.id })).toString('base64'),
               oidcToken: {
-                serviceAccountEmail: c.readingTaskServiceAccount,
-                audience: c.readingTaskAudience,
+                serviceAccountEmail: c.billingAckServiceAccount,
+                audience: c.billingAckAudience,
               },
             },
           },
@@ -204,12 +243,18 @@ export class CloudTasksAckRetryScheduler implements AckRetryScheduler {
   }
 }
 
+function billingAckConfigured(c: AppConfig): boolean {
+  return Boolean(
+    c.firebaseProjectId &&
+      c.billingAckQueue &&
+      c.billingAckTargetUrl &&
+      c.billingAckAudience &&
+      c.billingAckServiceAccount,
+  );
+}
+
 export function createAckRetryScheduler(config: AppConfig): AckRetryScheduler {
-  return config.firebaseProjectId &&
-    config.readingTaskQueue &&
-    config.readingTaskTargetUrl &&
-    config.readingTaskAudience &&
-    config.readingTaskServiceAccount
+  return billingAckConfigured(config)
     ? new CloudTasksAckRetryScheduler(config)
-    : new NoopAckRetryScheduler();
+    : new UnconfiguredAckRetryScheduler();
 }

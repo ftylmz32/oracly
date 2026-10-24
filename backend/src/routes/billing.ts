@@ -18,13 +18,15 @@ import { billingResult } from '../billing/types.js';
 import { premiumOwnerTag } from '../billing/purchase-owner-tag.js';
 import { createBillingProviders, verifyPurchase } from '../billing/verify.js';
 import {
+  ACK_LOST_GRACE_MS,
+  ACK_OVERDUE_MS,
   ACK_RETRY_DELAYS_MS,
   ackOutboxId,
   createAckOutbox,
   createAckRetryScheduler,
   type BillingAckOptions,
 } from '../billing/ack-outbox.js';
-import { verifyCloudTask } from './reading-worker-routes.js';
+import { verifyBillingTask } from '../billing/billing-task-auth.js';
 import { createAuthenticationService } from '../auth/create-auth.js';
 import type { AppConfig } from '../config.js';
 import { ErrorCode, errorEnvelope } from '../errors.js';
@@ -76,7 +78,7 @@ export async function registerBillingRoutes(
   const outbox =
     ackOptions.outbox === undefined ? createAckOutbox(config) : ackOptions.outbox;
   const ackScheduler = ackOptions.scheduler ?? createAckRetryScheduler(config);
-  const verifyTask = ackOptions.verifyTask ?? verifyCloudTask(config);
+  const verifyTask = ackOptions.verifyTask ?? verifyBillingTask(config);
   const now = ackOptions.now ?? Date.now;
   const rateLimit = createBillingIpRateLimit(
     config.billingRateLimitMax,
@@ -273,6 +275,7 @@ export async function registerBillingRoutes(
         return;
       }
       const at = now();
+      const due = at + ACK_RETRY_DELAYS_MS[0]!;
       const created = await outbox.create({
         id,
         platform: 'android',
@@ -283,16 +286,29 @@ export async function registerBillingRoutes(
         status: 'pending',
         createdAtMs: at,
         updatedAtMs: at,
+        nextAttemptAtMs: due,
       });
-      if (created) {
-        await ackScheduler.schedule({
-          id,
-          attempt: 0,
-          atMs: at + ACK_RETRY_DELAYS_MS[0]!,
-        });
-      }
+      if (created) await scheduleOrMark(id, 0, due);
     } catch {
-      app.log.warn({ operation: 'billing_ack_outbox', errorCode: 'outbox_unavailable' });
+      app.log.error({ operation: 'billing_ack_outbox', errorCode: 'outbox_unavailable' });
+    }
+  }
+
+  /**
+   * Creates the retry task; when that fails the entry is marked and an
+   * error is logged (alertable), and the sweep re-creates it later.
+   */
+  async function scheduleOrMark(id: string, attempt: number, atMs: number, key?: string) {
+    if (!outbox) return;
+    try {
+      await ackScheduler.schedule({ id, attempt, atMs, key });
+      await outbox.update(id, { nextAttemptAtMs: atMs, scheduleFailed: false });
+    } catch {
+      await outbox.update(id, { nextAttemptAtMs: atMs, scheduleFailed: true });
+      app.log.error({
+        operation: 'billing_ack_schedule',
+        errorCode: 'billing_ack_schedule_failed',
+      });
     }
   }
 
@@ -315,7 +331,7 @@ export async function registerBillingRoutes(
       }
       const finish = async (status: 'done' | 'closed', reason: string) => {
         await outbox.update(id, { status, lastReason: reason, updatedAtMs: now() });
-        logSafe(request.log, status === 'done' ? 'info' : 'warn', 'billing_ack_retry', {
+        logSafe(request.log, reason === 'gave_up' ? 'error' : status === 'done' ? 'info' : 'warn', 'billing_ack_retry', {
           requestId: request.requestId || String(request.id),
           operation: 'billing_ack_retry',
           status: status === 'done' ? 200 : 410,
@@ -329,11 +345,7 @@ export async function registerBillingRoutes(
           return;
         }
         await outbox.update(id, { attempts, lastReason: reason, updatedAtMs: now() });
-        await ackScheduler.schedule({
-          id,
-          attempt: attempts,
-          atMs: now() + ACK_RETRY_DELAYS_MS[attempts]!,
-        });
+        await scheduleOrMark(id, attempts, now() + ACK_RETRY_DELAYS_MS[attempts]!);
       };
       const purchase = {
         platform: entry.platform,
@@ -373,6 +385,39 @@ export async function registerBillingRoutes(
       return reply.code(200).send({ ok: true });
     },
   );
+
+  /**
+   * Cloud Scheduler sweep (billing identity only). Re-creates the task of
+   * any pending entry whose retry is overdue by more than the lost-task
+   * grace (task creation failed, or the task never ran), and reports
+   * entries pending past the overdue limit as an alertable error. Counts
+   * only, never tokens.
+   */
+  app.post('/internal/billing/acknowledge-sweep', async (request, reply) => {
+    if (!(await verifyTask(request))) {
+      return reply.code(401).send(errorEnvelope(ErrorCode.unauthorized));
+    }
+    if (!outbox) return reply.code(200).send({ pending: 0, rescheduled: 0, overdue: 0 });
+    const pending = await outbox.listPending(500);
+    const at = now();
+    let rescheduled = 0;
+    let overdue = 0;
+    for (const entry of pending) {
+      if (at - entry.createdAtMs > ACK_OVERDUE_MS) overdue++;
+      const due = entry.nextAttemptAtMs ?? entry.createdAtMs;
+      if (entry.scheduleFailed || at - due > ACK_LOST_GRACE_MS) {
+        await scheduleOrMark(entry.id, entry.attempts, at, `s${at}`);
+        rescheduled++;
+      }
+    }
+    logSafe(request.log, overdue > 0 ? 'error' : 'info', 'billing_ack_sweep', {
+      requestId: request.requestId || String(request.id),
+      operation: 'billing_ack_sweep',
+      status: overdue > 0 ? 500 : 200,
+      errorCode: overdue > 0 ? 'billing_ack_overdue' : undefined,
+    });
+    return reply.code(200).send({ pending: pending.length, rescheduled, overdue });
+  });
 }
 
 async function acknowledgeSafely(
