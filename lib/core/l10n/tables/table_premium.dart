@@ -365,6 +365,18 @@ const kL10nPremium = <String, L10nTriple>{
     'Checking status…',
     'Проверяем статус…',
   ),
+  // DRAFT, awaiting product approval (#44): same-plan retry of an attempt
+  // the store never gave a token for. Claims no charge, refund or result.
+  'premium.pending_retry_note': L10nTriple(
+    'Mağaza bu deneme için bir işlem göstermiyor. İstersen yalnız aynı planı yeniden deneyebilirsin.',
+    'The store shows no transaction for this attempt. If you like, you can try the same plan again.',
+    'Магазин не показывает операцию по этой попытке. При желании можно повторить только тот же план.',
+  ),
+  'premium.pending_retry_same_plan': L10nTriple(
+    'Aynı planı yeniden dene',
+    'Try the same plan again',
+    'Повторить тот же план',
+  ),
   'premium.pending_verify_later': L10nTriple(
     'Daha sonra kontrol et',
     'Check later',

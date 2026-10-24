@@ -47,7 +47,13 @@ abstract interface class StorePurchaseRefresher {
   Future<List<StorePendingToken>> pendingTokensForCurrentOwner();
 
   /// The store answered definitively for this attempt: drop its lock.
-  Future<void> settleStorePending(String attemptId);
+  Future<void> settleStorePending(String attemptId, {required String why});
+
+  /// The one plan the signed-in account may retry while its only locks are
+  /// attempts the store never gave a token for, old enough and followed by
+  /// a successful store query that showed nothing for that product. Null
+  /// otherwise. Other plans stay blocked.
+  Future<PremiumPlanKind?> retryablePlan();
 }
 
 class StorePendingToken {

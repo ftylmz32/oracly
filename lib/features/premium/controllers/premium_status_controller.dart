@@ -23,6 +23,7 @@ class PremiumStatusController extends ChangeNotifier {
   PremiumEntitlementState _entitlement = PremiumEntitlementState.inactive;
   String? _entitlementMessage;
   PremiumPendingKind? _pendingKind;
+  PremiumPlanKind? _retryablePlan;
   PremiumPlanKind _selectedPlan = PremiumPlanKind.yearly;
   PremiumPlanKind? _activePlan;
   List<PremiumPlanModel> _plans = const [];
@@ -236,6 +237,24 @@ class PremiumStatusController extends ChangeNotifier {
     });
   }
 
+  /// The one plan that may be retried while a token-less purchase attempt
+  /// holds the store lock; null when none may.
+  PremiumPlanKind? get retryablePlan =>
+      pendingKind == PremiumPendingKind.store && !_storeTransactionInFlight
+      ? _retryablePlan
+      : null;
+
+  /// Retries exactly [retryablePlan], on a direct user tap. Every other
+  /// plan stays blocked, and the service re-checks eligibility itself.
+  Future<PremiumPurchaseResult> retrySamePlan() async {
+    final plan = retryablePlan;
+    if (plan == null || !PremiumPlanAvailability.isOffered(plan, _plans)) {
+      return PremiumPurchaseResult.unavailable();
+    }
+    _selectedPlan = plan;
+    return _runPurchase(plan);
+  }
+
   Future<PremiumPurchaseResult> purchase() async {
     if (isPremium) return PremiumPurchaseResult.granted(_selectedPlan);
     if (!_service.purchaseConfigured) {
@@ -256,6 +275,10 @@ class PremiumStatusController extends ChangeNotifier {
     if (!PremiumPlanAvailability.isOffered(plan, _plans)) {
       return PremiumPurchaseResult.unavailable();
     }
+    return _runPurchase(plan);
+  }
+
+  Future<PremiumPurchaseResult> _runPurchase(PremiumPlanKind plan) async {
     _storeTransactionInFlight = true;
     _pendingKind = PremiumPendingKind.store;
     _set(
@@ -326,6 +349,9 @@ class PremiumStatusController extends ChangeNotifier {
     _entitlement = snap.entitlement;
     _entitlementMessage = snap.message;
     _pendingKind = snap.pendingKind;
+    _retryablePlan = snap.pendingKind == PremiumPendingKind.store
+        ? await _service.retryablePlan()
+        : null;
     // Review access is a fallback only — real commerce entitlement above
     // is untouched and always takes priority.
     _reviewAccessActive = _entitlement.allowsPremiumFeatures

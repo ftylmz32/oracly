@@ -103,15 +103,29 @@ class PremiumService {
     // or a saved, unresolved receipt means money may already be on its way.
     // No plan, tap or restart may start another payment until it settles.
     if (await _holdsUnresolvedPurchase()) {
-      return PremiumPurchaseResult.pending();
+      // The single exception: the same plan, when the only locks are
+      // token-less attempts eligible for the user's retry.
+      final unverifiedReceipt = await _holdsUnverifiedReceipt();
+      if (unverifiedReceipt || await retryablePlan() != plan) {
+        return PremiumPurchaseResult.pending();
+      }
     }
     return _grants.applyStoreOutcome(await _purchase.purchase(plan));
   }
 
-  Future<bool> _holdsUnresolvedPurchase() async {
-    if (_deviceHoldsUnfinishedPurchase) return true;
+  Future<bool> _holdsUnresolvedPurchase() async =>
+      _deviceHoldsUnfinishedPurchase || await _holdsUnverifiedReceipt();
+
+  Future<bool> _holdsUnverifiedReceipt() async {
     final creds = await _premium.readPurchaseCredentials();
     return creds != null && creds.isComplete && !_premium.isActiveNow;
+  }
+
+  /// See [StorePurchaseRefresher.retryablePlan].
+  Future<PremiumPlanKind?> retryablePlan() async {
+    final port = _purchase;
+    if (port is! StorePurchaseRefresher) return null;
+    return (port as StorePurchaseRefresher).retryablePlan();
   }
 
   bool get _deviceHoldsUnfinishedPurchase {
@@ -200,14 +214,20 @@ class PremiumService {
               purchaseToken: item.token,
             ),
           );
-          await refresher.settleStorePending(item.attemptId);
+          await refresher.settleStorePending(
+            item.attemptId,
+            why: 'backend_purchased',
+          );
         } catch (_) {}
         continue;
       }
       if (verdict.status == PremiumVerifyStatus.inactive &&
           pendingCancelledReasons.contains(verdict.reason)) {
         try {
-          await refresher.settleStorePending(item.attemptId);
+          await refresher.settleStorePending(
+            item.attemptId,
+            why: 'backend_cancelled',
+          );
         } catch (_) {}
       }
     }

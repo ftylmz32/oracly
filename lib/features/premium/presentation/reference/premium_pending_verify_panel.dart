@@ -16,6 +16,7 @@ class PremiumPendingVerifyPanel extends StatelessWidget {
     super.key,
     required this.checking,
     required this.onCheck,
+    this.onRetrySamePlan,
   });
 
   /// A status check started by the user is running.
@@ -24,6 +25,10 @@ class PremiumPendingVerifyPanel extends StatelessWidget {
   /// Null while the store sheet itself is still open: there is no held
   /// receipt to check yet.
   final VoidCallback? onCheck;
+
+  /// Set only while the lock is a store attempt with no token, old enough
+  /// and followed by a clean store check: retries that same plan only.
+  final VoidCallback? onRetrySamePlan;
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +102,20 @@ class PremiumPendingVerifyPanel extends StatelessWidget {
                     ? PremiumCopy.pendingVerifyChecking
                     : PremiumCopy.pendingVerifyCheck,
                 onTap: checking ? null : onCheck,
+              ),
+            ],
+            if (onRetrySamePlan != null && !checking) ...[
+              const SizedBox(height: 12),
+              Text(
+                PremiumCopy.pendingRetryNote,
+                style: ReadingTypography.secondary(
+                  color: OraclyChrome.cream.withValues(alpha: 0.78),
+                ),
+              ),
+              const SizedBox(height: 8),
+              _CheckButton(
+                label: PremiumCopy.pendingRetrySamePlan,
+                onTap: onRetrySamePlan,
               ),
             ],
             // A calm way out: plain back navigation only. It never buys,

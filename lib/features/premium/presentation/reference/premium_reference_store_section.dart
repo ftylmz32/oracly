@@ -56,6 +56,9 @@ class PremiumReferenceStoreSection extends StatelessWidget {
           onCheck: status.storeTransactionInFlight
               ? null
               : status.checkPendingStatus,
+          onRetrySamePlan: status.retryablePlan == null
+              ? null
+              : () => status.retrySamePlan(),
         ),
       ];
     }

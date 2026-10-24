@@ -167,6 +167,8 @@ class StorePremiumPurchaseSession {
           if (token.isNotEmpty) {
             await ledger.savePendingToken(attempt.attemptId, token);
           }
+          final kept = attempt.attemptId;
+          await _supersedeLost(ledger, attempt.ownerTag, purchase.productID, kept);
         });
         _complete(PremiumPurchaseResult.pending());
         return;
@@ -177,8 +179,28 @@ class StorePremiumPurchaseSession {
         final match = route.match;
         if (match != null) {
           await _try(
-            () => ledger.release((a) => a.attemptId == match.attemptId),
+            () => ledger.release(
+              (a) => a.attemptId == match.attemptId,
+              why: purchase.status == PurchaseStatus.canceled
+                  ? 'store_cancelled'
+                  : 'store_error',
+            ),
           );
+          // A store error on a same-plan retry may mean a transaction does
+          // exist: withdraw the retry until a fresh clean store check.
+          if (purchase.status == PurchaseStatus.error &&
+              match.attemptId == _attemptId) {
+            await _try(() async {
+              for (final a in ledger.all()) {
+                if (a.ownerTag == match.ownerTag &&
+                    a.productId == purchase.productID &&
+                    a.storeRef == null &&
+                    !a.parked) {
+                  await ledger.replace(a.copyWith(clearCleanCheck: true));
+                }
+              }
+            });
+          }
         }
         _complete(
           purchase.status == PurchaseStatus.canceled
@@ -215,15 +237,18 @@ class StorePremiumPurchaseSession {
           // The receipt is saved for its owner: the lock is done.
           if (result != null && result.granted) {
             final match = route.match;
-            await _try(
-              () => ledger.release(
+            await _try(() async {
+              await ledger.release(
                 (a) =>
                     (match != null && a.attemptId == match.attemptId) ||
                     (a.ownerTag == owner &&
                         a.productId == purchase.productID &&
+                        a.storeRef != null &&
                         !a.parked),
-              ),
-            );
+                why: 'purchased',
+              );
+              await _supersedeLost(ledger, owner, purchase.productID, null);
+            });
           }
           if (result != null) _complete(result);
           return;
@@ -302,6 +327,19 @@ class StorePremiumPurchaseSession {
       }
     }
     var owner = _accountTagOf(purchase) ?? match?.ownerTag;
+    if (match == null && owner != null) {
+      // The store now shows a transaction for an account and product whose
+      // earlier attempt never got a token (app died, store silent): it is
+      // that attempt's transaction, so the lock becomes resolvable.
+      for (final a in all) {
+        if (a.ownerTag == owner &&
+            a.productId == purchase.productID &&
+            a.storeRef == null &&
+            !a.parked) {
+          match = a;
+        }
+      }
+    }
     if (owner == null) {
       final sameProduct = [
         for (final a in all)
@@ -311,6 +349,24 @@ class StorePremiumPurchaseSession {
     }
     return _Route(ref: ref, match: match, owner: owner);
   }
+
+  /// Lost attempts (never given a token) for [owner] and [productId] are
+  /// superseded once the store accepted a transaction for the same product:
+  /// that transaction is now the one that holds, and resolves, the lock.
+  static Future<void> _supersedeLost(
+    PremiumPurchaseAttemptStore ledger,
+    String owner,
+    String productId,
+    String? keep,
+  ) => ledger.release(
+    (a) =>
+        a.ownerTag == owner &&
+        a.productId == productId &&
+        a.storeRef == null &&
+        !a.parked &&
+        a.attemptId != keep,
+    why: 'superseded_by_retry',
+  );
 
   static String? _refOf(PurchaseDetails purchase) {
     final token = purchase.verificationData.serverVerificationData;

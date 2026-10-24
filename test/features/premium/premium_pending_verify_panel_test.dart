@@ -505,4 +505,47 @@ void main() {
       semantics.dispose();
     });
   });
+
+  group('same-plan retry', () {
+    Future<void> pumpPanel(WidgetTester tester, VoidCallback? retry) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: PremiumPendingVerifyPanel(
+                checking: false,
+                onCheck: () {},
+                onRetrySamePlan: retry,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    testWidgets('hidden unless the lock is eligible', (tester) async {
+      await pumpPanel(tester, null);
+      expect(find.text(PremiumCopy.pendingRetrySamePlan), findsNothing);
+      expect(find.text(PremiumCopy.pendingRetryNote), findsNothing);
+    });
+
+    testWidgets('shown as its own button when eligible', (tester) async {
+      final semantics = tester.ensureSemantics();
+      var taps = 0;
+      await pumpPanel(tester, () => taps++);
+      expect(find.text(PremiumCopy.pendingRetryNote), findsOneWidget);
+      expect(
+        tester.getSemantics(find.text(PremiumCopy.pendingRetrySamePlan)),
+        isSemantics(
+          label: PremiumCopy.pendingRetrySamePlan,
+          isButton: true,
+          isEnabled: true,
+          hasTapAction: true,
+        ),
+      );
+      await tester.tap(find.text(PremiumCopy.pendingRetrySamePlan));
+      expect(taps, 1);
+      semantics.dispose();
+    });
+  });
 }

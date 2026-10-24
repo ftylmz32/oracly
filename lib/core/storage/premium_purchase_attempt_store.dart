@@ -28,6 +28,7 @@ class PremiumPurchaseAttempt {
     required this.sinceUtc,
     this.storeRef,
     this.parked = false,
+    this.cleanCheckUtc,
   });
 
   final String ownerTag;
@@ -47,16 +48,26 @@ class PremiumPurchaseAttempt {
   /// waits in the owner's parked slot.
   final bool parked;
 
-  PremiumPurchaseAttempt copyWith({String? storeRef, bool? parked}) =>
-      PremiumPurchaseAttempt(
-        ownerTag: ownerTag,
-        platform: platform,
-        productId: productId,
-        attemptId: attemptId,
-        sinceUtc: sinceUtc,
-        storeRef: storeRef ?? this.storeRef,
-        parked: parked ?? this.parked,
-      );
+  /// Last time a successful store query showed no transaction at all for
+  /// this product. Not proof of anything on its own; it only gates the
+  /// user's same-plan retry of an attempt with no token.
+  final DateTime? cleanCheckUtc;
+
+  PremiumPurchaseAttempt copyWith({
+    String? storeRef,
+    bool? parked,
+    DateTime? cleanCheckUtc,
+    bool clearCleanCheck = false,
+  }) => PremiumPurchaseAttempt(
+    ownerTag: ownerTag,
+    platform: platform,
+    productId: productId,
+    attemptId: attemptId,
+    sinceUtc: sinceUtc,
+    storeRef: storeRef ?? this.storeRef,
+    parked: parked ?? this.parked,
+    cleanCheckUtc: clearCleanCheck ? null : (cleanCheckUtc ?? this.cleanCheckUtc),
+  );
 
   Map<String, Object?> toJson() => {
     'o': ownerTag,
@@ -66,6 +77,7 @@ class PremiumPurchaseAttempt {
     's': sinceUtc.toIso8601String(),
     if (storeRef != null) 'r': storeRef,
     if (parked) 'k': true,
+    if (cleanCheckUtc != null) 'c': cleanCheckUtc!.toIso8601String(),
   };
 
   static PremiumPurchaseAttempt? fromJson(Object? json) {
@@ -83,6 +95,7 @@ class PremiumPurchaseAttempt {
       return null;
     }
     final ref = json['r'];
+    final clean = DateTime.tryParse('${json['c'] ?? ''}');
     return PremiumPurchaseAttempt(
       ownerTag: owner,
       platform: platform,
@@ -91,6 +104,7 @@ class PremiumPurchaseAttempt {
       sinceUtc: since.toUtc(),
       storeRef: ref is String && ref.isNotEmpty ? ref : null,
       parked: json['k'] == true,
+      cleanCheckUtc: clean?.toUtc(),
     );
   }
 }
@@ -104,6 +118,10 @@ class PremiumPurchaseAttemptStore {
   static const ledgerKey = 'or_premium_purchase_attempts_v1';
   static const _parkedPrefix = 'or_premium_parked_receipt_v1_';
   static const _pendingTokenPrefix = 'or_premium_pending_token_v1_';
+
+  /// Why each lock was released, newest last. No token, no uid.
+  static const auditKey = 'or_premium_purchase_audit_v1';
+  static const _auditLimit = 50;
 
   /// What the ledger keeps to match a store transaction: never the raw id.
   static String refHash(String ref) =>
@@ -165,7 +183,10 @@ class PremiumPurchaseAttemptStore {
       if (a.attemptId == attempt.attemptId) attempt else a,
   ]);
 
-  Future<void> release(bool Function(PremiumPurchaseAttempt) where) async {
+  Future<void> release(
+    bool Function(PremiumPurchaseAttempt) where, {
+    String why = 'released',
+  }) async {
     final current = all();
     final released = [
       for (final a in current)
@@ -176,6 +197,7 @@ class PremiumPurchaseAttemptStore {
       for (final a in current)
         if (!where(a)) a,
     ]);
+    await _audit(released, why);
     for (final a in released) {
       try {
         await _secure.delete('$_pendingTokenPrefix${a.attemptId}');
@@ -234,7 +256,45 @@ class PremiumPurchaseAttemptStore {
   /// Account deletion: drop everything recorded for this account only.
   Future<void> forgetOwner(String uid) async {
     final tag = ownerTag(uid);
-    await release((a) => a.ownerTag == tag);
+    await release((a) => a.ownerTag == tag, why: 'account_deleted');
     await clearParked(tag);
+  }
+
+  /// Release reasons for support and review. Best effort: an audit write
+  /// failure never blocks or undoes a release.
+  List<Map<String, Object?>> auditTrail() {
+    final raw = _storage.getString(auditKey);
+    if (raw == null || raw.isEmpty) return const [];
+    try {
+      final list = jsonDecode(raw);
+      return [
+        for (final e in list is List ? list : const [])
+          if (e is Map) Map<String, Object?>.from(e),
+      ];
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  Future<void> _audit(List<PremiumPurchaseAttempt> released, String why) async {
+    try {
+      final at = DateTime.now().toUtc().toIso8601String();
+      final entries = [
+        ...auditTrail(),
+        for (final a in released)
+          {
+            'at': at,
+            'why': why,
+            'owner': a.ownerTag.substring(0, 12),
+            'product': a.productId,
+            'attempt': a.attemptId,
+            'hadToken': a.storeRef != null,
+          },
+      ];
+      final kept = entries.length > _auditLimit
+          ? entries.sublist(entries.length - _auditLimit)
+          : entries;
+      await _storage.setString(auditKey, jsonEncode(kept));
+    } catch (_) {}
   }
 }

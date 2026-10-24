@@ -48,10 +48,12 @@ StorePremiumPurchase createStorePremiumPurchase(
   String? Function()? currentOwnerUid,
   @visibleForTesting
   Duration answerWindow = StorePremiumPurchase.purchaseAnswerWindow,
+  @visibleForTesting DateTime Function()? clock,
 }) {
   return StorePremiumPurchase(
     client: client,
     answerWindow: answerWindow,
+    clock: clock,
     attempts: attempts,
     currentOwnerUid: currentOwnerUid,
     persistRetryCredentials: (credentials) =>

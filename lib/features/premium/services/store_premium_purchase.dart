@@ -28,7 +28,9 @@ class StorePremiumPurchase
     String? Function()? currentOwnerUid,
     // Only tests shorten it; production keeps [purchaseAnswerWindow].
     Duration answerWindow = purchaseAnswerWindow,
+    DateTime Function()? clock,
   }) : _iap = client ?? PluginStoreIapClient(iap),
+       _clock = clock ?? DateTime.now,
        // ignore: prefer_initializing_formals
        _answerWindow = answerWindow,
        // ignore: prefer_initializing_formals
@@ -64,6 +66,11 @@ class StorePremiumPurchase
 
   final StorePremiumPurchaseSession _session;
   final Duration _answerWindow;
+  final DateTime Function() _clock;
+
+  /// How old a token-less attempt must be, and how late its clean store
+  /// check, before the same plan may be retried. A UX gate, not evidence.
+  static const retryAfter = Duration(minutes: 10);
 
   /// How long a purchase sheet may stay unanswered before the purchase is
   /// treated as unfinished (held), never as failed.
@@ -149,7 +156,7 @@ class StorePremiumPurchase
                 : 'android',
             productId: product.id,
             attemptId: attemptId,
-            sinceUtc: DateTime.now().toUtc(),
+            sinceUtc: _clock().toUtc(),
           ),
         );
       } catch (_) {
@@ -157,7 +164,7 @@ class StorePremiumPurchase
       }
     }
     if (!_session.begin(expected: plan, restore: false, attemptId: attemptId)) {
-      await _releaseAttempt(attemptId);
+      await _releaseAttempt(attemptId, why: 'not_launched');
       return PremiumPurchaseResult.failed();
     }
     try {
@@ -169,7 +176,7 @@ class StorePremiumPurchase
       );
       if (!started) {
         // The store refused to open the sheet: no transaction exists.
-        await _releaseAttempt(attemptId);
+        await _releaseAttempt(attemptId, why: 'launch_refused');
         return PremiumPurchaseResult.failed();
       }
       // Silence past the window is unfinished, not failed: the lock stays
@@ -186,12 +193,38 @@ class StorePremiumPurchase
     }
   }
 
-  Future<void> _releaseAttempt(String? attemptId) async {
+  Future<void> _releaseAttempt(String? attemptId, {required String why}) async {
     final attempts = _attempts;
     if (attempts == null || attemptId == null) return;
     try {
-      await attempts.release((a) => a.attemptId == attemptId);
+      await attempts.release((a) => a.attemptId == attemptId, why: why);
     } catch (_) {}
+  }
+
+  @override
+  Future<PremiumPlanKind?> retryablePlan() async {
+    final attempts = _attempts;
+    final tag = _tagOf(_currentOwnerUid?.call());
+    if (attempts == null || tag == null) return null;
+    // An unreadable ledger reads as empty here and is never retryable.
+    final all = attempts.all();
+    if (all.isEmpty) return null;
+    final now = _clock().toUtc();
+    String? product;
+    for (final a in all) {
+      final clean = a.cleanCheckUtc;
+      final eligible =
+          a.ownerTag == tag &&
+          !a.parked &&
+          a.storeRef == null &&
+          now.difference(a.sinceUtc) >= retryAfter &&
+          clean != null &&
+          clean.difference(a.sinceUtc) >= retryAfter;
+      if (!eligible) return null;
+      if (product != null && product != a.productId) return null;
+      product = a.productId;
+    }
+    return product == null ? null : PremiumStoreCatalog.kindFor(product);
   }
 
   @override
@@ -220,8 +253,8 @@ class StorePremiumPurchase
   }
 
   @override
-  Future<void> settleStorePending(String attemptId) async {
-    await _attempts?.release((a) => a.attemptId == attemptId);
+  Future<void> settleStorePending(String attemptId, {required String why}) async {
+    await _attempts?.release((a) => a.attemptId == attemptId, why: why);
   }
 
   @override
@@ -237,6 +270,7 @@ class StorePremiumPurchase
     await attempts.clearParked(tag);
     await attempts.release(
       (a) => a.ownerTag == tag && a.parked && a.productId == proof.productId,
+      why: 'recovered_parked',
     );
     return true;
   }
@@ -298,7 +332,25 @@ class StorePremiumPurchase
         persistRetryCredentials: _persistRetryCredentials,
       );
     }
+    await _recordCleanChecks(purchases);
     return unfinished;
+  }
+
+  /// A successful store read that shows no transaction for a token-less
+  /// attempt's product, of any state or account, is recorded on it.
+  Future<void> _recordCleanChecks(List<PurchaseDetails> purchases) async {
+    final attempts = _attempts;
+    if (attempts == null) return;
+    final seen = {for (final p in purchases) p.productID};
+    final now = _clock().toUtc();
+    try {
+      for (final a in attempts.all()) {
+        if (a.storeRef != null || a.parked || seen.contains(a.productId)) {
+          continue;
+        }
+        await attempts.replace(a.copyWith(cleanCheckUtc: now));
+      }
+    } catch (_) {}
   }
 
   static bool get supportedPlatform {
