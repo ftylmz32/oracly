@@ -107,6 +107,8 @@ abstract final class PremiumCopy {
       _t('premium.pending_verify_checking');
   static String get pendingVerifyAccess => _t('premium.pending_verify_access');
   static String get pendingVerifyLater => _t('premium.pending_verify_later');
+  static String get pendingStoreHistoryHint =>
+      _t('premium.pending_store_history_hint');
   static String get activatedMessage => _t('premium.activated');
   static String get purchaseUnavailable => ctaUnavailable;
   static String get purchaseFailed => _t('premium.purchase_failed');

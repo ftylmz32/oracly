@@ -281,6 +281,7 @@ void main() {
       expect(find.text(PremiumCopy.pendingVerifyBody), findsOneWidget);
       expect(find.text(PremiumCopy.pendingVerifyAccess), findsOneWidget);
       expect(find.text(PremiumCopy.pendingVerifyCheck), findsOneWidget);
+      expect(find.text(PremiumCopy.pendingStoreHistoryHint), findsOneWidget);
       expect(find.byType(PremiumReferencePlanCard), findsNothing);
       expect(find.byType(OraclyGoldButton), findsNothing);
       expect(find.textContaining('STORE-'), findsNothing);

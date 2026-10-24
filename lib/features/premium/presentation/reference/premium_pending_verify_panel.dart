@@ -82,6 +82,15 @@ class PremiumPendingVerifyPanel extends StatelessWidget {
               ),
             ),
             if (onCheck != null) ...[
+              const SizedBox(height: 8),
+              // Where the user can look meanwhile; says nothing was charged,
+              // refunded or unlocked.
+              Text(
+                PremiumCopy.pendingStoreHistoryHint,
+                style: ReadingTypography.secondary(
+                  color: OraclyChrome.cream.withValues(alpha: 0.78),
+                ),
+              ),
               const SizedBox(height: 16),
               _CheckButton(
                 label: checking

@@ -370,6 +370,11 @@ const kL10nPremium = <String, L10nTriple>{
     'Check later',
     'Проверить позже',
   ),
+  'premium.pending_store_history_hint': L10nTriple(
+    'Satın alma geçmişini Google Play veya App Store hesabından kontrol edebilirsin.',
+    'You can check your purchase history in your Google Play or App Store account.',
+    'Вы можете проверить историю покупок в аккаунте Google Play или App Store.',
+  ),
   'premium.pending_verify_access': L10nTriple(
     'Premium erişimi, satın alma doğrulandıktan sonra açılır.',
     'Premium access becomes available after the purchase is verified.',
