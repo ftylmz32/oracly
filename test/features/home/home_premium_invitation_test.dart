@@ -59,6 +59,19 @@ void main() {
     expect(state.actionLabel, PremiumCopy.ctaInspect);
   });
 
+  test('held receipt says the purchase is being checked, never upsells',
+      () {
+    final state = HomeReferencePremiumCopy.resolveState(
+      loaded: true,
+      isPremium: false,
+      busy: true,
+      storeOffersPlans: true,
+      awaitingVerdict: true,
+    );
+    expect(state.body, PremiumCopy.pendingVerifyTitle);
+    expect(state.actionLabel, PremiumCopy.ctaInspect);
+  });
+
   test('premium member sees their membership rather than upsell', () {
     final state = HomeReferencePremiumCopy.resolveState(
       loaded: true,

@@ -4,6 +4,7 @@ library;
 
 import '../../../core/copy/premium_copy.dart';
 import '../../premium/controllers/premium_status_controller.dart';
+import '../../premium/models/premium_entitlement_state.dart';
 
 final class HomeReferencePremiumBannerState {
   const HomeReferencePremiumBannerState({
@@ -31,6 +32,9 @@ abstract final class HomeReferencePremiumCopy {
     isPremium: status.isPremium,
     busy: status.busy,
     storeOffersPlans: status.storeOffersPlans,
+    awaitingVerdict:
+        status.entitlement == PremiumEntitlementState.pending &&
+        !status.storeTransactionInFlight,
   );
 
   /// View-state-only resolver: checking the store never promises a purchase.
@@ -40,6 +44,7 @@ abstract final class HomeReferencePremiumCopy {
     required bool isPremium,
     required bool busy,
     required bool storeOffersPlans,
+    bool awaitingVerdict = false,
   }) {
     if (!loaded) {
       return HomeReferencePremiumBannerState(
@@ -62,7 +67,11 @@ abstract final class HomeReferencePremiumCopy {
     if (busy) {
       return HomeReferencePremiumBannerState(
         title: PremiumCopy.homeBannerTitle,
-        body: PremiumCopy.ctaBusy,
+        // A held receipt says what is happening; an open store sheet or a
+        // restore keeps the short progress label.
+        body: awaitingVerdict
+            ? PremiumCopy.pendingVerifyTitle
+            : PremiumCopy.ctaBusy,
         actionLabel: PremiumCopy.ctaInspect,
         glowStrength: 0.88,
         maxBodyLines: 1,
