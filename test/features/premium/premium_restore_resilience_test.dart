@@ -46,7 +46,7 @@ class _UnverifiedVerifier implements PremiumEntitlementVerifier {
     required String purchaseToken,
     String? transactionId,
   }) async =>
-      PremiumVerifyResult.unverified('backend_rejected');
+      PremiumVerifyResult.unverified('jws_invalid');
 }
 
 class _BlockingPreparePort implements PremiumPurchasePort {

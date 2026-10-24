@@ -20,6 +20,7 @@ import '../auth/user_local_data_isolation.dart';
 import '../domain/models/premium_plan.dart';
 import '../domain/repositories/premium_repository.dart';
 import '../domain/repositories/user_repository.dart';
+import 'premium_entitlement_reconciler.dart';
 
 class PremiumGrantPolicy {
   PremiumGrantPolicy({
@@ -84,6 +85,19 @@ class PremiumGrantPolicy {
         return committed ? result : PremiumPurchaseResult.unverified();
       }
       return PremiumPurchaseResult.unverified();
+    }
+
+    // The store charged and the proof is saved, but the backend gave no
+    // definitive verdict (own-backend 401, provider not deployed, Apple
+    // still settling). Same rule as the reconciler: hold the proof as
+    // `pending` so the controller blocks a second charge until it resolves.
+    if (verify.status == PremiumVerifyStatus.unverified &&
+        creds != null &&
+        creds.isComplete &&
+        !PremiumEntitlementReconciler.isUnusableCredentialReason(
+          verify.reason,
+        )) {
+      return PremiumPurchaseResult.pending();
     }
 
     return PremiumPurchaseResult.unverified();

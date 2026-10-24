@@ -102,8 +102,16 @@ class PremiumEntitlementReconciler {
     'product_mismatch',
     'jws_invalid',
     'receipt_no_transaction_id',
+    'missing_transaction_id',
+    // Backend already retried the other Apple environment before this.
+    'environment_mismatch',
     'purchase_bound_to_other_account',
   };
+
+  /// Whether an unverified [reason] proves the saved proof can never verify.
+  /// Any other unverified reason keeps the proof and holds a new purchase.
+  static bool isUnusableCredentialReason(String? reason) =>
+      _unusableCredentialReasons.contains(reason);
 
   /// Unverified reasons where our own verification infrastructure, not the
   /// store, failed (own-backend 401; no store credentials deployed). Apple /

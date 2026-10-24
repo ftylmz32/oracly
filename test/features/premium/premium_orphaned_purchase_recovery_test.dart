@@ -700,7 +700,7 @@ void main() {
       final transient = await reconcilerFor(
         _ScriptedVerifier([PremiumVerifyResult.error('network_or_parse')]),
       ).reconcile();
-      expect(transient.entitlement, PremiumEntitlementState.inactive);
+      expect(transient.entitlement, PremiumEntitlementState.pending);
       expect(transient.definitive, isFalse);
 
       final recreated = MockPremiumRepository(storage, secureStorage: secure);
@@ -777,7 +777,7 @@ void main() {
         _ScriptedVerifier([PremiumVerifyResult.error('http_503')]),
       ).reconcile();
 
-      expect(snap.entitlement, PremiumEntitlementState.inactive);
+      expect(snap.entitlement, PremiumEntitlementState.pending);
       expect(snap.definitive, isFalse);
       expect(await repo.isPremiumActive(), isFalse);
       expect(await repo.readPurchaseCredentials(), isNotNull);
@@ -865,7 +865,8 @@ void main() {
           () async {
         await repo.savePurchaseCredentials(_monthly);
         final snap = await reconcilerFor(_ScriptedVerifier([result])).reconcile();
-        expect(snap.entitlement, PremiumEntitlementState.inactive);
+        // Unresolved paid proof is held so no second charge can start.
+        expect(snap.entitlement, PremiumEntitlementState.pending);
         expect(snap.definitive, isFalse);
         expect(await repo.isPremiumActive(), isFalse);
         expect(await repo.readPurchaseCredentials(), isNotNull);
@@ -878,6 +879,8 @@ void main() {
       PremiumVerifyResult.unverified('jws_invalid'),
       PremiumVerifyResult.unverified('platform_product_mismatch'),
       PremiumVerifyResult.unverified('purchase_bound_to_other_account'),
+      PremiumVerifyResult.unverified('environment_mismatch'),
+      PremiumVerifyResult.unverified('missing_transaction_id'),
     ]) {
       test('${result.status.name}/${result.reason} retires credentials, no grant',
           () async {

@@ -193,6 +193,42 @@ void main() {
     },
   );
 
+  for (final reason in [
+    'auth_required',
+    'provider_not_configured',
+    'transaction_not_found',
+    'unknown_status',
+  ]) {
+    test(
+      'charged purchase + non-definitive unverified/$reason holds the saved '
+      'proof and blocks a second charge',
+      () async {
+        final h = await _freeUserOnPaywall([
+          PremiumVerifyResult.unverified(reason),
+          PremiumVerifyResult.unverified(reason),
+          PremiumVerifyResult.active('subscription_active'),
+        ]);
+
+        final result = await h.controller.purchase();
+        expect(h.port.purchases, 1);
+        expect(result.outcome, isNot(PremiumPurchaseOutcome.unverified),
+            reason: 'the store never rejected this receipt');
+        expect(h.controller.entitlement, PremiumEntitlementState.pending);
+        expect(h.controller.isPremium, isFalse);
+        expect(await h.premium.readPurchaseCredentials(), isNotNull);
+
+        await h.controller.purchase();
+        expect(h.port.purchases, 1,
+            reason: 'no new billing attempt while the paid receipt is unresolved');
+
+        h.clock.advance(PremiumStatusController.retryThrottle);
+        await h.controller.ensureFresh();
+        expect(h.controller.entitlement, PremiumEntitlementState.active);
+        expect(h.port.purchases, 1);
+      },
+    );
+  }
+
   test(
     'definitively expired saved proof releases the purchase hold',
     () async {
