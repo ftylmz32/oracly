@@ -60,6 +60,22 @@ PurchaseDetails _playFor(
   ),
 ).single;
 
+/// What Play last said about each token, as the backend would read it.
+final _playStatus = <String, PurchaseStatus>{};
+
+void _remember(List<PurchaseDetails> purchases) {
+  for (final p in purchases) {
+    final token = p.verificationData.serverVerificationData;
+    if (token.isNotEmpty) _playStatus[token] = p.status;
+  }
+}
+
+/// The backend's real answer for a token Play still holds as pending.
+PremiumVerifyResult? _playVerdict(String token) =>
+    _playStatus[token] == PurchaseStatus.pending
+        ? PremiumVerifyResult.pending('subscription_pending')
+        : null;
+
 class _FakePlay implements StoreIapClient, StorePurchaseQueryClient {
   final _stream = StreamController<List<PurchaseDetails>>.broadcast();
   List<PurchaseDetails> Function(String? accountTag) onBuy = (_) => const [];
@@ -68,7 +84,10 @@ class _FakePlay implements StoreIapClient, StorePurchaseQueryClient {
   final accountTags = <String?>[];
   final completed = <String>[];
 
-  void emit(List<PurchaseDetails> purchases) => _stream.add(purchases);
+  void emit(List<PurchaseDetails> purchases) {
+    _remember(purchases);
+    _stream.add(purchases);
+  }
 
   @override
   Future<bool> isAvailable() async => true;
@@ -85,6 +104,7 @@ class _FakePlay implements StoreIapClient, StorePurchaseQueryClient {
     buyCalls++;
     accountTags.add(purchaseParam.applicationUserName);
     final emits = onBuy(purchaseParam.applicationUserName);
+    _remember(emits);
     if (emits.isNotEmpty) scheduleMicrotask(() => _stream.add(emits));
     return true;
   }
@@ -95,7 +115,10 @@ class _FakePlay implements StoreIapClient, StorePurchaseQueryClient {
   Future<void> completePurchase(PurchaseDetails purchase) async =>
       completed.add(purchase.verificationData.serverVerificationData);
   @override
-  Future<List<PurchaseDetails>?> queryPurchases() async => query;
+  Future<List<PurchaseDetails>?> queryPurchases() async {
+    _remember(query ?? const []);
+    return query;
+  }
 }
 
 class _Verifier implements PremiumEntitlementVerifier {
@@ -110,7 +133,8 @@ class _Verifier implements PremiumEntitlementVerifier {
     String? transactionId,
   }) async {
     tokens.add(purchaseToken);
-    return PremiumVerifyResult.active('subscription_active');
+    return _playVerdict(purchaseToken) ??
+        PremiumVerifyResult.active('subscription_active');
   }
 }
 
@@ -176,6 +200,7 @@ void main() {
   late _Device device;
 
   setUp(() async {
+    _playStatus.clear();
     SharedPreferences.setMockInitialValues({});
     device = _Device(
       await LocalStorage.open(),

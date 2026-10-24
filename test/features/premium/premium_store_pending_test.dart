@@ -53,6 +53,22 @@ PurchaseDetails _play(
           (status == PurchaseStatus.purchased ||
               status == PurchaseStatus.restored);
 
+/// What Play last said about each token, as the backend would read it.
+final _playStatus = <String, PurchaseStatus>{};
+
+void _remember(List<PurchaseDetails> purchases) {
+  for (final p in purchases) {
+    final token = p.verificationData.serverVerificationData;
+    if (token.isNotEmpty) _playStatus[token] = p.status;
+  }
+}
+
+/// The backend's real answer for a token Play still holds as pending.
+PremiumVerifyResult? _playVerdict(String token) =>
+    _playStatus[token] == PurchaseStatus.pending
+        ? PremiumVerifyResult.pending('subscription_pending')
+        : null;
+
 /// Play billing with a purchase stream and `queryPurchasesAsync`.
 class _FakePlay implements StoreIapClient, StorePurchaseQueryClient {
   final _stream = StreamController<List<PurchaseDetails>>.broadcast();
@@ -68,7 +84,10 @@ class _FakePlay implements StoreIapClient, StorePurchaseQueryClient {
   int queryCalls = 0;
   final completed = <String>[];
 
-  void emit(List<PurchaseDetails> purchases) => _stream.add(purchases);
+  void emit(List<PurchaseDetails> purchases) {
+    _remember(purchases);
+    _stream.add(purchases);
+  }
 
   @override
   Future<bool> isAvailable() async => true;
@@ -87,6 +106,7 @@ class _FakePlay implements StoreIapClient, StorePurchaseQueryClient {
   Future<bool> buyNonConsumable({required PurchaseParam purchaseParam}) async {
     buyCalls++;
     final emits = onBuy;
+    _remember(emits);
     if (emits.isNotEmpty) scheduleMicrotask(() => _stream.add(emits));
     return true;
   }
@@ -101,6 +121,7 @@ class _FakePlay implements StoreIapClient, StorePurchaseQueryClient {
   @override
   Future<List<PurchaseDetails>?> queryPurchases() async {
     queryCalls++;
+    _remember(query ?? const []);
     return query;
   }
 }
@@ -120,7 +141,7 @@ class _Verifier implements PremiumEntitlementVerifier {
     String? transactionId,
   }) async {
     tokens.add(purchaseToken);
-    return answer;
+    return _playVerdict(purchaseToken) ?? answer;
   }
 }
 
@@ -175,6 +196,7 @@ void main() {
   late InMemorySecureStorage secure;
 
   setUp(() async {
+    _playStatus.clear();
     SharedPreferences.setMockInitialValues({});
     storage = await LocalStorage.open();
     await storage.setString(UserLocalDataIsolation.ownerKey, 'uid-a');
@@ -197,7 +219,10 @@ void main() {
     expect(await app.repo.readPurchaseCredentials(), isNull,
         reason: 'no receipt exists while the store is pending');
     expect(app.play.completed, isEmpty, reason: 'PENDING is never acknowledged');
-    expect(app.verifier.tokens, isEmpty);
+    // Only ever a status question about this owner's own token; Play says
+    // pending, so nothing is granted.
+    expect(app.verifier.tokens,
+        everyElement('play-token-${PremiumStoreCatalog.monthlyId}'));
 
     app.controller.selectPlan(PremiumPlanKind.yearly);
     await app.controller.purchase();
@@ -234,7 +259,6 @@ void main() {
     await app.controller.forceReconcile();
     expect(app.controller.entitlement, PremiumEntitlementState.inactive);
     expect(app.controller.isPremium, isFalse);
-    expect(app.verifier.tokens, isEmpty);
     expect(app.play.completed, isEmpty);
   });
 

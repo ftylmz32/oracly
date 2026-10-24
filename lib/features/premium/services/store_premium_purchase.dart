@@ -198,6 +198,33 @@ class StorePremiumPurchase
   bool get holdsUnfinishedPurchase => _attempts?.holdsAny ?? false;
 
   @override
+  Future<List<StorePendingToken>> pendingTokensForCurrentOwner() async {
+    final attempts = _attempts;
+    final tag = _tagOf(_currentOwnerUid?.call());
+    if (attempts == null || tag == null) return const [];
+    final out = <StorePendingToken>[];
+    for (final a in attempts.all()) {
+      if (a.ownerTag != tag || a.parked) continue;
+      final token = await attempts.readPendingToken(a.attemptId);
+      if (token == null) continue;
+      out.add(
+        StorePendingToken(
+          attemptId: a.attemptId,
+          platform: a.platform,
+          productId: a.productId,
+          token: token,
+        ),
+      );
+    }
+    return out;
+  }
+
+  @override
+  Future<void> settleStorePending(String attemptId) async {
+    await _attempts?.release((a) => a.attemptId == attemptId);
+  }
+
+  @override
   Future<bool> recoverParked(PersistRetryCredentials save) async {
     final attempts = _attempts;
     final tag = _tagOf(_currentOwnerUid?.call());

@@ -143,23 +143,29 @@ class StorePremiumPurchaseSession {
         // granted. Keep (or create) the device lock, remember the store's
         // id so a later answer can be matched, and answer the waiter now.
         await _try(() async {
-          final match = route.match;
-          if (match != null) {
-            if (route.ref != null && match.storeRef != route.ref) {
-              await ledger.replace(match.copyWith(storeRef: route.ref));
+          var attempt = route.match;
+          if (attempt != null) {
+            if (route.ref != null && attempt.storeRef != route.ref) {
+              attempt = attempt.copyWith(storeRef: route.ref);
+              await ledger.replace(attempt);
             }
           } else {
-            await ledger.begin(
-              PremiumPurchaseAttempt(
-                ownerTag: route.owner ?? 'unattributed',
-                platform: _platform,
-                productId: purchase.productID,
-                attemptId:
-                    'store-${route.ref ?? DateTime.now().toIso8601String()}',
-                sinceUtc: DateTime.now().toUtc(),
-                storeRef: route.ref,
-              ),
+            attempt = PremiumPurchaseAttempt(
+              ownerTag: route.owner ?? 'unattributed',
+              platform: _platform,
+              productId: purchase.productID,
+              attemptId:
+                  'store-${route.ref ?? DateTime.now().microsecondsSinceEpoch}',
+              sinceUtc: DateTime.now().toUtc(),
+              storeRef: route.ref,
             );
+            await ledger.begin(attempt);
+          }
+          // The store's token for this unfinished purchase: lets its owner's
+          // backend ask Play for the definitive outcome later.
+          final token = purchase.verificationData.serverVerificationData;
+          if (token.isNotEmpty) {
+            await ledger.savePendingToken(attempt.attemptId, token);
           }
         });
         _complete(PremiumPurchaseResult.pending());
@@ -254,7 +260,8 @@ class StorePremiumPurchaseSession {
             ownerTag: owner,
             platform: _platform,
             productId: purchase.productID,
-            attemptId: 'parked-${route.ref ?? proof.purchaseToken}',
+            attemptId:
+                'parked-${route.ref ?? PremiumPurchaseAttemptStore.refHash(proof.purchaseToken)}',
             sinceUtc: DateTime.now().toUtc(),
             storeRef: route.ref,
             parked: true,
@@ -274,7 +281,8 @@ class StorePremiumPurchaseSession {
   }
 
   _Route _route(PremiumPurchaseAttemptStore ledger, PurchaseDetails purchase) {
-    final ref = _refOf(purchase);
+    final raw = _refOf(purchase);
+    final ref = raw == null ? null : PremiumPurchaseAttemptStore.refHash(raw);
     final all = ledger.all();
     PremiumPurchaseAttempt? match;
     if (ref != null) {
@@ -380,7 +388,7 @@ class StorePremiumPurchaseSession {
 class _Route {
   const _Route({required this.ref, required this.match, required this.owner});
 
-  /// The store's own id for this transaction, when it has one.
+  /// Hash of the store's own id for this transaction, when it has one.
   final String? ref;
 
   /// The ledger entry this delivery belongs to, if it can be matched.

@@ -7,6 +7,7 @@ library;
 import 'package:flutter/foundation.dart';
 
 import '../../features/premium/models/premium_purchase_result.dart';
+import '../../features/premium/models/premium_verify_result.dart';
 import '../../features/premium/models/premium_purchase_credentials.dart';
 import '../../features/premium/models/review_access_result.dart';
 import '../../features/premium/services/local_cache_entitlement_verifier.dart';
@@ -162,6 +163,53 @@ class PremiumService {
     final late = await _purchase.consumeUnsolicitedGrant();
     if (late != null && late.granted && late.plan != null) {
       await _grants.applyStoreOutcome(late);
+    }
+    if (refresher.holdsUnfinishedPurchase) await _askStoreViaBackend(refresher);
+  }
+
+  /// Play's definitive outcome for a pending purchase whose token we saw.
+  static const pendingCancelledReasons = {
+    'subscription_state_pending_purchase_canceled',
+    'product_canceled',
+  };
+
+  /// For each of the signed-in account's own unfinished purchases with a
+  /// store token, the backend reads Play's record of that token. Only a
+  /// definitive "pending purchase cancelled" releases the lock; a completed
+  /// purchase is saved for this owner and verified as usual. Anything else
+  /// (still pending, not found, unreachable, another account) keeps it.
+  Future<void> _askStoreViaBackend(StorePurchaseRefresher refresher) async {
+    final List<StorePendingToken> pending;
+    try {
+      pending = await refresher.pendingTokensForCurrentOwner();
+    } catch (_) {
+      return;
+    }
+    for (final item in pending) {
+      final verdict = await _verifier.verify(
+        platform: item.platform,
+        productId: item.productId,
+        purchaseToken: item.token,
+      );
+      if (verdict.isActive) {
+        try {
+          await _saveForCurrentOwner(
+            PremiumPurchaseCredentials(
+              platform: item.platform,
+              productId: item.productId,
+              purchaseToken: item.token,
+            ),
+          );
+          await refresher.settleStorePending(item.attemptId);
+        } catch (_) {}
+        continue;
+      }
+      if (verdict.status == PremiumVerifyStatus.inactive &&
+          pendingCancelledReasons.contains(verdict.reason)) {
+        try {
+          await refresher.settleStorePending(item.attemptId);
+        } catch (_) {}
+      }
     }
   }
 

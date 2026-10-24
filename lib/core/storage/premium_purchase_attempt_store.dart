@@ -38,8 +38,9 @@ class PremiumPurchaseAttempt {
   final String attemptId;
   final DateTime sinceUtc;
 
-  /// The store's own id for the transaction once it reported one (Play
-  /// purchase token). Used only to match later store answers.
+  /// SHA-256 of the store's own id for the transaction once it reported
+  /// one (Play purchase token). Only ever compared, never sent anywhere;
+  /// the raw token itself lives in secure storage.
   final String? storeRef;
 
   /// The store finished it while another account was signed in; its proof
@@ -102,6 +103,11 @@ class PremiumPurchaseAttemptStore {
 
   static const ledgerKey = 'or_premium_purchase_attempts_v1';
   static const _parkedPrefix = 'or_premium_parked_receipt_v1_';
+  static const _pendingTokenPrefix = 'or_premium_pending_token_v1_';
+
+  /// What the ledger keeps to match a store transaction: never the raw id.
+  static String refHash(String ref) =>
+      sha256.convert(utf8.encode('oracly.premium.storeref:$ref')).toString();
 
   /// Opaque, stable per-account tag. Never reversible to the uid.
   static String ownerTag(String uid) =>
@@ -161,11 +167,30 @@ class PremiumPurchaseAttemptStore {
 
   Future<void> release(bool Function(PremiumPurchaseAttempt) where) async {
     final current = all();
-    final kept = [
+    final released = [
+      for (final a in current)
+        if (where(a)) a,
+    ];
+    if (released.isEmpty) return;
+    await _write([
       for (final a in current)
         if (!where(a)) a,
-    ];
-    if (kept.length != current.length) await _write(kept);
+    ]);
+    for (final a in released) {
+      try {
+        await _secure.delete('$_pendingTokenPrefix${a.attemptId}');
+      } catch (_) {}
+    }
+  }
+
+  /// The store's own token for an unfinished transaction, kept so its
+  /// owner's backend can ask the store about it. Secure storage only.
+  Future<void> savePendingToken(String attemptId, String token) =>
+      _secure.write('$_pendingTokenPrefix$attemptId', token);
+
+  Future<String?> readPendingToken(String attemptId) async {
+    final token = await _secure.read('$_pendingTokenPrefix$attemptId');
+    return token == null || token.isEmpty ? null : token;
   }
 
   /// Keeps [proof] for [ownerTag] only. Throws when nothing durable landed.

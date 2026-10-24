@@ -41,4 +41,25 @@ abstract interface class StorePurchaseRefresher {
   /// Hands a purchase finished for the signed-in account while another
   /// account was active (parked for it) to [save]. Never to anyone else.
   Future<bool> recoverParked(PersistRetryCredentials save);
+
+  /// The signed-in account's own unfinished purchases that the store gave
+  /// a token for. Never another account's.
+  Future<List<StorePendingToken>> pendingTokensForCurrentOwner();
+
+  /// The store answered definitively for this attempt: drop its lock.
+  Future<void> settleStorePending(String attemptId);
+}
+
+class StorePendingToken {
+  const StorePendingToken({
+    required this.attemptId,
+    required this.platform,
+    required this.productId,
+    required this.token,
+  });
+
+  final String attemptId;
+  final String platform;
+  final String productId;
+  final String token;
 }
