@@ -10,6 +10,7 @@ import {
 } from '../billing/entitlement-repository.js';
 import { productKind } from '../billing/catalog.js';
 import { billingResult } from '../billing/types.js';
+import { premiumOwnerTag } from '../billing/purchase-owner-tag.js';
 import { createBillingProviders, verifyPurchase } from '../billing/verify.js';
 import { createAuthenticationService } from '../auth/create-auth.js';
 import type { AppConfig } from '../config.js';
@@ -123,6 +124,18 @@ export async function registerBillingRoutes(
           },
           providers,
         );
+        // A purchase the app launched names its buyer (obfuscated account
+        // tag). When it names another account, the caller is refused and
+        // nothing is bound, so its real owner can still claim it. The
+        // authenticated subject is authoritative, never the client body.
+        const subject = request.authSubject?.trim() ?? '';
+        if (
+          result.accountTag &&
+          subject &&
+          result.accountTag !== premiumOwnerTag(subject)
+        ) {
+          result = billingResult('unverified', 'purchase_bound_to_other_account');
+        }
         // SMD1-E1 — the verifier's `expiryAtMs` is an internal-only field
         // used to persist a real authoritative expiry snapshot; it must
         // never reach the client response (see BillingVerifyResult).

@@ -120,6 +120,19 @@ async function verifySubscription(
     return billingResult('error', `play_http_${res.status}`);
   }
   const body = (await res.json()) as Record<string, unknown>;
+  const ids = body.externalAccountIdentifiers;
+  return withAccountTag(
+    subscriptionOutcome(body, request),
+    ids && typeof ids === 'object'
+      ? (ids as Record<string, unknown>).obfuscatedExternalAccountId
+      : undefined,
+  );
+}
+
+function subscriptionOutcome(
+  body: Record<string, unknown>,
+  request: BillingVerifyRequest,
+): BillingVerifyResult {
   const lineItems = Array.isArray(body.lineItems) ? body.lineItems : [];
   const matching = collectMatchingLineItems(lineItems, request.productId);
   if (matching.length === 0) {
@@ -223,6 +236,10 @@ async function verifyProduct(
     return billingResult('error', `play_http_${res.status}`);
   }
   const body = (await res.json()) as Record<string, unknown>;
+  return withAccountTag(productOutcome(body), body.obfuscatedExternalAccountId);
+}
+
+function productOutcome(body: Record<string, unknown>): BillingVerifyResult {
   // purchaseState: 0 purchased, 1 canceled, 2 pending
   const purchaseState = Number(body.purchaseState);
   if (purchaseState === 2) {
@@ -235,6 +252,15 @@ async function verifyProduct(
     return billingResult('unverified', 'unknown_purchase_state');
   }
   return billingResult('active', 'product_purchased');
+}
+
+/** Who Play says the purchase was launched for, kept server-side only. */
+function withAccountTag(
+  result: BillingVerifyResult,
+  tag: unknown,
+): BillingVerifyResult {
+  if (typeof tag !== 'string' || tag.trim() === '') return result;
+  return { ...result, accountTag: tag.trim() };
 }
 
 function parseExpiry(raw: unknown): number | null {

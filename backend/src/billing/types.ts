@@ -23,6 +23,12 @@ export type BillingVerifyResult = {
    * (grace period, pending, error, etc.).
    */
   expiryAtMs?: number;
+  /**
+   * Internal only: the obfuscated account the store says the purchase was
+   * launched for (Play `obfuscatedExternalAccountId`). The route compares
+   * it with the caller; it never reaches the client response.
+   */
+  accountTag?: string;
 };
 
 export type BillingVerifyRequest = {
