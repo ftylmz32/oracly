@@ -68,6 +68,8 @@ export type BuildOptions = {
   billing?: BillingProviders;
   /** Override the durable entitlement-binding store (tests). */
   entitlementRepository?: EntitlementBindingRepository;
+  /** Billing acknowledgement outbox/scheduler overrides (tests). */
+  billingAck?: import('./billing/ack-outbox.js').BillingAckOptions;
   /** Override the durable reading-operation store (tests). */
   readingOperationRepository?: ReadingOperationRepository;
   /** Durable store for a reading operation's structured input (Soulmate). */
@@ -205,6 +207,7 @@ export async function buildServer(options: BuildOptions) {
     options.billing ?? {},
     options.entitlementRepository,
     options.sharedWindowStore,
+    options.billingAck,
   );
   await registerAccountDeletionRoute(app, config, {
     repository: options.accountDeletionRepository,

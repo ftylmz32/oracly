@@ -35,6 +35,7 @@ export async function testApp(
     appCheck?: import('../src/auth/app-check.js').AppCheckVerifier;
     billing?: import('../src/billing/types.js').BillingProviders;
     entitlementRepository?: import('../src/billing/entitlement-repository.js').EntitlementBindingRepository;
+    billingAck?: import('../src/billing/ack-outbox.js').BillingAckOptions;
     readingOperationRepository?: import('../src/reading/operation-repository.js').ReadingOperationRepository;
     readingClock?: import('../src/reading/clock.js').ServerClock;
     readingWaitPolicy?: import('../src/reading/wait-policy.js').WaitPolicy;
@@ -65,6 +66,7 @@ export async function testApp(
     appCheck: options.appCheck,
     billing: options.billing,
     entitlementRepository: options.entitlementRepository,
+    billingAck: options.billingAck,
     readingOperationRepository: options.readingOperationRepository,
     readingClock: options.readingClock,
     readingWaitPolicy: options.readingWaitPolicy,

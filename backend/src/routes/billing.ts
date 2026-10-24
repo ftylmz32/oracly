@@ -17,6 +17,14 @@ import { productKind } from '../billing/catalog.js';
 import { billingResult } from '../billing/types.js';
 import { premiumOwnerTag } from '../billing/purchase-owner-tag.js';
 import { createBillingProviders, verifyPurchase } from '../billing/verify.js';
+import {
+  ACK_RETRY_DELAYS_MS,
+  ackOutboxId,
+  createAckOutbox,
+  createAckRetryScheduler,
+  type BillingAckOptions,
+} from '../billing/ack-outbox.js';
+import { verifyCloudTask } from './reading-worker-routes.js';
 import { createAuthenticationService } from '../auth/create-auth.js';
 import type { AppConfig } from '../config.js';
 import { ErrorCode, errorEnvelope } from '../errors.js';
@@ -61,9 +69,15 @@ export async function registerBillingRoutes(
   providersOverride: BillingProviders = {},
   repositoryOverride?: EntitlementBindingRepository,
   sharedWindowOverride?: SharedWindowStore,
+  ackOptions: BillingAckOptions = {},
 ): Promise<void> {
   const providers = createBillingProviders(config, providersOverride);
   const repository = repositoryOverride ?? createEntitlementRepository(config);
+  const outbox =
+    ackOptions.outbox === undefined ? createAckOutbox(config) : ackOptions.outbox;
+  const ackScheduler = ackOptions.scheduler ?? createAckRetryScheduler(config);
+  const verifyTask = ackOptions.verifyTask ?? verifyCloudTask(config);
+  const now = ackOptions.now ?? Date.now;
   const rateLimit = createBillingIpRateLimit(
     config.billingRateLimitMax,
     config.billingRateLimitWindowMs,
@@ -186,6 +200,12 @@ export async function registerBillingRoutes(
               productId: body.productId.trim(),
               purchaseToken: body.purchaseToken,
             });
+            await keepForRetry({
+              acknowledged,
+              productId: body.productId.trim(),
+              purchaseToken: body.purchaseToken,
+              owner: identityKey,
+            });
             logSafe(request.log, acknowledged ? 'info' : 'warn', 'billing_acknowledge', {
               requestId: request.requestId || String(request.id),
               operation: 'billing_acknowledge',
@@ -224,6 +244,133 @@ export async function registerBillingRoutes(
           reason: 'internal_error',
         });
       }
+    },
+  );
+
+  /**
+   * A failed inline acknowledgement goes to the durable outbox and a
+   * delayed task; a successful one closes any earlier entry. Never affects
+   * the verify answer: storage or scheduling failures are only logged.
+   */
+  async function keepForRetry(input: {
+    acknowledged: boolean;
+    productId: string;
+    purchaseToken: string;
+    owner: string;
+  }): Promise<void> {
+    if (!outbox) return;
+    const id = ackOutboxId('android', input.purchaseToken);
+    try {
+      if (input.acknowledged) {
+        const existing = await outbox.get(id);
+        if (existing?.status === 'pending') {
+          await outbox.update(id, {
+            status: 'done',
+            lastReason: 'acknowledged_inline',
+            updatedAtMs: now(),
+          });
+        }
+        return;
+      }
+      const at = now();
+      const created = await outbox.create({
+        id,
+        platform: 'android',
+        productId: input.productId,
+        purchaseToken: input.purchaseToken,
+        ownerIdentityKey: input.owner,
+        attempts: 0,
+        status: 'pending',
+        createdAtMs: at,
+        updatedAtMs: at,
+      });
+      if (created) {
+        await ackScheduler.schedule({
+          id,
+          attempt: 0,
+          atMs: at + ACK_RETRY_DELAYS_MS[0]!,
+        });
+      }
+    } catch {
+      app.log.warn({ operation: 'billing_ack_outbox', errorCode: 'outbox_unavailable' });
+    }
+  }
+
+  /**
+   * Cloud Task retry of a failed acknowledgement. Re-reads Play and
+   * acknowledges only a purchase that is still active (PURCHASED), still
+   * unacknowledged and still bound to the same account. Refunded,
+   * cancelled, expired or rebound purchases are closed, never acknowledged.
+   */
+  app.post<{ Body: { id?: unknown } }>(
+    '/internal/billing/acknowledge-retry',
+    async (request, reply) => {
+      if (!(await verifyTask(request))) {
+        return reply.code(401).send(errorEnvelope(ErrorCode.unauthorized));
+      }
+      const id = typeof request.body?.id === 'string' ? request.body.id : '';
+      const entry = id && outbox ? await outbox.get(id) : null;
+      if (!outbox || !entry || entry.status !== 'pending') {
+        return reply.code(200).send({ ok: true });
+      }
+      const finish = async (status: 'done' | 'closed', reason: string) => {
+        await outbox.update(id, { status, lastReason: reason, updatedAtMs: now() });
+        logSafe(request.log, status === 'done' ? 'info' : 'warn', 'billing_ack_retry', {
+          requestId: request.requestId || String(request.id),
+          operation: 'billing_ack_retry',
+          status: status === 'done' ? 200 : 410,
+          errorCode: reason,
+        });
+      };
+      const retryLater = async (reason: string) => {
+        const attempts = entry.attempts + 1;
+        if (attempts >= ACK_RETRY_DELAYS_MS.length) {
+          await finish('closed', 'gave_up');
+          return;
+        }
+        await outbox.update(id, { attempts, lastReason: reason, updatedAtMs: now() });
+        await ackScheduler.schedule({
+          id,
+          attempt: attempts,
+          atMs: now() + ACK_RETRY_DELAYS_MS[attempts]!,
+        });
+      };
+      const purchase = {
+        platform: entry.platform,
+        productId: entry.productId,
+        purchaseToken: entry.purchaseToken,
+      };
+      let verdict: BillingVerifyResult;
+      try {
+        verdict = await verifyPurchase(purchase, providers);
+      } catch {
+        verdict = billingResult('error', 'provider_unavailable');
+      }
+      if (verdict.status === 'inactive' || verdict.status === 'expired') {
+        await finish('closed', verdict.reason ?? verdict.status);
+        return reply.code(200).send({ ok: true });
+      }
+      if (verdict.status !== 'active') {
+        await retryLater(verdict.reason ?? verdict.status);
+        return reply.code(200).send({ ok: true });
+      }
+      const owner = await repository.peekOwner(
+        purchaseBindingKey(entry.platform, entry.purchaseToken),
+      );
+      if (owner !== entry.ownerIdentityKey) {
+        await finish('closed', 'owner_mismatch');
+        return reply.code(200).send({ ok: true });
+      }
+      if (!verdict.acknowledgementPending) {
+        await finish('done', 'already_acknowledged');
+        return reply.code(200).send({ ok: true });
+      }
+      if (await acknowledgeSafely(providers.google, purchase)) {
+        await finish('done', 'acknowledged');
+      } else {
+        await retryLater('acknowledge_failed');
+      }
+      return reply.code(200).send({ ok: true });
     },
   );
 }
