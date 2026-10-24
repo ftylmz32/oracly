@@ -29,6 +29,11 @@ export type BillingVerifyResult = {
    * it with the caller; it never reaches the client response.
    */
   accountTag?: string;
+  /**
+   * Internal only: Play holds this active purchase as not yet
+   * acknowledged. The route acknowledges it once ownership is bound.
+   */
+  acknowledgementPending?: boolean;
 };
 
 export type BillingVerifyRequest = {
@@ -41,6 +46,11 @@ export type BillingVerifyRequest = {
 export type StoreVerifier = {
   readonly configured: boolean;
   verify(request: BillingVerifyRequest): Promise<BillingVerifyResult>;
+  /**
+   * Server-side store acknowledgement of a verified, owned purchase. True
+   * only when the store accepted it; never throws for store/network errors.
+   */
+  acknowledge?(request: BillingVerifyRequest): Promise<boolean>;
 };
 
 export type BillingProviders = {

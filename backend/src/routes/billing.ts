@@ -1,7 +1,12 @@
 /** POST /v1/billing/verify — authoritative Google / Apple entitlement check. */
 
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import type { BillingProviders, BillingVerifyResult } from '../billing/types.js';
+import type {
+  BillingProviders,
+  BillingVerifyRequest,
+  BillingVerifyResult,
+  StoreVerifier,
+} from '../billing/types.js';
 import {
   createEntitlementRepository,
   purchaseBindingKey,
@@ -167,6 +172,25 @@ export async function registerBillingRoutes(
           } else if (outcome === 'error') {
             // Storage failure must never silently grant an entitlement.
             result = billingResult('error', 'entitlement_binding_unavailable');
+          } else if (
+            result.acknowledgementPending &&
+            body.platform === 'android'
+          ) {
+            // Verified at Play, bound to this caller: acknowledge it here so
+            // the purchase no longer depends on the app's next store query
+            // to escape Play's automatic refund. A failure changes nothing
+            // (the binding stands); the next verify sees it still pending
+            // at Play and retries. Play acknowledgement is idempotent.
+            const acknowledged = await acknowledgeSafely(providers.google, {
+              platform: body.platform,
+              productId: body.productId.trim(),
+              purchaseToken: body.purchaseToken,
+            });
+            logSafe(request.log, acknowledged ? 'info' : 'warn', 'billing_acknowledge', {
+              requestId: request.requestId || String(request.id),
+              operation: 'billing_acknowledge',
+              status: acknowledged ? 200 : 503,
+            });
           }
         } else if (identityKey && owner === identityKey && entitlement) {
           // SMD1-E1 — a non-active outcome (expired/revoked/inactive/etc.)
@@ -202,6 +226,18 @@ export async function registerBillingRoutes(
       }
     },
   );
+}
+
+async function acknowledgeSafely(
+  verifier: StoreVerifier,
+  request: BillingVerifyRequest,
+): Promise<boolean> {
+  if (!verifier.acknowledge) return false;
+  try {
+    return await verifier.acknowledge(request);
+  } catch {
+    return false;
+  }
 }
 
 function mapLogStatus(status: string): number {

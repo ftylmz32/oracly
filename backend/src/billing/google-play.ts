@@ -98,8 +98,35 @@ export function createGooglePlayVerifier(
         return billingResult('error', 'provider_unavailable');
       }
     },
+    async acknowledge(request: BillingVerifyRequest): Promise<boolean> {
+      if (!this.configured || !isKnownProduct(request.productId)) return false;
+      const kind = productKind(request.productId)!;
+      const url =
+        `${PLAY_BASE}/${encodeURIComponent(config.packageName)}` +
+        `/purchases/${kind === 'subscription' ? 'subscriptions' : 'products'}` +
+        `/${encodeURIComponent(request.productId)}` +
+        `/tokens/${encodeURIComponent(request.purchaseToken)}:acknowledge`;
+      try {
+        const accessToken = await getToken();
+        const res = await fetchImpl(url, {
+          method: 'POST',
+          headers: {
+            authorization: `Bearer ${accessToken}`,
+            'content-type': 'application/json',
+          },
+          body: '{}',
+          signal: AbortSignal.timeout(ACKNOWLEDGE_TIMEOUT_MS),
+        });
+        return res.ok;
+      } catch {
+        return false;
+      }
+    },
   };
 }
+
+/** Bounded so a slow store never holds the verify request hostage. */
+const ACKNOWLEDGE_TIMEOUT_MS = 8000;
 
 async function verifySubscription(
   fetchImpl: typeof fetch,
@@ -121,8 +148,15 @@ async function verifySubscription(
   }
   const body = (await res.json()) as Record<string, unknown>;
   const ids = body.externalAccountIdentifiers;
+  const outcome = subscriptionOutcome(body, request);
+  if (
+    outcome.status === 'active' &&
+    body.acknowledgementState === 'ACKNOWLEDGEMENT_STATE_PENDING'
+  ) {
+    outcome.acknowledgementPending = true;
+  }
   return withAccountTag(
-    subscriptionOutcome(body, request),
+    outcome,
     ids && typeof ids === 'object'
       ? (ids as Record<string, unknown>).obfuscatedExternalAccountId
       : undefined,
@@ -236,7 +270,12 @@ async function verifyProduct(
     return billingResult('error', `play_http_${res.status}`);
   }
   const body = (await res.json()) as Record<string, unknown>;
-  return withAccountTag(productOutcome(body), body.obfuscatedExternalAccountId);
+  const outcome = productOutcome(body);
+  // acknowledgementState: 0 yet to be acknowledged, 1 acknowledged.
+  if (outcome.status === 'active' && Number(body.acknowledgementState) === 0) {
+    outcome.acknowledgementPending = true;
+  }
+  return withAccountTag(outcome, body.obfuscatedExternalAccountId);
 }
 
 function productOutcome(body: Record<string, unknown>): BillingVerifyResult {
