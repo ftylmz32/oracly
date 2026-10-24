@@ -58,6 +58,12 @@ class _ConfiguredStorePort implements PremiumPurchasePort {
   Future<PremiumPurchaseResult?> consumeUnsolicitedGrant() async => null;
 }
 
+/// Store that returned prices, so its plans are really offered.
+class _PricedConfiguredStorePort extends _ConfiguredStorePort {
+  @override
+  String? priceLabel(PremiumPlanKind plan) => 'STORE-${plan.name}';
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -120,7 +126,7 @@ void main() {
       'or_premium_purchase_token': 'valid-token',
     });
     final storage = await LocalStorage.open();
-    await pumpScreen(tester, storage, purchasePort: _ConfiguredStorePort());
+    await pumpScreen(tester, storage, purchasePort: _PricedConfiguredStorePort());
     expect(find.text(PremiumCopy.ctaActive), findsNothing);
     expect(find.text(PremiumCopy.ctaUnavailable), findsNothing);
   });

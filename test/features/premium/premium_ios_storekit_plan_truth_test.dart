@@ -58,11 +58,12 @@ void main() {
         storeTransaction(PremiumStoreCatalog.monthlyId, PurchaseStatus.purchased),
       ];
     final (status, _) = await loadedIosPremium(iap);
-    // Stale selection injected under Android, where every plan is selectable.
+    // A stale selection cannot be injected even under Android: only plans
+    // the store returned are selectable on any platform.
     debugDefaultTargetPlatformOverride = TargetPlatform.android;
     status.selectPlan(PremiumPlanKind.yearly);
     debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
-    expect(status.selectedPlan, PremiumPlanKind.yearly);
+    expect(status.selectedPlan, PremiumPlanKind.monthly);
 
     await status.purchase();
     expect(status.selectedPlan, PremiumPlanKind.monthly);

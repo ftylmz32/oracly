@@ -15,17 +15,16 @@ import 'package:oracly_new/features/premium/services/premium_purchase_port.dart'
 import 'package:shared_preferences/shared_preferences.dart';
 
 class _PartialStore implements PremiumPurchasePort {
-  _PartialStore(this.available, {this.configured = true});
+  _PartialStore(this.available);
 
   final Set<PremiumPlanKind> available;
-  final bool configured;
   final purchases = <PremiumPlanKind>[];
 
   @override
-  bool get isConfigured => configured;
+  bool get isConfigured => true;
 
   @override
-  bool get canAttemptRestore => configured;
+  bool get canAttemptRestore => true;
 
   @override
   Future<void> prepare() async {}

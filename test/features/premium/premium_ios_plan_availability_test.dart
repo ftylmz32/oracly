@@ -133,11 +133,11 @@ void main() {
     );
     final status = PremiumStatusController(service);
     await status.load();
-    // Stale inject: selectPlan refuses lifetime, so call purchase after
-    // temporarily using Android to set lifetime then flipping platform.
+    // Even under Android, a plan the iOS store never returned cannot be
+    // injected as a stale selection; purchase still buys yearly only.
     debugDefaultTargetPlatformOverride = TargetPlatform.android;
     status.selectPlan(PremiumPlanKind.lifetime);
-    expect(status.selectedPlan, PremiumPlanKind.lifetime);
+    expect(status.selectedPlan, isNot(PremiumPlanKind.lifetime));
     debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
     await status.purchase();
     expect(status.selectedPlan, PremiumPlanKind.yearly);

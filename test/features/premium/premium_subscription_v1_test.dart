@@ -136,7 +136,8 @@ void main() {
     final status = PremiumStatusController(PremiumService(premiumRepo, userRepo));
     await status.load();
     status.selectPlan(PremiumPlanKind.lifetime);
-    expect(status.selectedPlan, PremiumPlanKind.lifetime);
+    // No store returned lifetime, so it is not selectable either.
+    expect(status.selectedPlan, isNot(PremiumPlanKind.lifetime));
     expect(status.isPremium, isFalse);
     expect(await premiumRepo.isPremiumActive(), isFalse);
   });
