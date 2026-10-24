@@ -11,6 +11,7 @@ import '../../../../core/theme/reading_typography.dart';
 import '../../../../shared/widgets/oracly_pressable.dart';
 import '../../controllers/premium_status_controller.dart';
 import '../../models/premium_entitlement_state.dart';
+import 'premium_pending_verify_panel.dart';
 import 'premium_reference_cta.dart';
 import 'premium_reference_cta_unavailable.dart';
 import 'premium_reference_plans_section.dart';
@@ -43,6 +44,20 @@ class PremiumReferenceStoreSection extends StatelessWidget {
   List<Widget> _children() {
     if (!status.loaded) {
       return [_note(PremiumCopy.loadingBody, 0.7, secondary: true)];
+    }
+    // A purchase is awaiting the store or a definitive receipt verdict:
+    // explain it instead of offering plans, so nothing invites a second
+    // payment. Restoring keeps its own in-progress CTA below.
+    if (status.entitlement == PremiumEntitlementState.pending &&
+        !status.isPremium) {
+      return [
+        PremiumPendingVerifyPanel(
+          checking: status.checkingPendingStatus,
+          onCheck: status.storeTransactionInFlight
+              ? null
+              : status.checkPendingStatus,
+        ),
+      ];
     }
     if (status.entitlement == PremiumEntitlementState.error) {
       return [

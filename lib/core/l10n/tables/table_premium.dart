@@ -343,6 +343,33 @@ const kL10nPremium = <String, L10nTriple>{
     'Восстановить покупки',
   ),
   'premium.cta_busy': L10nTriple('Hazırlanıyor…', 'Preparing…', 'Готовится…'),
+  // Paid store proof awaiting a definitive verdict (#44). Never says the
+  // payment was collected, promises no time frame, grants nothing.
+  'premium.pending_verify_title': L10nTriple(
+    'Satın alma kontrol ediliyor',
+    'Checking your purchase',
+    'Проверяем покупку',
+  ),
+  'premium.pending_verify_body': L10nTriple(
+    'Mağaza işleminin sonucu henüz doğrulanmadı. Lütfen yeniden ödeme yapma; mevcut işlemin durumunu kontrol edebilirsin.',
+    'Your store transaction is not confirmed yet. Please do not pay again. You can check the status of the existing transaction.',
+    'Статус операции в магазине ещё не подтверждён. Не оплачивайте повторно. Вы можете проверить статус текущей покупки.',
+  ),
+  'premium.pending_verify_check': L10nTriple(
+    'Durumu yeniden kontrol et',
+    'Check purchase status',
+    'Проверить статус покупки',
+  ),
+  'premium.pending_verify_checking': L10nTriple(
+    'Durum kontrol ediliyor…',
+    'Checking status…',
+    'Проверяем статус…',
+  ),
+  'premium.pending_verify_access': L10nTriple(
+    'Premium erişimi, satın alma doğrulandıktan sonra açılır.',
+    'Premium access becomes available after the purchase is verified.',
+    'Доступ к Премиуму откроется после подтверждения покупки.',
+  ),
   'premium.activated': L10nTriple(
     'Premium üyeliğin doğrulandı.',
     'Your Premium membership was confirmed.',

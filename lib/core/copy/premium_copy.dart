@@ -100,6 +100,12 @@ abstract final class PremiumCopy {
   static String get planPricePending => _t('premium.plan_price_pending');
   static String get ctaRestore => _t('premium.cta_restore');
   static String get ctaBusy => _t('premium.cta_busy');
+  static String get pendingVerifyTitle => _t('premium.pending_verify_title');
+  static String get pendingVerifyBody => _t('premium.pending_verify_body');
+  static String get pendingVerifyCheck => _t('premium.pending_verify_check');
+  static String get pendingVerifyChecking =>
+      _t('premium.pending_verify_checking');
+  static String get pendingVerifyAccess => _t('premium.pending_verify_access');
   static String get activatedMessage => _t('premium.activated');
   static String get purchaseUnavailable => ctaUnavailable;
   static String get purchaseFailed => _t('premium.purchase_failed');

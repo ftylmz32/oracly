@@ -7,6 +7,7 @@ import '../../../../core/design_system/app_layout.dart';
 import '../../../../core/design_system/app_spacing.dart';
 import '../../../../core/domain/models/premium_plan.dart';
 import '../../controllers/premium_status_controller.dart';
+import '../../models/premium_entitlement_state.dart';
 import 'premium_legal_disclosure.dart';
 import 'premium_qa_preview.dart';
 import 'premium_reference_cta_unavailable.dart';
@@ -39,9 +40,17 @@ class PremiumReferenceBody extends StatelessWidget {
 
   bool get _previewing => preview != PremiumQaPreviewKind.none;
 
+  /// A purchase is awaiting the store or a receipt verdict: nothing is on
+  /// sale, so no plan period, plan jump or restore hint is shown.
+  bool get _awaitingVerdict =>
+      !_previewing &&
+      !status.isPremium &&
+      status.entitlement == PremiumEntitlementState.pending;
+
   PremiumPlanKind? get _claim {
     if (_previewing) return null;
     if (status.isPremium) return status.activePlan;
+    if (_awaitingVerdict) return null;
     if (status.storeOffersPlans) return status.selectedPlan;
     return null;
   }
@@ -49,7 +58,7 @@ class PremiumReferenceBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final showPlansJump = !_previewing
-        ? !status.isPremium
+        ? !status.isPremium && !_awaitingVerdict
         : preview == PremiumQaPreviewKind.plans;
     return ListView(
       physics: const ClampingScrollPhysics(),
@@ -92,7 +101,8 @@ class PremiumReferenceBody extends StatelessWidget {
                   PremiumLegalDisclosure(
                     selectedPlan: _claim ?? PremiumPlanKind.yearly,
                     namePeriod: _claim != null,
-                    showRestoreHint: !status.isPremium && !_previewing,
+                    showRestoreHint:
+                        !status.isPremium && !_previewing && !_awaitingVerdict,
                   ),
                 ],
                 SizedBox(height: PremiumReferenceTokens.ctaToLinks),

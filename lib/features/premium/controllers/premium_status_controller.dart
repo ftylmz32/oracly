@@ -168,6 +168,38 @@ class PremiumStatusController extends ChangeNotifier {
 
   bool _checkingStore = false;
 
+  bool _storeTransactionInFlight = false;
+
+  /// True while a purchase or restore sheet is open with the store. The
+  /// pending state then means "the store has not answered yet", not a held
+  /// receipt, so no status check may run underneath it.
+  bool get storeTransactionInFlight => _storeTransactionInFlight;
+
+  Future<void>? _pendingCheck;
+
+  /// True while a user-requested status check of a held receipt runs.
+  bool get checkingPendingStatus => _pendingCheck != null;
+
+  /// Re-verifies the saved purchase proof once, on a direct user tap.
+  /// Reconcile only: never starts a purchase or restore. Repeat taps share
+  /// the running check. Active proof unlocks Premium, a definitive verdict
+  /// releases the hold, and a transient one keeps the pending panel.
+  Future<void> checkPendingStatus() {
+    final running = _pendingCheck;
+    if (running != null) return running;
+    if (_entitlement != PremiumEntitlementState.pending ||
+        _storeTransactionInFlight) {
+      return Future.value();
+    }
+    final future = forceReconcile().whenComplete(() {
+      _pendingCheck = null;
+      _publish();
+    });
+    _pendingCheck = future;
+    _publish();
+    return future;
+  }
+
   /// True while a user-initiated store re-check runs (repeat taps ignored).
   bool get checkingStore => _checkingStore;
 
@@ -205,6 +237,7 @@ class PremiumStatusController extends ChangeNotifier {
     if (!PremiumPlanAvailability.isOffered(plan, _plans)) {
       return PremiumPurchaseResult.unavailable();
     }
+    _storeTransactionInFlight = true;
     _set(
       PremiumEntitlementState.pending,
       PremiumPurchaseResult.pending().message,
@@ -214,9 +247,11 @@ class PremiumStatusController extends ChangeNotifier {
     _freshness.invalidateDefinitive();
     try {
       final result = await _service.purchase(plan);
+      _storeTransactionInFlight = false;
       await _settle(result);
       return result;
     } catch (_) {
+      _storeTransactionInFlight = false;
       _fail(PremiumPurchaseResult.failed().message);
       return PremiumPurchaseResult.failed();
     }
@@ -231,6 +266,7 @@ class PremiumStatusController extends ChangeNotifier {
       _set(PremiumEntitlementState.unavailable);
       return PremiumPurchaseResult.restoreUnavailable();
     }
+    _storeTransactionInFlight = true;
     _set(
       PremiumEntitlementState.restoring,
       PremiumPurchaseResult.pending().message,
@@ -238,9 +274,11 @@ class PremiumStatusController extends ChangeNotifier {
     _freshness.invalidateDefinitive();
     try {
       final result = await _service.restore();
+      _storeTransactionInFlight = false;
       await _settle(result);
       return result;
     } catch (_) {
+      _storeTransactionInFlight = false;
       _fail(PremiumPurchaseResult.restoreFailed().message);
       return PremiumPurchaseResult.restoreFailed();
     }
