@@ -12,10 +12,15 @@ class HomeReferencePremiumCta extends StatelessWidget {
     super.key,
     required this.label,
     required this.onTap,
+    this.maxWidth = double.infinity,
   });
 
   final String label;
   final VoidCallback onTap;
+
+  /// Bounds the pill so a long label at large text scale shrinks instead of
+  /// pushing the banner row past its edge.
+  final double maxWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +30,11 @@ class HomeReferencePremiumCta extends StatelessWidget {
       child: OraclyPressable(
         onTap: onTap,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 88, minHeight: 44),
+          constraints: BoxConstraints(
+            minWidth: 88,
+            maxWidth: maxWidth < 88 ? 88 : maxWidth,
+            minHeight: 44,
+          ),
           child: DecoratedBox(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(18),

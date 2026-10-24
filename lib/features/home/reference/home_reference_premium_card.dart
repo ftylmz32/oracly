@@ -129,6 +129,9 @@ class HomeReferencePremiumCard extends ConsumerWidget {
                           child: HomeReferencePremiumCta(
                             label: cta,
                             onTap: () => _handleTap(context),
+                            maxWidth: constraints.maxWidth.isFinite
+                                ? constraints.maxWidth * 0.34
+                                : double.infinity,
                           ),
                         ),
                       ],

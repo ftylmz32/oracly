@@ -79,7 +79,8 @@ void main() {
         expect(find.text('Ruh Eşi'), findsOneWidget);
         expect(find.text('Rüya Analizi'), findsOneWidget);
         expect(find.text(PremiumCopy.loadingBody), findsWidgets);
-        expect(find.text(PremiumCopy.ctaBusy), findsWidgets);
+        // Loading never shows a busy purchase; the banner only opens details.
+        expect(find.text(PremiumCopy.ctaInspect), findsWidgets);
         expect(find.text(PremiumCopy.ctaJoin), findsNothing);
         expect(
           find.text(
