@@ -8,6 +8,7 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/app/providers/app_providers.dart';
 import 'package:oracly_new/core/copy/premium_copy.dart';
@@ -27,6 +28,7 @@ import 'package:oracly_new/features/premium/presentation/reference/premium_pendi
 import 'package:oracly_new/features/premium/presentation/reference/premium_reference_plan_card.dart';
 import 'package:oracly_new/features/premium/presentation/reference/premium_reference_screen.dart';
 import 'package:oracly_new/features/premium/providers/premium_entitlement_verifier_provider.dart';
+import 'package:oracly_new/features/premium/providers/premium_providers.dart';
 import 'package:oracly_new/features/premium/services/premium_entitlement_verifier.dart';
 import 'package:oracly_new/features/premium/services/premium_purchase_port.dart';
 import 'package:oracly_new/features/premium/services/premium_store_catalog.dart';
@@ -151,6 +153,13 @@ Future<void> _pumpScreen(WidgetTester tester, _Fixture f) async {
   await tester.pump(const Duration(milliseconds: 80));
 }
 
+/// Fixed frames: the paywall atmosphere animates forever, so it never settles.
+Future<void> _frames(WidgetTester tester) async {
+  for (var i = 0; i < 8; i++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -247,6 +256,19 @@ void main() {
     });
   });
 
+  test('after an app restart the held proof still blocks a second charge',
+      () async {
+    final f = await _fixture([PremiumVerifyResult.error('network')]);
+    await f.controller().load();
+    final restarted = f.controller();
+    await restarted.load();
+    expect(restarted.entitlement, PremiumEntitlementState.pending);
+    final retry = await restarted.purchase();
+    expect(retry.granted, isFalse);
+    expect(f.store.purchases, 0);
+    expect(await f.premium.readPurchaseCredentials(), isNotNull);
+  });
+
   group('paywall panel', () {
     testWidgets('held proof shows the panel instead of plans or a buy button',
         (tester) async {
@@ -264,6 +286,8 @@ void main() {
       expect(find.textContaining('STORE-'), findsNothing);
       expect(find.text(PremiumCopy.ctaRestore), findsNothing);
       expect(find.text(PremiumCopy.ctaBusy), findsNothing);
+      expect(find.text(PremiumCopy.pendingVerifyLater), findsNothing,
+          reason: 'no exit is offered when there is nowhere to go back to');
       // Nothing is on sale: no plan period, restore hint or plan jump.
       for (final kind in PremiumPlanKind.values) {
         expect(find.text(LegalCopy.planDisclosure(kind)), findsNothing);
@@ -374,6 +398,110 @@ void main() {
       expect(find.text(PremiumCopy.pendingVerifyTitle), findsNothing);
       f.store.sheet!.complete();
       await tester.pump(const Duration(milliseconds: 80));
+    });
+  });
+
+  group('check later', () {
+    Future<ProviderContainer> pumpWithBack(WidgetTester tester, _Fixture f) async {
+      await tester.binding.setSurfaceSize(const Size(390, 1400));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(
+        buildProviderScopeHarness(
+          storage: f.storage,
+          purchasePort: f.store,
+          overrides: [
+            premiumRepositoryProvider.overrideWithValue(f.premium),
+            premiumEntitlementVerifierProvider.overrideWithValue(f.verifier),
+          ],
+          child: MaterialApp(
+            home: Builder(
+              builder: (context) => Scaffold(
+                body: TextButton(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const PremiumReferenceScreen(),
+                    ),
+                  ),
+                  child: const Text('open-premium'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      return ProviderScope.containerOf(
+        tester.element(find.text('open-premium')),
+      );
+    }
+
+    Future<void> openPremium(WidgetTester tester) async {
+      await tester.tap(find.text('open-premium'));
+      await _frames(tester);
+    }
+
+    testWidgets('leaving keeps the hold; returning shows it again and no '
+        'second charge can start', (tester) async {
+      final semantics = tester.ensureSemantics();
+      // Undecided until the user's own check; reopening the screen may
+      // re-verify on its own and must still find no verdict.
+      final f = await _fixture([PremiumVerifyResult.error('network')]);
+      final container = await pumpWithBack(tester, f);
+      await openPremium(tester);
+
+      final later = find.text(PremiumCopy.pendingVerifyLater);
+      await tester.ensureVisible(later);
+      await tester.pump();
+      expect(
+        tester.getSemantics(later),
+        isSemantics(
+          label: PremiumCopy.pendingVerifyLater,
+          isButton: true,
+          isEnabled: true,
+          isFocusable: true,
+          hasTapAction: true,
+          hasFocusAction: true,
+        ),
+        reason: 'screen readers reach the exit as a button',
+      );
+      final callsBefore = f.verifier.calls;
+      await tester.tap(later);
+      await _frames(tester);
+
+      expect(find.byType(PremiumReferenceScreen), findsNothing);
+      final status = container.read(premiumStatusProvider);
+      expect(status.entitlement, PremiumEntitlementState.pending);
+      expect(status.isPremium, isFalse, reason: 'leaving grants nothing');
+      expect(f.verifier.calls, callsBefore, reason: 'leaving verifies nothing');
+      expect(f.store.purchases, 0);
+      expect(f.store.restores, 0);
+      expect(await f.premium.readPurchaseCredentials(), isNotNull,
+          reason: 'the saved proof is kept');
+
+      await openPremium(tester);
+      await tester.scrollUntilVisible(
+        find.byType(PremiumPendingVerifyPanel),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.byType(PremiumPendingVerifyPanel), findsOneWidget);
+      expect(find.byType(OraclyGoldButton), findsNothing);
+      final retry = await status.purchase();
+      expect(retry.granted, isFalse);
+      expect(f.store.purchases, 0, reason: 'no second payment after return');
+
+      f.verifier.results
+        ..clear()
+        ..add(PremiumVerifyResult.active('subscription_active'));
+      final check = find.text(PremiumCopy.pendingVerifyCheck);
+      await tester.ensureVisible(check);
+      await tester.pump();
+      await tester.tap(check);
+      await _frames(tester);
+      expect(status.entitlement, PremiumEntitlementState.active);
+      expect(f.store.purchases, 0);
+      expect(f.store.restores, 0);
+      semantics.dispose();
     });
   });
 }

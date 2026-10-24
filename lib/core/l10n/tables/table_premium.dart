@@ -365,6 +365,11 @@ const kL10nPremium = <String, L10nTriple>{
     'Checking status…',
     'Проверяем статус…',
   ),
+  'premium.pending_verify_later': L10nTriple(
+    'Daha sonra kontrol et',
+    'Check later',
+    'Проверить позже',
+  ),
   'premium.pending_verify_access': L10nTriple(
     'Premium erişimi, satın alma doğrulandıktan sonra açılır.',
     'Premium access becomes available after the purchase is verified.',

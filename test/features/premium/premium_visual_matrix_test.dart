@@ -166,15 +166,24 @@ Future<void> _pump(
           debugShowCheckedModeBanner: false,
           // Production always runs the dark theme (light is not selectable).
           theme: _darkRoboto(),
-          home: MediaQuery(
+          builder: (context, child) => MediaQuery(
             data: MediaQueryData(
               size: size,
               textScaler: TextScaler.linear(scale),
               padding: const EdgeInsets.only(top: 24, bottom: 24),
               disableAnimations: true,
             ),
-            child: const PremiumReferenceScreen(),
+            child: child!,
           ),
+          // A held purchase opens Premium over another page, as the app
+          // does, so its "check later" exit has somewhere to go back to.
+          initialRoute: heldProof ? '/premium' : '/',
+          routes: {
+            '/': (_) => heldProof
+                ? const Scaffold()
+                : const PremiumReferenceScreen(),
+            '/premium': (_) => const PremiumReferenceScreen(),
+          },
         ),
       ),
     ),
@@ -312,10 +321,15 @@ void main() {
             24 -
             AppLayout.navBarHeight -
             AppLayout.navBarMarginBottom;
-        if (check.evaluate().isNotEmpty &&
-            tester.getRect(check).bottom > 0) {
-          expect(tester.getRect(check).bottom, lessThanOrEqualTo(navTop),
-              reason: 'the floating bottom nav never covers the check');
+        for (final action in [
+          check,
+          find.text(PremiumCopy.pendingVerifyLater),
+        ]) {
+          expect(action, findsOneWidget);
+          if (tester.getRect(action).bottom > 0) {
+            expect(tester.getRect(action).bottom, lessThanOrEqualTo(navTop),
+                reason: 'the floating bottom nav never covers an action');
+          }
         }
       });
     }

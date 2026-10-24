@@ -5,6 +5,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/accessibility/oracly_a11y.dart';
 import '../../../../core/copy/premium_copy.dart';
 import '../../../../core/design_system/oracly_chrome.dart';
 import '../../../../core/theme/reading_typography.dart';
@@ -89,6 +90,13 @@ class PremiumPendingVerifyPanel extends StatelessWidget {
                 onTap: checking ? null : onCheck,
               ),
             ],
+            // A calm way out: plain back navigation only. It never buys,
+            // restores, verifies, clears the saved proof or grants access;
+            // the hold stays and greets the user again on return.
+            if (Navigator.maybeOf(context)?.canPop() ?? false) ...[
+              const SizedBox(height: 4),
+              _LaterLink(onTap: () => Navigator.of(context).maybePop()),
+            ],
           ],
         ),
       ),
@@ -135,6 +143,46 @@ class _CheckButton extends StatelessWidget {
                   style: ReadingTypography.body(
                     color: gold,
                   ).copyWith(fontWeight: FontWeight.w700),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Quiet exit styled like [OraclyQuietLink]. The label is announced once:
+/// the shared link also exposes its visible text, so screen readers read
+/// it twice.
+class _LaterLink extends StatelessWidget {
+  const _LaterLink({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return OraclyPressable(
+      onTap: onTap,
+      label: PremiumCopy.pendingVerifyLater,
+      behavior: HitTestBehavior.opaque,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: OraclyA11y.minTouchTarget),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Center(
+            child: ExcludeSemantics(
+              child: Text(
+                PremiumCopy.pendingVerifyLater,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: ReadingTypography.sectionLabel(fontSize: 12).copyWith(
+                  letterSpacing: 1.6,
+                  color: OraclyChrome.goldLight.withValues(
+                    alpha: OraclyA11y.quietGoldMuted,
+                  ),
                 ),
               ),
             ),
