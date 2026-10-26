@@ -2,6 +2,7 @@
 
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import type {
+  BillingAcknowledgement,
   BillingProviders,
   BillingVerifyRequest,
   BillingVerifyResult,
@@ -170,6 +171,7 @@ export async function registerBillingRoutes(
               kind,
             }
           : undefined;
+        let acknowledgement: BillingAcknowledgement | undefined;
         if (identityKey && result.status === 'active') {
           // Authoritative and atomic — the store confirming "active" is not
           // enough on its own; two concurrent requests for the same token
@@ -189,6 +191,19 @@ export async function registerBillingRoutes(
             // Storage failure must never silently grant an entitlement.
             result = billingResult('error', 'entitlement_binding_unavailable');
           } else if (
+            body.platform === 'android' &&
+            result.acknowledgementPending === false
+          ) {
+            // Already acknowledged at Play (by us earlier, or by the app
+            // after an earlier answer said pending): close any retry entry.
+            acknowledgement = 'acknowledged';
+            await keepForRetry({
+              acknowledged: true,
+              productId: body.productId.trim(),
+              purchaseToken: body.purchaseToken,
+              owner: identityKey,
+            });
+          } else if (
             result.acknowledgementPending &&
             body.platform === 'android'
           ) {
@@ -202,6 +217,7 @@ export async function registerBillingRoutes(
               productId: body.productId.trim(),
               purchaseToken: body.purchaseToken,
             });
+            acknowledgement = acknowledged ? 'acknowledged' : 'pending';
             await keepForRetry({
               acknowledged,
               productId: body.productId.trim(),
@@ -234,6 +250,9 @@ export async function registerBillingRoutes(
         const wire: BillingVerifyResult = result.reason
           ? { status: result.status, reason: result.reason }
           : { status: result.status };
+        if (acknowledgement && result.status === 'active') {
+          wire.acknowledgement = acknowledgement;
+        }
         return reply.code(200).send(wire);
       } catch {
         logSafe(request.log, 'error', 'billing_verify_error', {

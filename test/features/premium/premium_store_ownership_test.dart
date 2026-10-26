@@ -266,13 +266,23 @@ void main() {
     b.selectPlan(PremiumPlanKind.yearly);
     await b.purchase();
     expect(device.play.buyCalls, 1);
-    expect(device.play.completed, ['play-token-a'],
-        reason: 'acknowledged once its proof is parked for A, so Play keeps it');
+    expect(device.play.completed, isEmpty,
+        reason: 'parked for A, never acknowledged before A\'s backend '
+            'verified it (#44)');
 
+    // Play still holds A's purchase, unacknowledged, when A returns.
+    device.play.query = [
+      _playFor(
+        PremiumPurchaseAttemptStore.ownerTag(_uidA),
+        PurchaseStateWrapper.purchased,
+      ),
+    ];
     await device.signIn(_uidA);
     final verifierA = _Verifier();
     final (backToA, repoA, _) = await device.launch(verifier: verifierA);
     expect(backToA.entitlement, PremiumEntitlementState.active);
+    expect(device.play.completed, ['play-token-a'],
+        reason: 'acknowledged once, after A\'s backend verified it');
     expect((await repoA.readPurchaseCredentials())?.purchaseToken,
         'play-token-a');
     expect(verifierA.tokens, everyElement('play-token-a'));

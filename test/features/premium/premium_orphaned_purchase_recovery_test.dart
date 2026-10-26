@@ -1,7 +1,8 @@
 /// Premium purchase integrity — orphaned purchase recovery.
 ///
-/// A store purchase can be acknowledged (completePurchase) while the first
-/// backend verification fails transiently. These tests prove the store proof
+/// A store purchase can finish while the first backend verification fails
+/// transiently (on Android it is acknowledged only after a verified answer,
+/// #44: the port holds it until finishVerified). These tests prove the proof
 /// survives as UNVERIFIED recovery material that never grants Premium by
 /// itself, is re-verified on a later reconcile without a Restore tap, is
 /// retired only on a definitive backend verdict, and stays owner-scoped.
@@ -220,10 +221,13 @@ void main() {
       final result = await future;
 
       expect(result.granted, isTrue);
-      expect(iap.order, ['persist', 'complete']);
+      // Android: saved, never acknowledged before the backend verified it.
+      expect(iap.order, ['persist']);
       expect((await repo.readPurchaseCredentials())?.purchaseToken, 'store-token');
       expect(await repo.isPremiumActive(), isFalse);
       expect(repo.wasAuthoritativelyVerified, isFalse);
+      await port.finishVerified('store-token', storeAcknowledged: false);
+      expect(iap.order, ['persist', 'complete']);
     });
 
     test('restored event persists too, with an empty product catalogue', () async {
@@ -267,7 +271,8 @@ void main() {
       iap.emit([_event(PremiumStoreCatalog.monthlyId, token: 'late-token')]);
       await _flush();
 
-      expect(iap.completeCalls, 1);
+      // Saved and held: not acknowledged before a verified answer.
+      expect(iap.completeCalls, 0);
       final late = await port.consumeUnsolicitedGrant();
       expect(late?.granted, isTrue);
       expect(await repo.isPremiumActive(), isFalse);
@@ -335,7 +340,7 @@ void main() {
     });
 
     test('failed recovery write leaves the store transaction unfinished; a '
-        'later redelivery completes normally', () async {
+        'later redelivery is saved and completes once verified', () async {
       final iap = _FakeIap(products: [_product(PremiumStoreCatalog.monthlyId)]);
       addTearDown(iap.dispose);
       var diskFull = true;
@@ -362,10 +367,12 @@ void main() {
       iap.emit([_event(PremiumStoreCatalog.monthlyId)]);
       await _flush();
 
-      expect(iap.completeCalls, 1);
+      expect(iap.completeCalls, 0);
       expect((await repo.readPurchaseCredentials())?.purchaseToken, 'store-token');
       expect((await port.consumeUnsolicitedGrant())?.granted, isTrue);
       expect(await repo.isPremiumActive(), isFalse);
+      await port.finishVerified('store-token', storeAcknowledged: false);
+      expect(iap.completeCalls, 1);
     });
 
     test('production wiring always supplies durable recovery persistence',
@@ -380,8 +387,10 @@ void main() {
       iap.emit([_event(PremiumStoreCatalog.monthlyId, token: 'wired-token')]);
       await future;
 
-      expect(iap.completeCalls, 1);
+      expect(iap.completeCalls, 0);
       expect((await repo.readPurchaseCredentials())?.purchaseToken, 'wired-token');
+      await port.finishVerified('wired-token', storeAcknowledged: false);
+      expect(iap.completeCalls, 1);
     });
 
     test('non-isolated owner at persistence time -> no completion, no grant',
@@ -462,6 +471,8 @@ void main() {
       iap.emit([_event(PremiumStoreCatalog.monthlyId, token: 'real-token')]);
       await _flush();
 
+      expect(iap.completeCalls, 0);
+      await port.finishVerified('real-token', storeAcknowledged: false);
       expect(iap.completeCalls, 1);
       expect((await repo.readPurchaseCredentials())?.purchaseToken, 'real-token');
       final snap = await reconcilerFor(
@@ -496,7 +507,8 @@ void main() {
     });
 
     for (final plan in [PremiumPlanKind.monthly, PremiumPlanKind.yearly]) {
-      test('A4: valid ${plan.name} -> persist then complete, exactly once',
+      test('A4: valid ${plan.name} -> persist, then complete once verified, '
+          'exactly once',
           () async {
         final id = PremiumStoreCatalog.idFor(plan);
         final iap = _FakeIap(products: [_product(id)]);
@@ -514,13 +526,16 @@ void main() {
         final result = await future;
 
         expect(result.granted, isTrue);
-        expect(iap.order, ['persist', 'complete']);
+        expect(iap.order, ['persist']);
         expect(await repo.isPremiumActive(), isFalse);
+        await port.finishVerified('store-token', storeAcknowledged: false);
+        await port.finishVerified('store-token', storeAcknowledged: false);
+        expect(iap.order, ['persist', 'complete']);
       });
     }
 
-    test('Android lifetime terminal event is still persisted and completed',
-        () async {
+    test('Android lifetime terminal event is still persisted; when the '
+        'backend already acknowledged it the app never does', () async {
       final iap = _FakeIap(products: [_product(PremiumStoreCatalog.lifetimeId)]);
       addTearDown(iap.dispose);
       final port = createStorePremiumPurchase(() => repo, client: iap);
@@ -529,8 +544,10 @@ void main() {
       iap.emit([_event(PremiumStoreCatalog.lifetimeId, token: 'life-token')]);
 
       expect((await future).granted, isTrue);
-      expect(iap.completeCalls, 1);
+      expect(iap.completeCalls, 0);
       expect((await repo.readPurchaseCredentials())?.purchaseToken, 'life-token');
+      await port.finishVerified('life-token', storeAcknowledged: true);
+      expect(iap.completeCalls, 0);
     });
   });
 

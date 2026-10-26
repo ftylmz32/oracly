@@ -242,7 +242,11 @@ describe('the verify route acknowledges only verified, owned purchases', () => {
     const { verifier, acks } = google(activeUnacked());
     const app = await appWith(verifier);
     const body = await verifyAs(app, 'user-a');
-    expect(body).toEqual({ status: 'active', reason: 'subscription_active' });
+    expect(body).toEqual({
+      status: 'active',
+      reason: 'subscription_active',
+      acknowledgement: 'acknowledged',
+    });
     expect(acks).toHaveLength(1);
     expect(acks[0]).toMatchObject({ productId: MONTHLY, purchaseToken: 'play-token' });
     await app.close();

@@ -27,11 +27,28 @@ abstract class PremiumPurchasePort {
   Future<PremiumPurchaseResult?> consumeUnsolicitedGrant() async => null;
 }
 
+/// Optional: a port whose store transactions are finished only after the
+/// backend verified them (Play: finishing acknowledges, so it must follow
+/// server verification and binding, never precede it).
+abstract interface class StorePurchaseFinisher {
+  /// True when this port holds finished purchases for verification.
+  bool get finishesAfterVerify;
+
+  /// The backend answered `active` for [purchaseToken]: it is verified and
+  /// bound to the signed-in account. Finishes the held store transaction
+  /// unless Play already holds it acknowledged. Never throws.
+  Future<void> finishVerified(
+    String purchaseToken, {
+    required bool storeAcknowledged,
+  });
+}
+
 /// Optional: a port that can re-read the store's own record of this
 /// device's purchases without buying or restoring. Returns the product ids
 /// the store still reports as unfinished, or null when it could not be
 /// read. A newly finished purchase found there (not yet acknowledged) is
-/// handled like a stream delivery: proof saved first, then acknowledged.
+/// handled like a stream delivery: proof saved first; on Android it is
+/// acknowledged only after the backend verified it.
 abstract interface class StorePurchaseRefresher {
   Future<Set<String>?> refreshStorePurchases();
 

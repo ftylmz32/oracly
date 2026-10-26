@@ -74,8 +74,13 @@ class HttpBillingEntitlementVerifier implements PremiumEntitlementVerifier {
   PremiumVerifyResult _map(Map<dynamic, dynamic> body) {
     final status = (body['status'] ?? '').toString().toLowerCase();
     final reason = body['reason']?.toString();
+    final acknowledgement = switch (body['acknowledgement']) {
+      'acknowledged' => PremiumStoreAcknowledgement.acknowledged,
+      'pending' => PremiumStoreAcknowledgement.pending,
+      _ => null,
+    };
     return switch (status) {
-      'active' => PremiumVerifyResult.active(reason),
+      'active' => PremiumVerifyResult.verified(reason, acknowledgement),
       'inactive' => PremiumVerifyResult.inactive(reason),
       'pending' => PremiumVerifyResult.pending(reason),
       'expired' => PremiumVerifyResult.expired(reason),

@@ -8,9 +8,19 @@ export type BillingStatus =
   | 'error'
   | 'unverified';
 
+/**
+ * Play's acknowledgement state of a verified, bound Android purchase, as
+ * told to the app: `acknowledged` (Play says so, or our acknowledge call
+ * succeeded) or `pending` (ours failed; the outbox retries, and the app,
+ * which never acknowledges before this answer, may acknowledge it).
+ */
+export type BillingAcknowledgement = 'acknowledged' | 'pending';
+
 export type BillingVerifyResult = {
   status: BillingStatus;
   reason?: string;
+  /** Only on an active Android purchase bound to the caller. */
+  acknowledgement?: BillingAcknowledgement;
   /**
    * SMD1-E1 — internal only, computed by the store verifiers when they
    * already have a concrete authoritative expiry (a subscription's

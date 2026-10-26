@@ -14,6 +14,7 @@ import '../../features/premium/services/local_cache_entitlement_verifier.dart';
 import '../../features/premium/services/premium_entitlement_verifier.dart';
 import '../../features/premium/services/premium_purchase_port.dart';
 import '../../features/premium/services/review_access_service.dart';
+import '../../features/premium/services/store_finishing_verifier.dart';
 import '../../features/premium/services/unavailable_premium_purchase.dart';
 import '../auth/account_deletion_pending_state.dart';
 import '../auth/user_local_data_isolation.dart';
@@ -32,14 +33,22 @@ class PremiumService {
     PremiumEntitlementVerifier? verifier,
     ReviewAccessRepository? reviewAccessRepository,
     ReviewAccessService? reviewAccessService,
-  ]) : _verifier = verifier ?? const LocalCacheEntitlementVerifier(),
+  ]) : _baseVerifier = verifier ?? const LocalCacheEntitlementVerifier(),
        _reviewAccessRepository = reviewAccessRepository,
-       _reviewAccessService = reviewAccessService;
+       _reviewAccessService = reviewAccessService {
+    final port = _purchase;
+    // Every verification path finishes a held store purchase only after
+    // the backend answered `active` (verified and bound to this account).
+    _verifier = port is StorePurchaseFinisher
+        ? StoreFinishingVerifier(_baseVerifier, port as StorePurchaseFinisher)
+        : _baseVerifier;
+  }
 
   final PremiumRepository _premium;
   final UserRepository _user;
   final PremiumPurchasePort _purchase;
-  final PremiumEntitlementVerifier _verifier;
+  final PremiumEntitlementVerifier _baseVerifier;
+  late final PremiumEntitlementVerifier _verifier;
   final ReviewAccessRepository? _reviewAccessRepository;
   final ReviewAccessService? _reviewAccessService;
 
@@ -47,7 +56,7 @@ class PremiumService {
   @visibleForTesting
   bool forceReleaseMode = false;
 
-  PremiumEntitlementVerifier get verifier => _verifier;
+  PremiumEntitlementVerifier get verifier => _baseVerifier;
   bool get purchaseConfigured => _purchase.isConfigured;
   bool get canAttemptRestore => _purchase.canAttemptRestore;
   bool get isActiveNow => AccountDeletionPendingState.allowsOwnerBoundExperience
@@ -169,11 +178,22 @@ class PremiumService {
     } catch (_) {
       // Owner not isolated or storage failed: it stays parked, locked.
     }
-    if (_premium.isActiveNow && _premium.wasAuthoritativelyVerified) return;
+    // An active, verified account still scans on load where purchases are
+    // finished only after verify (Play): one left unacknowledged when the
+    // app died is found there and verified before it is acknowledged.
+    final finishesAfterVerify =
+        port is StorePurchaseFinisher &&
+        (port as StorePurchaseFinisher).finishesAfterVerify;
+    if (_premium.isActiveNow &&
+        _premium.wasAuthoritativelyVerified &&
+        !(scanStore && finishesAfterVerify)) {
+      return;
+    }
     if (!refresher.holdsUnfinishedPurchase && !scanStore) return;
     await refresher.refreshStorePurchases();
     // A purchase the store finished for THIS account while we were away was
-    // saved and acknowledged by the refresh; verify it like a late delivery.
+    // saved by the refresh; verify it like a late delivery (on Android it
+    // is acknowledged only once that verify answers active).
     final late = await _purchase.consumeUnsolicitedGrant();
     if (late != null && late.granted && late.plan != null) {
       await _grants.applyStoreOutcome(late);

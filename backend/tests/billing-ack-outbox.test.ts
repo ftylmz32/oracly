@@ -129,6 +129,7 @@ describe('a failed acknowledgement is kept and retried server-side', () => {
     expect(await h.verifyAs('user-a')).toEqual({
       status: 'active',
       reason: 'subscription_active',
+      acknowledgement: 'pending',
     });
     const entries = await h.outbox.all();
     expect(entries).toHaveLength(1);
@@ -257,7 +258,8 @@ describe('a failed acknowledgement is kept and retried server-side', () => {
   it('the outbox never reaches a client response', async () => {
     const h = await harness();
     const body = await h.verifyAs('user-a');
-    expect(Object.keys(body).sort()).toEqual(['reason', 'status']);
+    // Only the ack hint is added; no outbox id, token or attempt data.
+    expect(Object.keys(body).sort()).toEqual(['acknowledgement', 'reason', 'status']);
     await h.app.close();
   });
 });

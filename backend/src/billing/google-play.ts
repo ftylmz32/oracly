@@ -149,11 +149,12 @@ async function verifySubscription(
   const body = (await res.json()) as Record<string, unknown>;
   const ids = body.externalAccountIdentifiers;
   const outcome = subscriptionOutcome(body, request);
-  if (
-    outcome.status === 'active' &&
-    body.acknowledgementState === 'ACKNOWLEDGEMENT_STATE_PENDING'
-  ) {
-    outcome.acknowledgementPending = true;
+  if (outcome.status === 'active') {
+    if (body.acknowledgementState === 'ACKNOWLEDGEMENT_STATE_PENDING') {
+      outcome.acknowledgementPending = true;
+    } else if (body.acknowledgementState === 'ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED') {
+      outcome.acknowledgementPending = false;
+    }
   }
   return withAccountTag(
     outcome,
@@ -272,8 +273,10 @@ async function verifyProduct(
   const body = (await res.json()) as Record<string, unknown>;
   const outcome = productOutcome(body);
   // acknowledgementState: 0 yet to be acknowledged, 1 acknowledged.
-  if (outcome.status === 'active' && Number(body.acknowledgementState) === 0) {
-    outcome.acknowledgementPending = true;
+  if (outcome.status === 'active') {
+    const state = Number(body.acknowledgementState);
+    if (state === 0) outcome.acknowledgementPending = true;
+    else if (state === 1) outcome.acknowledgementPending = false;
   }
   return withAccountTag(outcome, body.obfuscatedExternalAccountId);
 }

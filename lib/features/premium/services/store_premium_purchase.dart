@@ -19,7 +19,8 @@ class StorePremiumPurchase
     implements
         PremiumPurchasePort,
         StoreCatalogDiagnosticsSource,
-        StorePurchaseRefresher {
+        StorePurchaseRefresher,
+        StorePurchaseFinisher {
   StorePremiumPurchase({
     InAppPurchase? iap,
     StoreIapClient? client,
@@ -303,6 +304,19 @@ class StorePremiumPurchase
       _session.end();
     }
   }
+
+  @override
+  bool get finishesAfterVerify =>
+      StorePremiumPurchaseSession.finishesAfterVerify;
+
+  @override
+  Future<void> finishVerified(
+    String purchaseToken, {
+    required bool storeAcknowledged,
+  }) => _session.finishVerified(
+    purchaseToken,
+    storeAcknowledged: storeAcknowledged,
+  );
 
   @override
   Future<PremiumPurchaseResult?> consumeUnsolicitedGrant() async {

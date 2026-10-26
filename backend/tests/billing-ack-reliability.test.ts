@@ -218,6 +218,7 @@ describe('no acknowledgement is lost silently', () => {
       expect((await h.verify()).json()).toEqual({
         status: 'active',
         reason: 'subscription_active',
+        acknowledgement: 'pending',
       });
       const [entry] = await h.outbox.all();
       expect(entry).toMatchObject({ status: 'pending', scheduleFailed: true });

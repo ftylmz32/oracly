@@ -39,6 +39,19 @@ class StorePremiumPurchaseSession {
   bool _busy = false;
   PremiumPurchaseResult? _unsolicitedGrant;
 
+  /// Android: finished purchases (proof saved) awaiting a backend `active`
+  /// before the store transaction is finished, by purchase token.
+  final Map<String, PurchaseDetails> _awaitingVerify = {};
+
+  /// Tokens finished (or found acknowledged) in this session.
+  final Set<String> _finished = {};
+  Future<void> Function(PurchaseDetails purchase)? _storeComplete;
+
+  /// On Play, finishing a transaction acknowledges it, which must follow
+  /// server verification and binding. StoreKit keeps finishing on delivery.
+  static bool get finishesAfterVerify =>
+      defaultTargetPlatform == TargetPlatform.android;
+
   /// A purchase or restore sheet is open.
   bool get busy => _busy;
 
@@ -120,11 +133,52 @@ class StorePremiumPurchaseSession {
       _complete(PremiumPurchaseResult.noneFound());
       return;
     }
+    _storeComplete = completePurchase;
+    final finish = finishesAfterVerify ? _holdForVerify : completePurchase;
     for (final purchase in purchases) {
       StorePurchaseStreamDiagnostics.recordPurchase(purchase);
-      await _handle(purchase, completePurchase, persistRetryCredentials);
+      if (finishesAfterVerify &&
+          _finished.contains(_tokenOf(purchase)) &&
+          (purchase.status == PurchaseStatus.purchased ||
+              purchase.status == PurchaseStatus.restored)) {
+        // Already verified and finished in this session: a redelivery.
+        continue;
+      }
+      await _handle(purchase, finish, persistRetryCredentials);
     }
   }
+
+  /// Takes the place of finishing on Android: the transaction is kept,
+  /// unacknowledged, until [finishVerified].
+  Future<void> _holdForVerify(PurchaseDetails purchase) async {
+    final token = _tokenOf(purchase);
+    if (token.isNotEmpty) _awaitingVerify[token] = purchase;
+  }
+
+  /// See [StorePurchaseFinisher.finishVerified].
+  Future<void> finishVerified(
+    String purchaseToken, {
+    required bool storeAcknowledged,
+  }) async {
+    final purchase = _awaitingVerify.remove(purchaseToken);
+    if (purchase == null) return;
+    final complete = _storeComplete;
+    if (storeAcknowledged || complete == null) {
+      if (storeAcknowledged) _finished.add(purchaseToken);
+      return;
+    }
+    try {
+      await complete(purchase);
+      _finished.add(purchaseToken);
+    } catch (_) {
+      // Still verified and bound server-side, whose retry acknowledges it;
+      // kept so the next active verdict tries again.
+      _awaitingVerify[purchaseToken] = purchase;
+    }
+  }
+
+  static String _tokenOf(PurchaseDetails purchase) =>
+      purchase.verificationData.serverVerificationData;
 
   Future<void> _handle(
     PurchaseDetails purchase,
@@ -260,9 +314,9 @@ class StorePremiumPurchaseSession {
 
   /// Another account's purchase finished here. Its proof goes to that
   /// owner's slot only; the signed-in account gets no token, no save, no
-  /// verify and no grant. It is acknowledged only once the proof is
-  /// durable, so the store keeps it, and the device stays locked until
-  /// the owner signs in and verifies it.
+  /// verify and no grant. Its transaction is finished only once the proof
+  /// is durable (StoreKit) or once its owner's backend verified it (Play),
+  /// and the device stays locked until the owner signs in and verifies it.
   Future<void> _park(
     PremiumPurchaseAttemptStore ledger,
     PurchaseDetails purchase,

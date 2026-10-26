@@ -238,4 +238,46 @@ void main() {
     expect(result.isActive, isFalse);
     expect(result.status, PremiumVerifyStatus.error);
   }, timeout: const Timeout(Duration(seconds: 30)));
+
+  group('#44 acknowledgement hand-off field', () {
+    Future<PremiumVerifyResult> answer(Map<String, Object?> body) =>
+        HttpBillingEntitlementVerifier(
+          verifyUrl: 'https://api.example.com/v1/billing/verify',
+          client: MockClient(
+            (request) async => http.Response(jsonEncode(body), 200),
+          ),
+        ).verify(
+          platform: 'android',
+          productId: 'app.oracly.premium.monthly',
+          purchaseToken: 'token',
+        );
+
+    test('acknowledged and pending are read', () async {
+      expect(
+        (await answer({'status': 'active', 'acknowledgement': 'acknowledged'}))
+            .acknowledgement,
+        PremiumStoreAcknowledgement.acknowledged,
+      );
+      expect(
+        (await answer({'status': 'active', 'acknowledgement': 'pending'}))
+            .acknowledgement,
+        PremiumStoreAcknowledgement.pending,
+      );
+    });
+
+    test('an older backend without the field, or an unknown value, reads as '
+        'unknown: the app then acknowledges after verify itself', () async {
+      expect((await answer({'status': 'active'})).acknowledgement, isNull);
+      expect(
+        (await answer({'status': 'active', 'acknowledgement': 'yes'}))
+            .acknowledgement,
+        isNull,
+      );
+    });
+
+    test('the field never makes a non-active answer active', () async {
+      final r = await answer({'status': 'pending', 'acknowledgement': 'acknowledged'});
+      expect(r.isActive, isFalse);
+    });
+  });
 }

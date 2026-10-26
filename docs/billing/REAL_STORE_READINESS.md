@@ -61,6 +61,31 @@ gcloud run services add-iam-policy-binding oracly-api --project $PROJECT --regio
 The env is set with `gcloud run services update ... --update-env-vars BILLING_ACK_...`. That is a
 deploy and needs separate approval.
 
+### Acknowledgement order (Android Premium)
+
+The Android app never acknowledges a Play purchase before the backend has verified it.
+On Android, `completePurchase` acknowledges, so after a delivery the app only saves the receipt and holds the transaction.
+`/v1/billing/verify` acknowledges the purchase after Play verification and the atomic owner binding.
+For an active Android purchase, the answer carries `acknowledgement`:
+
+| Value | Meaning | App behavior |
+|-------|---------|--------------|
+| `acknowledged` | Play state says acknowledged, or our acknowledge call succeeded | Finishes nothing |
+| `pending` | Our acknowledge failed; the outbox/queue retries it | Acknowledges the verified, bound purchase itself, once |
+| field absent (older backend) | Unknown | Acknowledges after verify itself, once |
+
+- No other answer causes an acknowledgement or a grant.
+- A purchase left unacknowledged when the app dies is still listed by Play. The load-time store scan finds it, including for an account that is already Premium, and it is verified before it is acknowledged.
+- The outbox entry closes when a later verify, or the retry task, sees Play report it acknowledged.
+
+Compatibility:
+- Old apps (store build 26093014) acknowledge before verify and ignore the new field. Unchanged.
+- New apps against the old backend acknowledge after verify, because the field is absent.
+- The request shape is unchanged.
+- iOS StoreKit finishing is unchanged.
+
+Real-store proof still requires a license test. A backend 200 is not proof: the backend `billing_acknowledge` log and Play's `acknowledgementState` must be read for that token.
+
 ## 2. Nothing is lost silently: sweep, alarms, recovery
 
 | Failure | What happens now | Signal |

@@ -232,12 +232,13 @@ void main() {
     await _settle();
     expect((await app.repo.readPurchaseCredentials())?.purchaseToken,
         'play-token-${PremiumStoreCatalog.monthlyId}');
-    expect(app.play.completed, [PremiumStoreCatalog.monthlyId]);
     expect(app.attempts.all(), isEmpty);
     expect(app.controller.isPremium, isFalse, reason: 'not before verification');
 
     await app.controller.checkPendingStatus();
     expect(app.controller.entitlement, PremiumEntitlementState.active);
+    // #44: acknowledged once, and only after the backend verified it.
+    expect(app.play.completed, [PremiumStoreCatalog.monthlyId]);
     // Late delivery verify + active refresh: always this one receipt.
     expect(app.verifier.tokens, isNotEmpty);
     expect(app.verifier.tokens,
