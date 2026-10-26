@@ -123,8 +123,20 @@ class _Backend implements PremiumEntitlementVerifier {
     String? transactionId,
   }) async {
     _events.add('verify:$purchaseToken');
-    return answer;
+    inFlight += 1;
+    if (inFlight > maxInFlight) maxInFlight = inFlight;
+    try {
+      if (latency > Duration.zero) await Future<void>.delayed(latency);
+      return answer;
+    } finally {
+      inFlight -= 1;
+    }
   }
+
+  /// Simulated network time, so overlapping verify calls can be observed.
+  Duration latency = Duration.zero;
+  int inFlight = 0;
+  int maxInFlight = 0;
 }
 
 class _Device {
@@ -330,5 +342,31 @@ void main() {
     await Future<void>.delayed(const Duration(milliseconds: 20));
     expect(device.play.completions, 0, reason: 'parked proof acknowledged');
     expect(device.backend.verifies, 0);
+  });
+
+  // Gate B2 observation (two server acks for one purchase): how many verify
+  // calls the app makes, and how many overlap, with a realistic network
+  // delay. MEASURED: records current behavior; not a pass/fail on design.
+  test('MEASURED: verify calls and their overlap for one purchase and one '
+      'relaunch', () async {
+    device.backend.latency = const Duration(milliseconds: 60);
+    await device.signIn(_uidA);
+    final c = await device.launch();
+    device.play.onBuy = (tag) => [_play(tag, PurchaseStateWrapper.purchased)];
+    c.selectPlan(PremiumPlanKind.monthly);
+    await c.purchase();
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+    final onPurchase = device.backend.verifies;
+    final overlapOnPurchase = device.backend.maxInFlight;
+    device.backend.maxInFlight = 0;
+    _events.clear();
+    await device.launch();
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+    // ignore: avoid_print
+    print('verify calls: purchase=$onPurchase (max overlap '
+        '$overlapOnPurchase), relaunch=${device.backend.verifies} '
+        '(max overlap ${device.backend.maxInFlight})');
+    expect(c.isPremium, isTrue);
+    expect(onPurchase, greaterThanOrEqualTo(1));
   });
 }
