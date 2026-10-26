@@ -12,7 +12,12 @@ class ReadingPurchaseMonitor {
     required this.buyProduct,
     required this.storePrices,
     this.buyTimeout = const Duration(seconds: 120),
+    this.storeUnfinished,
   });
+
+  /// Unfinished purchases the store still holds, read once at start: a
+  /// purchase whose local record was wiped is routed to its owner again.
+  final Future<List<ReadingPurchaseUpdate>> Function()? storeUnfinished;
 
   final ReadingPurchaseTracker tracker;
   final Future<bool> Function(String productId) buyProduct;
@@ -40,6 +45,10 @@ class ReadingPurchaseMonitor {
           _emit(kind, purchase.productId);
         }
       });
+      for (final purchase in await storeUnfinished?.call() ?? const <ReadingPurchaseUpdate>[]) {
+        final kind = await tracker.accept(purchase);
+        _emit(kind, purchase.productId);
+      }
     } catch (_) {}
   }
 

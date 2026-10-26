@@ -34,3 +34,26 @@ Test: `backend/tests/billing-concurrent-ack.test.ts`.
 1. Reading listener: accept only `app.oracly.reading.*` product ids at `ReadingCommerceBuyer.updates`. Leave the Premium stream untouched.
 2. Wipe `reading_commerce_unfinished_v1` on account change, and keep tokens in secure storage as Premium does.
 3. Backend: a per-token single-flight around the acknowledge step, or re-read Play right before acknowledging. This is optional because acknowledgement is idempotent.
+
+## Update — reading-commerce fix applied (local QA, 26 Oct 2026, not deployed)
+
+Changes are confined to `lib/features/reading_commerce/services/`. Tests are in `test/features/reading_commerce/reading_commerce_owner_safety_test.dart`: 19 tests, all 7 targeted mutations caught.
+
+1. **Product filter.** `ReadingCommerceBuyer` passes on only coffee, palm and the coffee pack. Premium and unknown products never reach the reading tracker, its storage or its listeners.
+2. **Owner binding.** A reading purchase sends the signed-in owner tag (SHA-256 of the uid, the same tag Premium uses) as `applicationUserName`.
+   - Android echoes it back as `obfuscatedAccountId`.
+   - A purchase tagged for another account is never verified, credited or finished in the current session. It is kept only in its owner's bucket and returned to that owner.
+   - When nobody is signed in, nothing is verified; the store keeps the purchase.
+3. **Secure storage.** Unfinished purchases live in secure storage, one bucket per owner tag (`or_reading_purchases_v2_<tag>`). A session reads only its own bucket.
+   - The old plain-text `reading_commerce_unfinished_v1` is removed on first use.
+   - Its entries carry no owner and are never handed to whoever is signed in.
+4. **Recovery.** Nothing is finished without a backend grant, so an unfinished purchase stays with the store even when the account wipe clears secure storage.
+   - On Android, at start, the monitor reads Play's unfinished reading purchases and routes each to its owner.
+   - StoreKit redelivers unfinished transactions on its own.
+
+### Remaining limits
+
+- **iOS:** the owner tag is sent to StoreKit, but reading it back needs the `in_app_purchase_storekit` types (a pubspec change, out of scope). An iOS event therefore carries no tag and is credited to the signed-in account, as before.
+- **Legacy entries:** purchases made before this fix carry no tag. When Play redelivers one, it goes to the signed-in account, as before. Reading commerce is closed on prod (`ORACLY_READING_COMMERCE_ENABLED` is not set; the entry link is QA-only), so such purchases can exist only on QA devices.
+- **Account wipe:** an account switch deletes the local copy; recovery then relies on the store, as Premium does.
+- **Double server ack:** not addressed in this change.
