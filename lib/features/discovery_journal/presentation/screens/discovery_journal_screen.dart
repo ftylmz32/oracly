@@ -11,6 +11,7 @@ import '../../../../core/design_system/oracly_app_bar.dart';
 import '../../../../core/design_system/oracly_chrome.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/reading_typography.dart';
+import '../../../evrenim/presentation/evrenim_screen.dart';
 import '../../../gems/widgets/oracly_live_gem_capsule.dart';
 import '../../../../core/copy/resilience_copy.dart';
 import '../../../../core/design_system/loading_cinema/oracly_loading_kind.dart';
@@ -23,6 +24,12 @@ import '../../providers/discovery_journal_providers.dart';
 import '../widgets/discovery_journal_atmosphere.dart';
 import '../widgets/discovery_journal_empty.dart';
 import '../widgets/discovery_journal_timeline.dart';
+
+// Opt-in preview only. Release gates must PASS before enabling in production.
+const bool _evrenimPreviewEnabled = bool.fromEnvironment(
+  'ORACLY_EVRENIM_PREVIEW',
+  defaultValue: false,
+);
 
 class DiscoveryJournalScreen extends ConsumerStatefulWidget {
   const DiscoveryJournalScreen({super.key});
@@ -97,6 +104,26 @@ class _DiscoveryJournalScreenState
                 ),
               ),
             ),
+            if (_evrenimPreviewEnabled)
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: OraclyChrome.screenSide,
+                ),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const EvrenimScreen(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.auto_awesome_outlined),
+                    label: const Text('Evrenim'),
+                  ),
+                ),
+              ),
             Expanded(
               child: async.when(
                 loading: () => const OraclyCinematicLoading(compact: true),
