@@ -53,7 +53,30 @@ Changes are confined to `lib/features/reading_commerce/services/`. Tests are in 
 
 ### Remaining limits
 
-- **iOS:** the owner tag is sent to StoreKit, but reading it back needs the `in_app_purchase_storekit` types (a pubspec change, out of scope). An iOS event therefore carries no tag and is credited to the signed-in account, as before.
+- **iOS:** superseded by the update below.
 - **Legacy entries:** purchases made before this fix carry no tag. When Play redelivers one, it goes to the signed-in account, as before. Reading commerce is closed on prod (`ORACLY_READING_COMMERCE_ENABLED` is not set; the entry link is QA-only), so such purchases can exist only on QA devices.
 - **Account wipe:** an account switch deletes the local copy; recovery then relies on the store, as Premium does.
 - **Double server ack:** not addressed in this change.
+
+## Update — iOS owner safety (local QA, 27 Oct 2026, not deployed)
+
+The plugin `in_app_purchase_storekit` 0.4.11+1 uses StoreKit 2 by default.
+
+- **StoreKit 2:** the owner is kept only as the UUID `appAccountToken`. The native side runs `UUID(uuidString:)` and silently drops any other value, so the earlier SHA-256 hex tag was never stored on iOS.
+- **StoreKit 1:** the owner is echoed back as `applicationUsername`.
+
+Changes:
+
+1. **Owner token.** `ReadingOwnerToken.forUid` gives a name-based UUID (version-5 layout, SHA-256 of the uid). It is the same on Play (obfuscated account id) and StoreKit. Echoed values are compared in lower case. Premium keeps its own tag.
+2. **Read-back.** `SK2PurchaseDetails.appAccountToken`, `AppStorePurchaseDetails.skPaymentTransaction.payment.applicationUsername`, and Play's `obfuscatedAccountId`.
+3. **Fail closed.** A StoreKit (or any non-Play) paid event without a readable owner is never verified, credited or finished for the signed-in account. It stays unfinished and StoreKit redelivers it. An untagged Play purchase (launched before owner tags) still goes to the signed-in account, as before.
+4. **Dependency.** `in_app_purchase_storekit: ^0.4.11` is now a direct dependency. The lock changes only from transitive to direct main; version and hash are unchanged.
+
+Tests: `test/features/reading_commerce/reading_commerce_ios_owner_test.dart`. It was RED on `a722fd7f`: an iOS purchase made for A was granted to B. Now GREEN, with 7/7 mutations caught.
+
+These tests are a Dart/unit proof built on the plugin's own Dart types. **Native StoreKit is BLOCKED on Windows**: no Xcode build, device or sandbox transaction was run.
+
+### Remaining iOS limits
+
+- A paid StoreKit transaction without a readable owner (for example SK1 replays where `applicationUsername` is missing, or purchases from before this fix) is never credited automatically. It stays unfinished at StoreKit, and on iOS that does not refund itself. It needs a support path (manual check against App Store records) or a later server-side lookup.
+- Whether StoreKit 2 really echoes `appAccountToken` on redelivery and restore is Apple's documented behaviour, not verified here.

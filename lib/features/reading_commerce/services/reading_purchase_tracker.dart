@@ -14,6 +14,7 @@ class ReadingPurchaseUpdate {
     required this.purchaseId,
     required this.status,
     this.ownerTag,
+    this.requiresOwnerProof = false,
   });
 
   final String productId;
@@ -25,12 +26,17 @@ class ReadingPurchaseUpdate {
   /// echoes back), when the store reports one.
   final String? ownerTag;
 
+  /// The store must name the owner (StoreKit): without [ownerTag] the
+  /// purchase is never taken by whoever is signed in.
+  final bool requiresOwnerProof;
+
   ReadingPurchaseUpdate withOwner(String owner) => ReadingPurchaseUpdate(
     productId: productId,
     token: token,
     purchaseId: purchaseId,
     status: status,
     ownerTag: owner,
+    requiresOwnerProof: requiresOwnerProof,
   );
 }
 
@@ -101,6 +107,13 @@ class ReadingPurchaseTracker {
       final current = ownerOf();
       // Signed out: nothing to credit it to. The store keeps it unfinished.
       if (current == null) return ReadingBuyKind.pending;
+      final paid = update.status == ReadingPurchaseStatus.pending ||
+          update.status == ReadingPurchaseStatus.purchased;
+      // No readable owner where the store must give one: left unfinished,
+      // so the store redelivers it; never credited to this session.
+      if (paid && update.ownerTag == null && update.requiresOwnerProof) {
+        return ReadingBuyKind.pending;
+      }
       if (update.ownerTag != null && update.ownerTag != current) {
         // Another account's purchase: kept for that owner only; never
         // verified, credited or finished in this session.

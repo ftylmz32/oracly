@@ -309,11 +309,34 @@ void main() {
       expect(await d.memory().load(), isEmpty);
     });
 
-    test('an untagged reading purchase (iOS / before this fix) is credited to '
-        'the signed-in account, as before', () async {
+    test('an untagged Play purchase (launched before owner tags) is credited '
+        'to the signed-in account, as before; StoreKit fails closed instead '
+        '(reading_commerce_ios_owner_test.dart)', () async {
       await d.tracker().accept(_update(ReadingCommerceView.coffeeId, 'ios-1'));
       expect(d.verified, ['A:ios-1']);
       expect(d.completed, ['ios-1']);
+    });
+  });
+
+  group('Android regression through the buyer', () {
+    test('a Play purchase without an account tag (launched before owner '
+        'tags) still goes to the signed-in account, verified first', () async {
+      final update = ReadingCommerceBuyer.readingUpdatesOf([
+        _play(ReadingCommerceView.coffeeId, 'old-play'),
+      ]).single;
+      expect(update.requiresOwnerProof, isFalse);
+      expect(await d.tracker().accept(update), ReadingBuyKind.granted);
+      expect(d.verified, ['A:old-play']);
+      expect(d.completed, ['old-play']);
+    });
+
+    test('a tagged Play purchase for another account is left for its owner',
+        () async {
+      final update = ReadingCommerceBuyer.readingUpdatesOf([
+        _play(ReadingCommerceView.coffeeId, 'b-play', accountTag: _tagB),
+      ]).single;
+      expect(await d.tracker().accept(update), ReadingBuyKind.pending);
+      expect(d.completed, isEmpty);
     });
   });
 

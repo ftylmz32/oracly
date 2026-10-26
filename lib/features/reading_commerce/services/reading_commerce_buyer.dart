@@ -4,8 +4,10 @@ library;
 import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
+import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
 
 import '../models/reading_commerce_view.dart';
+import 'reading_owner_token.dart';
 import 'reading_purchase_tracker.dart';
 
 class ReadingCommerceBuyer {
@@ -99,9 +101,15 @@ class ReadingCommerceBuyer {
       (purchase.purchaseID ?? purchase.verificationData.serverVerificationData).trim();
 
   static ReadingPurchaseUpdate _update(PurchaseDetails purchase) {
-    final tag = purchase is GooglePlayPurchaseDetails
-        ? purchase.billingClientPurchase.obfuscatedAccountId
-        : null;
+    // Play: obfuscated account id. StoreKit 2: appAccountToken. StoreKit 1:
+    // applicationUsername. Only Play may lack it (purchases launched before
+    // owner tags); a store event of any other kind must carry it.
+    final (String? tag, bool proof) = switch (purchase) {
+      GooglePlayPurchaseDetails p => (p.billingClientPurchase.obfuscatedAccountId, false),
+      SK2PurchaseDetails p => (p.appAccountToken, true),
+      AppStorePurchaseDetails p => (p.skPaymentTransaction.payment.applicationUsername, true),
+      _ => (null, true),
+    };
     return ReadingPurchaseUpdate(
       productId: purchase.productID,
       token: purchase.verificationData.serverVerificationData.trim(),
@@ -112,7 +120,8 @@ class ReadingCommerceBuyer {
         PurchaseStatus.canceled => ReadingPurchaseStatus.canceled,
         PurchaseStatus.error => ReadingPurchaseStatus.failed,
       },
-      ownerTag: tag != null && tag.isNotEmpty ? tag : null,
+      ownerTag: ReadingOwnerToken.normalize(tag),
+      requiresOwnerProof: proof,
     );
   }
 }
