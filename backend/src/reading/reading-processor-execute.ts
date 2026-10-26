@@ -236,7 +236,12 @@ export async function executeClaimedReading(input: {
         data = checkpoint.output;
       } else {
         if (checkpoint && !checkpoint.initiate) throw new Error('provider_stage_not_initiable');
-        const ritual = input.ritualQuota
+        // A purchased Coffee V3 / Palm reading is not limited by the free
+        // daily quota. Proof comes only from the server entitlement ledger;
+        // spend guards, consumption and refunds are unchanged.
+        const purchased = (isCoffeeV3 || feature === 'palm') &&
+          await input.flow.isPurchasedReading(operation.ownerUserId, operationId, feature);
+        const ritual = input.ritualQuota && !purchased
           ? await admitRitualQuota({
               config: input.ritualQuota.config,
               store: input.ritualQuota.store,

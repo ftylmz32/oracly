@@ -41,6 +41,16 @@ export class ReadingFlow {
     private readonly entitlements: ReadingEntitlementLedger | null = null,
   ) {}
 
+  /** Server ledger proof that this operation is a purchased reading. */
+  async isPurchasedReading(
+    ownerUserId: string,
+    operationId: string,
+    feature: 'coffee' | 'palm',
+  ): Promise<boolean> {
+    if (!this.entitlements) return false;
+    return this.entitlements.purchasedHoldFor(ownerUserId, operationId, feature);
+  }
+
   async remember(record: ReadingOperationRecord): Promise<void> {
     if (record.status !== 'waiting' && record.status !== 'processing') return;
     const ref = this.firestore.collection(ACTIVE).doc(activeId(record.ownerUserId, record.readingType));

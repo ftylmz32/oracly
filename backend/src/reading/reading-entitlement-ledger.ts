@@ -210,6 +210,27 @@ export class ReadingEntitlementLedger {
     return this.restoreHold(holdId, ownerUserId);
   }
 
+  /**
+   * True only when this operation still holds a credit of this feature,
+   * bound by the server and taken from a verified store purchase (a lot
+   * with a purchaseId). Trial credits, restored or forfeited holds and
+   * pointers to another account's hold are not paid proof.
+   */
+  async purchasedHoldFor(
+    ownerUserId: string,
+    operationId: string,
+    feature: ReadingCommerceFeature,
+  ): Promise<boolean> {
+    const pointer = (await this.store.collection(BY_OPERATION).doc(operationId).get()).data();
+    if (typeof pointer?.holdId !== 'string' || pointer.ownerUserId !== ownerUserId) return false;
+    const hold = (await this.store.collection(HOLDS).doc(pointer.holdId).get()).data();
+    return hold?.ownerUserId === ownerUserId &&
+      hold.state === 'held' &&
+      hold.operationId === operationId &&
+      hold.feature === feature &&
+      typeof hold.purchaseId === 'string' && hold.purchaseId.length > 0;
+  }
+
   async noteCompleted(ownerUserId: string, operationId: string, atMs: number): Promise<void> {
     const pointer = await this.store.collection(BY_OPERATION).doc(operationId).get();
     if (pointer.data()?.ownerUserId !== ownerUserId) return;
