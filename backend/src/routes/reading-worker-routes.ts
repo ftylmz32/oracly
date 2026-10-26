@@ -41,6 +41,13 @@ export async function registerReadingWorkerRoutes(
     }
     try {
       const outcome = await options.processor.process(body.operationId, request.log);
+      // One event per processed delivery, so an outcome no stage logs (a
+      // silent `failed`) is still visible. Ids and outcome only.
+      request.log.info({
+        event: 'reading_task_outcome',
+        operationId: body.operationId,
+        outcome,
+      });
       return reply.code(200).send(successEnvelope({ outcome }));
     } catch (error) {
       const failure =

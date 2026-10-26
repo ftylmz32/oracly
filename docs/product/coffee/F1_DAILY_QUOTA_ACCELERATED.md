@@ -54,3 +54,20 @@ Add one log line in the ritual `reply` branch, before `failFinal`:
 This is logging only, with no behavior change. Then flip the `it.fails` test to `it`.
 
 Optional, as a separate product decision: check the quota before staging or acceleration, and mention the refund in the quota message.
+
+## Update — option A applied (local QA only, not deployed)
+
+The worker route `backend/src/routes/reading-worker-routes.ts` now logs one info event for each processed delivery:
+
+`{ event: 'reading_task_outcome', operationId, outcome }`
+
+- The event carries no owner, content or gem data.
+- HTTP status, response body, the error branch and retries are unchanged.
+- One event is logged per delivery attempt.
+- Unauthorized requests, invalid requests and thrown failures log no outcome event.
+
+Tests: `backend/tests/reading-worker-outcome-log.test.ts`. RED before the change (7 tests failing), GREEN after. It includes the F1 quota-plus-gems case through the route, which now logs `outcome: failed`.
+
+What this closes: a quota refusal is no longer invisible. It now shows as `failed`.
+
+What stays open: the event does not say why, so `daily_quota` is not logged. The quota-specific `[F1 FAIL]` test stays an expected failure. The two prod operations from 23 Oct remain UNKNOWN; the change is not deployed and was not retroactive anyway.
