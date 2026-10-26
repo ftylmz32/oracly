@@ -46,6 +46,7 @@ export async function testApp(
     readingOperationInputRepository?: import('../src/reading/operation-input-repository.js').ReadingOperationInputRepository;
     rewardedAds?: import('../src/server.js').BuildOptions['rewardedAds'];
     readingStagedImageRepository?: import('../src/reading/operation-staged-image-repository.js').ReadingStagedImageRepository;
+    readingStagedImages?: import('../src/reading/operation-staged-image-service.js').ReadingStagedImageService;
     readingTaskScheduler?: import('../src/reading/reading-task-scheduler.js').ReadingTaskScheduler;
     sharedWindowStore?: import('../src/rate-limit/shared-window-store.js').SharedWindowStore;
     accountDeletionRepository?: import('../src/account/account-deletion.js').AccountDeletionRepository;
@@ -77,6 +78,7 @@ export async function testApp(
     readingOperationInputRepository: options.readingOperationInputRepository,
     rewardedAds: options.rewardedAds,
     readingStagedImageRepository: options.readingStagedImageRepository,
+    readingStagedImages: options.readingStagedImages,
     readingTaskScheduler: options.readingTaskScheduler,
     sharedWindowStore: options.sharedWindowStore ?? new MemorySharedWindowStore(),
     accountDeletionRepository: options.accountDeletionRepository,

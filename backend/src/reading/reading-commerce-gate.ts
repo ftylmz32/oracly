@@ -1,7 +1,9 @@
 /**
  * New Coffee V3 and Palm operations spend one server credit and skip the
- * artificial wait. Legacy coffee, soulmate, and every create while commerce
- * is off stay on the existing wait policy. A client price cannot open this.
+ * artificial wait. With commerce on, no other new Coffee exists: legacy and
+ * Coffee V2 creates only find an operation made before the rollout. Soulmate
+ * and every create while commerce is off stay on the existing wait policy.
+ * A client price cannot open this.
  */
 import { randomBytes } from 'node:crypto';
 import type { FirestoreLike } from '../billing/entitlement-repository.js';
@@ -37,6 +39,38 @@ export function commerceApplies(enabled: boolean, input: CommerceCreateInput): b
   return input.readingType === 'coffee' && input.coffeeCaptureContract === 'three_view_v3';
 }
 
+/** Commerce on: a Coffee create without the paid V3 contract may not create. */
+export function freeCoffeeCreateClosed(enabled: boolean, input: CommerceCreateInput): boolean {
+  return enabled && input.readingType === 'coffee' && input.coffeeCaptureContract !== 'three_view_v3';
+}
+
+/**
+ * Commerce on: `/v1/ai/complete` coffee_analysis may only fulfil a legacy
+ * (non-V3) Coffee operation made before the rollout, owned by the caller and
+ * already claimed (`processing`). Inline images, waiting, finished, missing
+ * or foreign operations would be a new free reading.
+ */
+export async function claimedLegacyCoffee(
+  operations: { getById(operationId: string): Promise<ReadingOperationRecord | null> } | undefined,
+  ownerUserId: string,
+  payload: unknown,
+): Promise<boolean> {
+  const operationId = payload && typeof payload === 'object'
+    ? (payload as Record<string, unknown>).operationId
+    : null;
+  if (!operations || typeof operationId !== 'string') return false;
+  let operation: ReadingOperationRecord | null;
+  try {
+    operation = await operations.getById(operationId);
+  } catch {
+    return false;
+  }
+  return operation?.ownerUserId === ownerUserId &&
+    operation.readingType === 'coffee' &&
+    operation.status === 'processing' &&
+    operation.coffeeCaptureContract == null;
+}
+
 export function readingFulfillmentOpen(config: AppConfig): boolean {
   return config.aiSpendKillSwitch !== true
     && config.aiDailySpendCapMicros != null
@@ -70,6 +104,13 @@ export async function openCommerceCreate(input: {
   | { kind: 'record'; record: ReadingOperationRecord }
   | { kind: 'error'; httpStatus: number; code: ErrorCodeName }
 > {
+  if (freeCoffeeCreateClosed(input.config.readingCommerceEnabled, input.body)) {
+    // Only the same create made before the rollout comes back; never a new one.
+    const existing = await input.service.findCreated({ ownerUserId: input.ownerUserId, ...input.body });
+    return existing
+      ? { kind: 'record', record: existing }
+      : { kind: 'error', httpStatus: 403, code: ErrorCode.readingEntitlementRequired };
+  }
   if (!commerceApplies(input.config.readingCommerceEnabled, input.body)) return { kind: 'skip' };
   if (!input.store) return { kind: 'error', httpStatus: 503, code: ErrorCode.noConfiguration };
   if (!(await readingBudgetOpen(input.store, input.config, input.nowMs))) {

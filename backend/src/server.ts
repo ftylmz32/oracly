@@ -244,6 +244,7 @@ export async function buildServer(options: BuildOptions) {
     lunaAccessStore: options.lunaAccessStore,
     speechGrantStore: options.speechGrantStore,
     speechObjectStore: options.speechObjectStore,
+    readingOperations: readingOperationRepository,
   });
   await registerReadingOperationRoutes(app, config, {
     appCheck,

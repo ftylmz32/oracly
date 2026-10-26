@@ -59,6 +59,8 @@ import {
   failRitualQuota,
   finishRitualQuota,
 } from '../reading/ritual-daily-quota-settle.js';
+import type { ReadingOperationRepository } from '../reading/operation-repository.js';
+import { claimedLegacyCoffee } from '../reading/reading-commerce-gate.js';
 import { denySoulmateWithoutPremium } from '../reading/soulmate-ai-route-gate.js';
 import type { SoulmateEntitlementGuard } from '../reading/soulmate-entitlement-guard.js';
 import { admitLunaText, type LunaFreeHold } from '../reading/luna-premium-gate.js';
@@ -98,6 +100,8 @@ export type AiRouteOptions = {
   speechGrantStore?: FirestoreLike;
   /** Private clip bytes. The grant document keeps the path, never the audio. */
   speechObjectStore?: ReadingStagedObjectStore;
+  /** Commerce on: the only coffee_analysis allowed fulfils a claimed pre-rollout operation. */
+  readingOperations?: ReadingOperationRepository;
 };
 
 export async function registerAiRoutes(
@@ -339,6 +343,16 @@ export async function registerAiRoutes(
           replayAttempt = claim.attemptId;
           producerKey = replayKey;
           producerAttempt = claim.attemptId;
+        }
+        // Reading commerce: past the delivered replays, a coffee_analysis is
+        // new work. It is allowed only for a claimed pre-rollout operation;
+        // the catch below releases the free slot and the replay claim.
+        if (
+          validated.operation === 'coffee_analysis' &&
+          config.readingCommerceEnabled &&
+          !(await claimedLegacyCoffee(options.readingOperations, identity, validated.payload))
+        ) {
+          throw new ProxyError(ErrorCode.readingEntitlementRequired, 403);
         }
         if (
           !(billingOn && isPaidTarot(validated)) &&

@@ -171,7 +171,9 @@ describe('entitled creates are immediate and old rights stay', () => {
       headers: headers(),
       payload: { readingType: 'coffee', sourceRequestId: 'coffee-old-001' },
     });
-    expect(legacy.json().data.remainingMs).toBe(2 * 60 * 60 * 1000);
+    // Commerce on: a legacy Coffee create is no longer a free reading.
+    expect(legacy.statusCode).toBe(403);
+    expect(legacy.json().error.code).toBe('reading_entitlement_required');
     const bought = await app.inject({
       method: 'POST',
       url: '/v1/reading-entitlements/verify',

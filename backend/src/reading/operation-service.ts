@@ -117,19 +117,11 @@ export class ReadingOperationService {
         record,
         idempotencyKeyFor(input),
       );
-      if (stored.record.ownerUserId !== input.ownerUserId) {
-        throw new ReadingOperationError('forbidden');
-      }
-      if (
-        input.readingType === 'coffee' &&
-        (stored.record.coffeeIntention !== coffeeIntention ||
-          stored.record.coffeeInputContract !== (markedCoffee ? input.coffeeInputContract! : null) ||
-          // Same sourceRequestId = same logical create: the photo-set contract must match too.
-          stored.record.coffeeCaptureContract !== coffeeCaptureContract)
-      ) {
-        throw new ReadingOperationError('conflict');
-      }
-      return stored.record;
+      return sameCreateOrThrow(stored.record, input, {
+        coffeeIntention,
+        coffeeInputContract: markedCoffee ? input.coffeeInputContract! : null,
+        coffeeCaptureContract,
+      });
     } catch (error) {
       if (error instanceof ReadingOperationError) throw error;
       if (error instanceof ReadingAdmissionDenied) {
@@ -140,6 +132,37 @@ export class ReadingOperationService {
       }
       throw new ReadingOperationError('unavailable');
     }
+  }
+
+  /**
+   * Read-only twin of an idempotent `create` retry: the operation an earlier
+   * create stored for this owner + type + sourceRequestId, under the same
+   * owner and contract checks, or null. Never creates, never writes.
+   */
+  async findCreated(input: {
+    ownerUserId: string;
+    readingType: ReadingType;
+    sourceRequestId: string;
+    coffeeIntention?: string;
+    coffeeInputContract?: CoffeeInputContract;
+    coffeeCaptureContract?: CoffeeCaptureContract;
+  }): Promise<ReadingOperationRecord | null> {
+    if (!this.repository.findByIdempotencyKey) return null;
+    let stored: ReadingOperationRecord | null;
+    try {
+      stored = await this.repository.findByIdempotencyKey(idempotencyKeyFor(input));
+    } catch {
+      throw new ReadingOperationError('unavailable');
+    }
+    if (!stored) return null;
+    const markedCoffee = input.readingType === 'coffee' && input.coffeeInputContract != null;
+    return sameCreateOrThrow(stored, input, {
+      coffeeIntention: markedCoffee && input.coffeeIntention != null
+        ? sanitizeCoffeeIntention(input.coffeeIntention)
+        : null,
+      coffeeInputContract: markedCoffee ? input.coffeeInputContract! : null,
+      coffeeCaptureContract: input.coffeeCaptureContract ?? null,
+    });
   }
 
   async get(
@@ -257,4 +280,29 @@ export class ReadingOperationService {
 
 export function randomOperationId(): string {
   return randomBytes(16).toString('hex');
+}
+
+/** An idempotent create retry is the same owner and, for Coffee, the same contract. */
+function sameCreateOrThrow(
+  stored: ReadingOperationRecord,
+  input: { ownerUserId: string; readingType: ReadingType },
+  coffee: {
+    coffeeIntention: string | null;
+    coffeeInputContract: CoffeeInputContract | null;
+    coffeeCaptureContract: CoffeeCaptureContract | null;
+  },
+): ReadingOperationRecord {
+  if (stored.ownerUserId !== input.ownerUserId) {
+    throw new ReadingOperationError('forbidden');
+  }
+  if (
+    input.readingType === 'coffee' &&
+    (stored.coffeeIntention !== coffee.coffeeIntention ||
+      stored.coffeeInputContract !== coffee.coffeeInputContract ||
+      // Same sourceRequestId = same logical create: the photo-set contract must match too.
+      stored.coffeeCaptureContract !== coffee.coffeeCaptureContract)
+  ) {
+    throw new ReadingOperationError('conflict');
+  }
+  return stored;
 }

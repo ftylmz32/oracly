@@ -52,6 +52,11 @@ export interface ReadingOperationRepository {
     ownerUserId: string,
     apply: (current: ReadingOperationRecord) => ReadingOperationRecord,
   ): Promise<ReadingOperationRecord>;
+  /**
+   * Read-only: the operation an earlier create stored under this key, or
+   * null. Never creates. A repository without it has no existing operation.
+   */
+  findByIdempotencyKey?(idempotencyKey: string): Promise<ReadingOperationRecord | null>;
 }
 
 export class FirestoreReadingOperationRepository
@@ -112,6 +117,19 @@ export class FirestoreReadingOperationRepository
       if (error instanceof ReadingStorageUnavailable || error instanceof ReadingAdmissionDenied) throw error;
       throw new ReadingStorageUnavailable();
     }
+  }
+
+  async findByIdempotencyKey(idempotencyKey: string): Promise<ReadingOperationRecord | null> {
+    let operationId: unknown;
+    try {
+      const key = await this.firestore.collection(KEYS).doc(documentIdFor(idempotencyKey)).get();
+      if (!key.exists) return null;
+      operationId = key.data()?.operationId;
+    } catch {
+      throw new ReadingStorageUnavailable();
+    }
+    if (typeof operationId !== 'string') throw new ReadingStorageUnavailable();
+    return this.getById(operationId);
   }
 
   async getById(operationId: string): Promise<ReadingOperationRecord | null> {
