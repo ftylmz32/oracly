@@ -345,23 +345,24 @@ export async function registerAiRoutes(
           producerAttempt = claim.attemptId;
         }
         // Reading commerce: past the delivered replays, a coffee_analysis or
-        // palm_analysis is new work. It is allowed only for a claimed
+        // palm_analysis is new work. It is allowed only once, for a claimed
         // pre-rollout operation; paid readings run in the worker. The catch
         // below releases the free slot and the replay claim.
         if (
           config.readingCommerceEnabled &&
-          (validated.operation === 'coffee_analysis'
-            ? !(await claimedLegacyCoffee(options.readingOperations, identity, validated.payload))
-            : validated.operation === 'palm_analysis' &&
-              !(await claimedLegacyPalm({
-                operations: options.readingOperations,
-                store: options.ritualQuotaStore,
-                ownerUserId: identity,
-                payload: validated.payload,
-                idempotencyKey: idemKey,
-              })))
+          (validated.operation === 'coffee_analysis' || validated.operation === 'palm_analysis')
         ) {
-          throw new ProxyError(ErrorCode.readingEntitlementRequired, 403);
+          const direct = {
+            operations: options.readingOperations,
+            store: options.ritualQuotaStore,
+            ownerUserId: identity,
+            payload: validated.payload,
+            idempotencyKey: idemKey,
+          };
+          const admitted = validated.operation === 'coffee_analysis'
+            ? await claimedLegacyCoffee(direct)
+            : await claimedLegacyPalm(direct);
+          if (!admitted) throw new ProxyError(ErrorCode.readingEntitlementRequired, 403);
         }
         if (
           !(billingOn && isPaidTarot(validated)) &&

@@ -23,7 +23,7 @@ import { ReadingOperationError, type ReadingOperationService } from './operation
 import { ritualOperationId } from './ritual-daily-quota.js';
 
 const SPEND_DAYS = 'aiSpendDays';
-/** Server-only: the one request key a pre-rollout Palm operation may be read under. */
+/** Server-only: the one request key (and phases) a pre-rollout Coffee / Palm operation was read under. */
 const LEGACY_DIRECT_AI = 'readingLegacyDirectAi';
 
 export type CommerceCreateInput = {
@@ -47,47 +47,64 @@ export function freeCoffeeCreateClosed(enabled: boolean, input: CommerceCreateIn
   return enabled && input.readingType === 'coffee' && input.coffeeCaptureContract !== 'three_view_v3';
 }
 
-/**
- * Commerce on: `/v1/ai/complete` coffee_analysis may only fulfil a legacy
- * (non-V3) Coffee operation made before the rollout, owned by the caller and
- * already claimed (`processing`). Inline images, waiting, finished, missing
- * or foreign operations would be a new free reading.
- */
-export async function claimedLegacyCoffee(
-  operations: OperationLookup | undefined,
-  ownerUserId: string,
-  payload: unknown,
-): Promise<boolean> {
-  const operation = await claimedOperation(operations, ownerUserId, payload);
-  return operation?.readingType === 'coffee' &&
-    operation.coffeeCaptureContract == null;
-}
-
-/**
- * Commerce on: `/v1/ai/complete` palm_analysis may only fulfil a Palm
- * operation made before the rollout (it waited; a paid Palm is instant and
- * belongs to the worker), owned by the caller and already claimed. The first
- * request key (phase suffix aside) is pinned to the operation, so the same
- * claimed operation cannot buy another reading under a new key.
- */
-export async function claimedLegacyPalm(input: {
+type DirectReadingInput = {
   operations: OperationLookup | undefined;
   store: FirestoreLike | undefined;
   ownerUserId: string;
   payload: unknown;
   idempotencyKey: string | null;
-}): Promise<boolean> {
+};
+
+/**
+ * Commerce on: `/v1/ai/complete` coffee_analysis may only fulfil a legacy
+ * (non-V3) Coffee operation made before the rollout, owned by the caller and
+ * already claimed (`processing`), once (see `admitOnce`). Inline images,
+ * waiting, finished, missing or foreign operations would be a new free reading.
+ */
+export async function claimedLegacyCoffee(input: DirectReadingInput): Promise<boolean> {
+  const operation = await claimedOperation(input.operations, input.ownerUserId, input.payload);
+  if (operation?.readingType !== 'coffee' || operation.coffeeCaptureContract != null) return false;
+  return admitOnce(input, operation);
+}
+
+/**
+ * Commerce on: `/v1/ai/complete` palm_analysis may only fulfil a Palm
+ * operation made before the rollout (it waited; a paid Palm is instant and
+ * belongs to the worker), owned by the caller and already claimed, once.
+ */
+export async function claimedLegacyPalm(input: DirectReadingInput): Promise<boolean> {
   const operation = await claimedOperation(input.operations, input.ownerUserId, input.payload);
   if (operation?.readingType !== 'palm' || !(operation.readyAtMs > operation.createdAtMs)) return false;
+  return admitOnce(input, operation);
+}
+
+/**
+ * One reading per legacy operation: its first request key (phase suffix
+ * aside) is pinned, and each phase (`''`, `:observe`, `:write`) is admitted
+ * once. A delivered response replays from the response cache before this
+ * gate; anything else under the same phase, or any other key, is refused.
+ * Nothing resets a pin: it lives in a server-only document.
+ */
+async function admitOnce(input: DirectReadingInput, operation: ReadingOperationRecord): Promise<boolean> {
   const requestKey = ritualOperationId(input.idempotencyKey);
   const store = input.store;
-  if (!store || !requestKey) return false;
+  if (!store || !requestKey || !input.idempotencyKey) return false;
+  const phase = input.idempotencyKey.slice(requestKey.length);
   try {
     return await store.runTransaction(async (tx) => {
       const ref = store.collection(LEGACY_DIRECT_AI).doc(operation.operationId);
       const pinned = (await tx.get(ref)).data();
-      if (pinned) return pinned.ownerUserId === input.ownerUserId && pinned.requestKey === requestKey;
-      tx.set(ref, { ownerUserId: input.ownerUserId, requestKey, readingType: 'palm' });
+      const admitted: unknown[] = Array.isArray(pinned?.admitted) ? pinned.admitted : [];
+      if (pinned && (pinned.ownerUserId !== input.ownerUserId || pinned.requestKey !== requestKey ||
+          admitted.includes(phase))) {
+        return false;
+      }
+      tx.set(ref, {
+        ownerUserId: input.ownerUserId,
+        requestKey,
+        readingType: operation.readingType,
+        admitted: [...admitted, phase],
+      });
       return true;
     });
   } catch {
