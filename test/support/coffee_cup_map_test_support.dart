@@ -13,6 +13,7 @@ import 'package:oracly_new/features/coffee/coffee_v2/services/coffee_v2_checksum
 import 'package:oracly_new/features/coffee/coffee_v3/models/coffee_v3_photo_asset.dart';
 import 'package:oracly_new/features/coffee/coffee_v3/models/coffee_v3_photo_slot.dart';
 import 'package:oracly_new/features/coffee/coffee_v3/services/coffee_v3_work_files.dart';
+import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_photo_archive.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 // ignore: depend_on_referenced_packages
@@ -29,6 +30,9 @@ class CupMapPaths extends Fake
 
   String get documents => '$root${Platform.pathSeparator}documents';
 
+  /// Where Fincan Haritası keeps photos (the app cache directory).
+  String get cache => '$root${Platform.pathSeparator}cache';
+
   @override
   Future<String?> getApplicationSupportPath() async => root;
 
@@ -39,7 +43,7 @@ class CupMapPaths extends Fake
   Future<String?> getTemporaryPath() async => root;
 
   @override
-  Future<String?> getApplicationCachePath() async => root;
+  Future<String?> getApplicationCachePath() async => cache;
 }
 
 Future<CupMapPaths> installCupMapPaths(Directory temp) async {
@@ -54,6 +58,13 @@ Future<LocalStorage> ownedStorage(String ownerId) async {
   await storage.setString(UserLocalDataIsolation.ownerKey, ownerId);
   return storage;
 }
+
+/// A kept photo in the cup-map archive, as the keeper would write it.
+Future<String> keptCupMapPhoto(String readingId, CoffeeV3PhotoSlot slot) =>
+    CoffeeCupMapPhotoArchive.persist(
+      readingId: '${readingId}_cupmap_${slot.wireValue}',
+      sourcePath: cupMapFixturePhoto,
+    );
 
 /// An app-owned V3 working copy of [source] for [slot], exactly as the V3
 /// normalizer leaves it, with its real size and SHA-256.

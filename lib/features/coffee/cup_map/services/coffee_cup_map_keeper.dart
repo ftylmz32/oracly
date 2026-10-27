@@ -1,53 +1,56 @@
-/// Keeps the exact photos a Coffee V3 reading was made from, at the one
-/// moment their link to that reading is certain: the V3 submission that
-/// created the operation has just restored the operation's own result. The
-/// photos are re-verified against the checksums recorded at capture and
-/// copied into the owned `coffee_images` archive (purged by the discovery
-/// clear and the account wipe) BEFORE V3 releases its working copies.
+/// Keeps the exact photos a Coffee V3 reading was made from — only when this
+/// owner has turned on "keep my photos" — at the one moment their link to
+/// that reading is certain: the V3 submission that created the operation
+/// has just restored the operation's own result. The photos are re-verified
+/// against the checksums recorded at capture and copied into the cup-map
+/// archive BEFORE V3 releases its working copies.
 ///
-/// Best effort by contract — a failure here leaves the reading without a
-/// map and never touches the reading itself.
+/// Best effort by contract — no consent or any failure leaves the reading
+/// without a map and never touches the reading itself.
 library;
 
 import 'dart:io';
 
-import '../../../../core/auth/owned_file_cleanup_journal.dart';
 import '../../../../core/data/datasources/local_storage.dart';
 import '../../coffee_v2/services/coffee_v2_checksum.dart';
 import '../../coffee_v3/models/coffee_v3_photo_asset.dart';
 import '../../coffee_v3/models/coffee_v3_photo_slot.dart';
 import '../../coffee_v3/services/coffee_v3_work_files.dart';
 import '../../services/coffee_experience_service.dart' show CoffeeImagePersister;
-import '../../services/coffee_image_archive.dart';
 import '../models/coffee_cup_map_record.dart';
+import 'coffee_cup_map_consent.dart';
+import 'coffee_cup_map_photo_archive.dart';
 import 'coffee_cup_map_store.dart';
 
 typedef CoffeeCupMapAssetCheck = Future<bool> Function(CoffeeV3PhotoAsset);
 
 class CoffeeCupMapKeeper {
   CoffeeCupMapKeeper(
-    this._storage, {
+    LocalStorage storage, {
     CoffeeImagePersister? persist,
     CoffeeCupMapAssetCheck? verify,
     Future<bool> Function(String path)? discard,
-  })  : _store = CoffeeCupMapStore(_storage),
-        _persist = persist ?? CoffeeImageArchive.persist,
+  })  : _store = CoffeeCupMapStore(storage),
+        _consent = CoffeeCupMapConsent(storage),
+        _persist = persist ?? CoffeeCupMapPhotoArchive.persist,
         _verify = verify ?? _assetUnchanged,
-        _discard = discard ?? CoffeeImageArchive.deleteIfOwnedStrict;
+        _discard = discard ?? CoffeeCupMapPhotoArchive.deleteStrict;
 
-  final LocalStorage _storage;
   final CoffeeCupMapStore _store;
+  final CoffeeCupMapConsent _consent;
   final CoffeeImagePersister _persist;
   final CoffeeCupMapAssetCheck _verify;
   final Future<bool> Function(String path) _discard;
 
   /// [submissionOwnerId] is the owner the V3 submission was stamped with;
-  /// a map is only kept when it is still the local data owner.
+  /// a map is only kept when it is still the local data owner and that
+  /// owner has chosen to keep photos.
   Future<void> keep({
     required String resultId,
     required String? submissionOwnerId,
     required List<CoffeeV3PhotoAsset> assets,
   }) async {
+    if (!_consent.keepPhotos) return;
     final owner = _store.currentOwnerId;
     if (owner.isEmpty || submissionOwnerId != owner || assets.isEmpty) return;
     if (_store.load(resultId) != null) return;
@@ -94,13 +97,11 @@ class CoffeeCupMapKeeper {
     return null;
   }
 
+  /// A copy that cannot be removed now stays only inside the cup-map
+  /// archive, which every account / history wipe purges whole.
   Future<void> _release(List<CoffeeCupMapPhoto> photos) async {
-    final orphans = <String>{};
     for (final photo in photos) {
-      if (!await _discard(photo.path)) orphans.add(photo.path);
-    }
-    if (orphans.isNotEmpty) {
-      await OwnedFileCleanupJournal.record(_storage, orphans);
+      await _discard(photo.path);
     }
   }
 

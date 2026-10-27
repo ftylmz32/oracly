@@ -56,6 +56,28 @@ abstract final class CoffeeCupMapCopy {
   static const limitReached = 'Bu fotoğrafa en fazla 12 işaret koyabilirsin.';
   static const saveFailed = 'Kaydedilemedi. Tekrar dener misin?';
 
+  static const consentTitle = 'Fincan Haritası için fotoğraflarımı sakla';
+  static const consentBody =
+      'Açıkken, tamamlanan Kahve Falı\'nın üç fotoğrafı yalnızca bu cihazda '
+      'tutulur; fala dönüp gözüne takılan yerleri işaretleyebilirsin. '
+      'Kapalıyken fotoğraflar, falın hazır olunca cihazdan silinir.';
+  static const consentFacts =
+      'Bu seçim, fotoğrafların fal için gönderilmesini değiştirmez; fal iki '
+      'durumda da aynı okunur. Saklanan fotoğrafları telefon yer açmak için '
+      'silebilir. Her falın haritasını istediğin an silebilirsin.';
+  static const consentFuture = 'Bu ayar bundan sonra tamamlanan fallar için geçerli.';
+
+  static const deleteMap = 'Bu falın haritasını sil';
+  static const deleteConfirmTitle = 'Fincan Haritası silinsin mi?';
+  static const deleteConfirmBody =
+      'Bu falın üç fotoğrafı, işaretlerin ve notların bu cihazdan silinir. '
+      'Fal yorumun silinmez.';
+  static const deleteConfirm = 'Sil';
+  static const deleteCancel = 'Vazgeç';
+  static const deleteFailed =
+      'Fotoğraflar silinemedi; harita yerinde duruyor. Tekrar dener misin?';
+  static const deleted = 'Fincan Haritası silindi.';
+
   static const photoMissing =
       'Bu fotoğraf artık cihazında değil. İşaretlerin listede duruyor.';
   static const mapUnavailable =

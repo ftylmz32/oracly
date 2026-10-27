@@ -18,6 +18,7 @@ import '../models/coffee_cup_map_record.dart';
 import '../providers/coffee_cup_map_providers.dart';
 import '../services/coffee_cup_map_store.dart';
 import 'coffee_cup_map_canvas.dart';
+import 'coffee_cup_map_consent_tile.dart';
 import 'coffee_cup_map_note_sheet.dart';
 
 class CoffeeCupMapScreen extends ConsumerStatefulWidget {
@@ -130,6 +131,52 @@ class _CoffeeCupMapScreenState extends ConsumerState<CoffeeCupMapScreen> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  Future<void> _deleteMap() async {
+    final store = _store;
+    final record = _record;
+    if (store == null || record == null || _busy) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: OraclyChrome.deepNavy,
+        title: Text(
+          CoffeeCupMapCopy.deleteConfirmTitle,
+          style: ReadingTypography.sectionTitle(color: OraclyChrome.gold),
+        ),
+        content: Text(
+          CoffeeCupMapCopy.deleteConfirmBody,
+          style: ReadingTypography.secondary(),
+        ),
+        actions: [
+          OraclyTextAction(
+            label: CoffeeCupMapCopy.deleteCancel,
+            onPressed: () => Navigator.of(context).pop(false),
+          ),
+          OraclyTextAction(
+            label: CoffeeCupMapCopy.deleteConfirm,
+            destructive: true,
+            onPressed: () => Navigator.of(context).pop(true),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    setState(() => _busy = true);
+    try {
+      await store.deleteMap(record.readingId);
+    } catch (_) {
+      if (mounted) setState(() => _busy = false);
+      _say(CoffeeCupMapCopy.deleteFailed);
+      return;
+    }
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    Navigator.of(context).pop();
+    messenger?.showSnackBar(
+      const SnackBar(content: Text(CoffeeCupMapCopy.deleted)),
+    );
   }
 
   void _say(String message) {
@@ -267,6 +314,16 @@ class _CoffeeCupMapScreenState extends ConsumerState<CoffeeCupMapScreen> {
                   selected: pins[i].id == _selectedPinId,
                   onTap: () => _edit(pins[i], i + 1),
                 ),
+              const SizedBox(height: 24),
+              const CoffeeCupMapConsentTile(showFacts: false),
+              const SizedBox(height: 12),
+              Center(
+                child: OraclyTextAction(
+                  label: CoffeeCupMapCopy.deleteMap,
+                  destructive: true,
+                  onPressed: _busy ? null : _deleteMap,
+                ),
+              ),
             ],
           ),
         );

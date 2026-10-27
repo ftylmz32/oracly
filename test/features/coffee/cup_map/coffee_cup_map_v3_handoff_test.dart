@@ -18,7 +18,9 @@ import 'package:oracly_new/features/coffee/coffee_v3/models/coffee_v3_flow_stage
 import 'package:oracly_new/features/coffee/coffee_v3/models/coffee_v3_photo_slot.dart';
 import 'package:oracly_new/features/coffee/coffee_v3/services/coffee_v3_submission_controller.dart';
 import 'package:oracly_new/features/coffee/coffee_v3/services/coffee_v3_submission_store.dart';
+import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_consent.dart';
 import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_keeper.dart';
+import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_photo_archive.dart';
 import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_store.dart';
 import 'package:oracly_new/features/coffee/data/coffee_reading_store.dart';
 import 'package:oracly_new/features/coffee/models/coffee_image_pick.dart';
@@ -134,8 +136,39 @@ void main() {
     return staged;
   }
 
-  test('the restored reading gets a map of exactly its three staged photos',
+  test('not opted in (the default): today\'s V3 flow, nothing kept',
       () async {
+    final c = build(keeper: CoffeeCupMapKeeper(storage).keep);
+    await submitThree(c);
+    final workPaths = [
+      for (final s in coffeeV3CanonicalSlotOrder) c.record.slots[s]!.asset!.path,
+    ];
+    await waitFor(() => c.liveState != null);
+    backend.completeServerSide(
+      c.operationId!,
+      resultId: 'coffee-v3-map-r0',
+      result: v3NarrativeV1Result(_overall),
+    );
+    await waitFor(() => c.record.resultPendingAcknowledgement);
+    expect(readings.byId('coffee-v3-map-r0')?.overall, _overall);
+    expect(storage.getString(CoffeeCupMapStore.key), isNull);
+    expect(
+      Directory('${temp.path}/cache/${CoffeeCupMapPhotoArchive.dirName}')
+          .existsSync(),
+      isFalse,
+    );
+    for (final path in workPaths) {
+      expect(await File(path).exists(), isFalse);
+    }
+    // Same staged slots as before the feature existed: 2 cups + 1 saucer.
+    expect(transport.stagedSlots, [
+      for (final s in coffeeV3CanonicalSlotOrder) s.wireValue,
+    ]);
+  });
+
+  test('opted in: the restored reading gets a map of exactly its three '
+      'staged photos', () async {
+    await CoffeeCupMapConsent(storage).setKeepPhotos(true);
     final c = build(keeper: CoffeeCupMapKeeper(storage).keep);
     final staged = await submitThree(c);
     final workPaths = [

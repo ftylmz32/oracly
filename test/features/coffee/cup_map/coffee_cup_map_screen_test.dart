@@ -23,11 +23,11 @@ import 'package:oracly_new/features/coffee/cup_map/models/coffee_cup_map_record.
 import 'package:oracly_new/features/coffee/cup_map/presentation/coffee_cup_map_canvas.dart';
 import 'package:oracly_new/features/coffee/cup_map/presentation/coffee_cup_map_screen.dart';
 import 'package:oracly_new/features/coffee/cup_map/providers/coffee_cup_map_providers.dart';
+import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_consent.dart';
 import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_store.dart';
 import 'package:oracly_new/features/coffee/models/coffee_reading.dart';
 import 'package:oracly_new/features/coffee/models/coffee_result_contract.dart';
 import 'package:oracly_new/features/coffee/presentation/reference/coffee_result_view.dart';
-import 'package:oracly_new/features/coffee/services/coffee_image_archive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../support/coffee_cup_map_test_support.dart';
@@ -56,10 +56,7 @@ void main() {
       for (final slot in coffeeV3CanonicalSlotOrder)
         CoffeeCupMapPhoto(
           slot: slot,
-          path: await CoffeeImageArchive.persist(
-            readingId: '${_reading}_cupmap_${slot.wireValue}',
-            sourcePath: cupMapFixturePhoto,
-          ),
+          path: await keptCupMapPhoto(_reading, slot),
           sha256: 'fixture',
         ),
     ];
@@ -101,6 +98,9 @@ void main() {
       ProviderScope(
         overrides: [
           coffeeCupMapStoreProvider.overrideWithValue(using ?? store),
+          coffeeCupMapConsentProvider.overrideWithValue(
+            CoffeeCupMapConsent(storage),
+          ),
         ],
         child: MaterialApp(
           builder: (context, child) => MediaQuery(
@@ -264,6 +264,71 @@ void main() {
     expect(find.text(CoffeeCupMapCopy.listEmpty), findsOneWidget);
   });
 
+  testWidgets('deleting this reading\'s map removes photos, pins and notes',
+      (tester) async {
+    await store.addPin(
+      readingId: _reading,
+      slot: CoffeeV3PhotoSlot.cupViewB,
+      x: 0.3,
+      y: 0.3,
+      note: 'Silinecek not',
+    );
+    await pumpScreen(tester);
+    await tester.ensureVisible(find.text(CoffeeCupMapCopy.deleteMap));
+    await tester.pump();
+    await tester.tap(find.text(CoffeeCupMapCopy.deleteMap));
+    await settle(tester);
+    expect(find.text(CoffeeCupMapCopy.deleteConfirmBody), findsOneWidget);
+
+    // "Vazgeç" deletes nothing.
+    await tester.tap(find.text(CoffeeCupMapCopy.deleteCancel));
+    await settle(tester);
+    expect(store.load(_reading), isNotNull);
+
+    await tester.tap(find.text(CoffeeCupMapCopy.deleteMap));
+    await settle(tester);
+    await tester.tap(find.text(CoffeeCupMapCopy.deleteConfirm));
+    await settle(tester);
+    expect(store.load(_reading), isNull);
+    for (final photo in photos) {
+      expect(File(photo.path).existsSync(), isFalse);
+    }
+    expect(storage.getString(CoffeeCupMapStore.key), isNot(contains('Silinecek')));
+  });
+
+  testWidgets('if a photo cannot be deleted the map stays and says so',
+      (tester) async {
+    await pumpScreen(
+      tester,
+      using: CoffeeCupMapStore(storage, deletePhoto: (_) async => false),
+    );
+    await tester.ensureVisible(find.text(CoffeeCupMapCopy.deleteMap));
+    await tester.pump();
+    await tester.tap(find.text(CoffeeCupMapCopy.deleteMap));
+    await settle(tester);
+    await tester.tap(find.text(CoffeeCupMapCopy.deleteConfirm));
+    await settle(tester);
+    expect(find.text(CoffeeCupMapCopy.deleteFailed), findsOneWidget);
+    expect(find.byType(CoffeeCupMapScreen), findsOneWidget);
+    expect(store.load(_reading), isNotNull);
+  });
+
+  testWidgets('the keep-photos choice is reachable here and turns off',
+      (tester) async {
+    await CoffeeCupMapConsent(storage).setKeepPhotos(true);
+    await pumpScreen(tester);
+    await tester.ensureVisible(find.byType(Switch));
+    await tester.pump();
+    expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
+    expect(find.text(CoffeeCupMapCopy.consentFuture), findsOneWidget);
+    await tester.tap(find.byType(Switch));
+    await settle(tester);
+    expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
+    expect(CoffeeCupMapConsent(storage).keepPhotos, isFalse);
+    // Turning it off never deletes an existing map.
+    expect(store.load(_reading), isNotNull);
+  });
+
   testWidgets('a photo no longer on the device degrades, pins stay listed',
       (tester) async {
     await store.addPin(
@@ -348,6 +413,9 @@ void main() {
           overrides: [
             localStorageProvider.overrideWithValue(LocalStorage(prefs)),
             coffeeCupMapStoreProvider.overrideWithValue(store),
+            coffeeCupMapConsentProvider.overrideWithValue(
+              CoffeeCupMapConsent(storage),
+            ),
           ],
           child: MaterialApp(
             home: Scaffold(

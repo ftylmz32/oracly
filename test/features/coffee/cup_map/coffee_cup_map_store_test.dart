@@ -11,8 +11,11 @@ import 'package:oracly_new/core/auth/user_local_data_isolation.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/features/coffee/coffee_v3/models/coffee_v3_photo_slot.dart';
 import 'package:oracly_new/features/coffee/cup_map/models/coffee_cup_map_record.dart';
+import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_consent.dart';
 import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_keeper.dart';
+import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_photo_archive.dart';
 import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_store.dart';
+import 'package:oracly_new/features/privacy/services/archive_path_kind.dart';
 
 import '../../../support/coffee_cup_map_test_support.dart';
 
@@ -222,6 +225,7 @@ void main() {
       temp = await Directory.systemTemp.createTemp('cup_map_keeper_');
       paths = await installCupMapPaths(temp);
       storage = await ownedStorage('owner-k');
+      expect(await CoffeeCupMapConsent(storage).setKeepPhotos(true), isTrue);
     });
 
     tearDown(() async {
@@ -229,12 +233,35 @@ void main() {
     });
 
     Future<List<String>> archived() async {
-      final dir = Directory('${paths.documents}/coffee_images');
+      final dir = Directory(
+        '${paths.cache}/${CoffeeCupMapPhotoArchive.dirName}',
+      );
       if (!await dir.exists()) return const [];
       return [await for (final f in dir.list()) f.path];
     }
 
-    test('keeps the three verified photos byte-for-byte in the owned archive',
+    test('without the keep-photos choice nothing is kept', () async {
+      final assets = [
+        for (final slot in coffeeV3CanonicalSlotOrder)
+          await v3WorkingAsset(temp.path, slot),
+      ];
+      await CoffeeCupMapConsent(storage).setKeepPhotos(false);
+      await CoffeeCupMapKeeper(storage).keep(
+        resultId: 'r-off',
+        submissionOwnerId: 'owner-k',
+        assets: assets,
+      );
+      await storage.remove(CoffeeCupMapConsent.key);
+      await CoffeeCupMapKeeper(storage).keep(
+        resultId: 'r-never-asked',
+        submissionOwnerId: 'owner-k',
+        assets: assets,
+      );
+      expect(storage.getString(CoffeeCupMapStore.key), isNull);
+      expect(await archived(), isEmpty);
+    });
+
+    test('keeps the three verified photos byte-for-byte in the cache archive',
         () async {
       final assets = [
         for (final slot in coffeeV3CanonicalSlotOrder)
@@ -251,8 +278,11 @@ void main() {
         coffeeV3CanonicalSlotOrder,
       );
       for (final photo in record.photos) {
-        expect(photo.path, startsWith(paths.documents));
-        expect(photo.path, contains('coffee_images'));
+        expect(
+          await CoffeeCupMapPhotoArchive.classify(photo.path),
+          ArchivePathKind.owned,
+        );
+        expect(photo.path, isNot(contains('coffee_images')));
         final source = assets.firstWhere((a) => a.slot == photo.slot);
         expect(photo.sha256, source.sha256);
         expect(
@@ -327,6 +357,87 @@ void main() {
       );
       expect(await archived(), isEmpty);
       expect(storage.getString(CoffeeCupMapStore.key), 'not json');
+    });
+
+    test('deleting one map removes its photos, pins and notes only', () async {
+      final keeper = CoffeeCupMapKeeper(storage);
+      for (final id in ['r-del', 'r-keep']) {
+        await keeper.keep(
+          resultId: id,
+          submissionOwnerId: 'owner-k',
+          assets: [
+            for (final slot in coffeeV3CanonicalSlotOrder)
+              await v3WorkingAsset(temp.path, slot),
+          ],
+        );
+      }
+      final store = CoffeeCupMapStore(storage);
+      await store.addPin(
+        readingId: 'r-del',
+        slot: CoffeeV3PhotoSlot.saucer,
+        x: 0.5,
+        y: 0.5,
+        note: 'silinecek not',
+      );
+      final doomed = store.load('r-del')!.photos.map((p) => p.path).toList();
+      await store.deleteMap('r-del');
+      expect(store.load('r-del'), isNull);
+      for (final path in doomed) {
+        expect(File(path).existsSync(), isFalse);
+      }
+      expect(store.load('r-keep')!.photos, hasLength(3));
+      expect(await archived(), hasLength(3));
+      expect(storage.getString(CoffeeCupMapStore.key), isNot(contains('silinecek')));
+    });
+
+    test('a photo that cannot be deleted keeps the map as its locator',
+        () async {
+      await CoffeeCupMapKeeper(storage).keep(
+        resultId: 'r-stuck',
+        submissionOwnerId: 'owner-k',
+        assets: [await v3WorkingAsset(temp.path, CoffeeV3PhotoSlot.cupViewA)],
+      );
+      final stuck = CoffeeCupMapStore(storage, deletePhoto: (_) async => false);
+      await expectLater(stuck.deleteMap('r-stuck'), throwsStateError);
+      expect(CoffeeCupMapStore(storage).load('r-stuck'), isNotNull);
+    });
+
+    test("another owner cannot delete this owner's map", () async {
+      await CoffeeCupMapKeeper(storage).keep(
+        resultId: 'r-mine',
+        submissionOwnerId: 'owner-k',
+        assets: [await v3WorkingAsset(temp.path, CoffeeV3PhotoSlot.cupViewA)],
+      );
+      await storage.setString(UserLocalDataIsolation.ownerKey, 'owner-z');
+      await expectLater(
+        CoffeeCupMapStore(storage).deleteMap('r-mine'),
+        _rejects(CoffeeCupMapRejection.notFound),
+      );
+      expect(await archived(), hasLength(1));
+    });
+  });
+
+  group('keep-photos choice', () {
+    test('off by default, per owner, and unreadable data means off', () async {
+      final storage = await ownedStorage('owner-c');
+      final consent = CoffeeCupMapConsent(storage);
+      expect(consent.keepPhotos, isFalse);
+      expect(await consent.setKeepPhotos(true), isTrue);
+      expect(CoffeeCupMapConsent(storage).keepPhotos, isTrue);
+
+      await storage.setString(UserLocalDataIsolation.ownerKey, 'owner-d');
+      expect(CoffeeCupMapConsent(storage).keepPhotos, isFalse);
+
+      await storage.setString(UserLocalDataIsolation.ownerKey, 'owner-c');
+      await consent.setKeepPhotos(false);
+      expect(consent.keepPhotos, isFalse);
+
+      await storage.setString(CoffeeCupMapConsent.key, '{broken');
+      expect(consent.keepPhotos, isFalse);
+
+      await storage.remove(UserLocalDataIsolation.ownerKey);
+      expect(consent.keepPhotos, isFalse);
+      expect(await consent.setKeepPhotos(true), isFalse);
     });
   });
 }

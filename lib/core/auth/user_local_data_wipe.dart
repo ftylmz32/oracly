@@ -15,6 +15,8 @@ import '../../features/astrology/data/astrology_preferences_store.dart';
 import '../../features/coffee/coffee_v2/services/coffee_v2_work_files.dart';
 import '../../features/coffee/coffee_v3/services/coffee_v3_submission_store.dart';
 import '../../features/coffee/coffee_v3/services/coffee_v3_work_files.dart';
+import '../../features/coffee/cup_map/services/coffee_cup_map_consent.dart';
+import '../../features/coffee/cup_map/services/coffee_cup_map_photo_archive.dart';
 import '../../features/coffee/cup_map/services/coffee_cup_map_store.dart';
 import '../../features/coffee/data/coffee_reading_store.dart';
 import '../../features/ai/oracle_conversation/services/oracle_ai_message_source.dart';
@@ -117,16 +119,33 @@ abstract final class UserLocalDataWipe {
         PalmReadingStore.key,
         () => clearList(PalmReadingStore.key),
       );
+    } else {
+      // Retain reading metadata so retry still finds surviving owned files.
+      failed.add(CoffeeReadingStore.key);
+      failed.add(PalmReadingStore.key);
+    }
+    // Fincan Haritası photos are purged BEFORE the map metadata, same
+    // contract as the V3 working copies: an incomplete purge keeps the map
+    // as locator and the wipe reports incomplete.
+    var cupMapMetaOkToClear = true;
+    await step('coffee_cup_map_photos', () async {
+      cupMapMetaOkToClear = await CoffeeCupMapPhotoArchive.purgeStrict();
+      if (!cupMapMetaOkToClear) {
+        throw StateError('coffee cup map photo cleanup incomplete');
+      }
+    });
+    if (cupMapMetaOkToClear) {
       await step(
         CoffeeCupMapStore.key,
         () => removeKey(CoffeeCupMapStore.key),
       );
     } else {
-      // Retain reading metadata so retry still finds surviving owned files.
-      failed.add(CoffeeReadingStore.key);
-      failed.add(PalmReadingStore.key);
       failed.add(CoffeeCupMapStore.key);
     }
+    await step(
+      CoffeeCupMapConsent.key,
+      () => removeKey(CoffeeCupMapConsent.key),
+    );
     await step('astrology_history', () => clearList('astrology_history'));
     await step(
       AstrologyDailyCache.storageKey,

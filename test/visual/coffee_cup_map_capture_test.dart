@@ -25,7 +25,9 @@ import 'package:oracly_new/features/coffee/cup_map/presentation/coffee_cup_map_e
 import 'package:oracly_new/features/coffee/cup_map/presentation/coffee_cup_map_screen.dart';
 import 'package:oracly_new/features/coffee/cup_map/providers/coffee_cup_map_providers.dart';
 import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_store.dart';
-import 'package:oracly_new/features/coffee/services/coffee_image_archive.dart';
+import 'package:oracly_new/features/coffee/cup_map/presentation/coffee_cup_map_consent_tile.dart';
+import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_consent.dart';
+import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_photo_archive.dart';
 
 import '../support/coffee_cup_map_test_support.dart';
 
@@ -46,6 +48,12 @@ Future<void> _loadFonts() async {
   }
   roboto.addFont(read('test/fonts/Roboto-Regular.ttf'));
   await roboto.load();
+  // Typography defaults chosen by the host platform (Windows: Segoe UI;
+  // Apple: SF) — served by Roboto so dialogs don't render as test boxes.
+  for (final family in ['Segoe UI', '.SF UI Text', '.SF UI Display']) {
+    await (FontLoader(family)..addFont(read('test/fonts/Roboto-Regular.ttf')))
+        .load();
+  }
   final iconsPath = '$material/materialicons-regular.otf';
   if (File(iconsPath).existsSync()) {
     await (FontLoader('MaterialIcons')..addFont(read(iconsPath))).load();
@@ -57,6 +65,14 @@ ThemeData _darkRoboto() {
   return base.copyWith(
     textTheme: base.textTheme.apply(fontFamily: 'Roboto'),
     primaryTextTheme: base.primaryTextTheme.apply(fontFamily: 'Roboto'),
+    // The app's dialog theme carries its own text styles (system font on a
+    // device); give them the loaded test font too.
+    dialogTheme: base.dialogTheme.copyWith(
+      titleTextStyle: (base.dialogTheme.titleTextStyle ?? const TextStyle())
+          .copyWith(fontFamily: 'Roboto'),
+      contentTextStyle: (base.dialogTheme.contentTextStyle ?? const TextStyle())
+          .copyWith(fontFamily: 'Roboto'),
+    ),
   );
 }
 
@@ -102,7 +118,7 @@ void main() {
       for (final slot in coffeeV3CanonicalSlotOrder)
         CoffeeCupMapPhoto(
           slot: slot,
-          path: await CoffeeImageArchive.persist(
+          path: await CoffeeCupMapPhotoArchive.persist(
             readingId: '${_reading}_cupmap_${slot.wireValue}',
             sourcePath: _sourceFor(slot),
           ),
@@ -141,7 +157,12 @@ void main() {
     await precache(tester);
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [coffeeCupMapStoreProvider.overrideWithValue(store)],
+        overrides: [
+          coffeeCupMapStoreProvider.overrideWithValue(store),
+          coffeeCupMapConsentProvider.overrideWithValue(
+            CoffeeCupMapConsent(storage),
+          ),
+        ],
         child: RepaintBoundary(
           key: _boundary,
           child: MaterialApp(
@@ -233,6 +254,51 @@ void main() {
     }
     expect(find.text(CoffeeCupMapCopy.noteSave), findsOneWidget);
     await _capture(tester, '05_note_sheet');
+  });
+
+  testWidgets('keep-photos choice as shown before a reading is sent',
+      (tester) async {
+    await pump(
+      tester,
+      const Scaffold(
+        body: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: CoffeeCupMapConsentTile(),
+            ),
+          ),
+        ),
+      ),
+      const Size(390, 420),
+    );
+    expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
+    await _capture(tester, '07_consent_off');
+    await tester.tap(find.byType(Switch));
+    for (var i = 0; i < 6; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    await _capture(tester, '08_consent_on');
+  });
+
+  testWidgets('map footer: choice and per-reading delete', (tester) async {
+    await addUserPins();
+    await CoffeeCupMapConsent(storage).setKeepPhotos(true);
+    await pump(
+      tester,
+      const CoffeeCupMapScreen(readingId: _reading),
+      const Size(390, 844),
+    );
+    await tester.ensureVisible(find.text(CoffeeCupMapCopy.deleteMap));
+    await tester.pump();
+    await _capture(tester, '09_map_footer');
+    await tester.tap(find.text(CoffeeCupMapCopy.deleteMap));
+    for (var i = 0; i < 12; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    expect(find.text(CoffeeCupMapCopy.deleteConfirmBody), findsOneWidget);
+    await _capture(tester, '10_delete_confirm');
   });
 
   testWidgets('320 px screen', (tester) async {

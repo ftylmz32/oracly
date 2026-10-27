@@ -12,6 +12,7 @@ import '../../../../core/auth/user_local_data_isolation.dart';
 import '../../../../core/data/datasources/local_storage.dart';
 import '../../coffee_v3/models/coffee_v3_photo_slot.dart';
 import '../models/coffee_cup_map_record.dart';
+import 'coffee_cup_map_photo_archive.dart';
 
 enum CoffeeCupMapRejection {
   /// No map for this reading and owner.
@@ -42,13 +43,18 @@ class CoffeeCupMapException implements Exception {
 }
 
 class CoffeeCupMapStore {
-  CoffeeCupMapStore(this._storage, {DateTime Function()? clock})
-      : _clock = clock ?? DateTime.now;
+  CoffeeCupMapStore(
+    this._storage, {
+    DateTime Function()? clock,
+    Future<bool> Function(String path)? deletePhoto,
+  })  : _clock = clock ?? DateTime.now,
+        _deletePhoto = deletePhoto ?? CoffeeCupMapPhotoArchive.deleteStrict;
 
   static const key = 'coffee_cup_map_v1';
 
   final LocalStorage _storage;
   final DateTime Function() _clock;
+  final Future<bool> Function(String path) _deletePhoto;
   int _idCounter = 0;
 
   String get currentOwnerId =>
@@ -223,6 +229,22 @@ class CoffeeCupMapStore {
           if (pin.id == pinId) pin.withNote(note) else pin,
       ]),
     );
+  }
+
+  /// Deletes this owner's map for [readingId] — its photo files first, then
+  /// the record with every pin and note. If any file cannot be removed the
+  /// record stays as the locator and this throws; the reading itself is
+  /// never touched.
+  Future<void> deleteMap(String readingId) async {
+    final maps = _readForWrite();
+    final record = _ownedOrThrow(maps, readingId);
+    var allGone = true;
+    for (final photo in record.photos) {
+      if (!await _deletePhoto(photo.path)) allGone = false;
+    }
+    if (!allGone) throw StateError('coffee cup map photos not deleted');
+    maps.remove(readingId);
+    await _writeAll(maps);
   }
 
   Future<CoffeeCupMapRecord> removePin({

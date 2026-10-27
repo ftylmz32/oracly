@@ -16,6 +16,7 @@ import '../../../../shared/widgets/oracly_quiet_link.dart';
 import '../../coffee_v2/copy/coffee_v2_copy.dart';
 import '../../coffee_v2/models/coffee_v2_intention.dart';
 import '../../coffee_v2/presentation/coffee_v2_thumbnail.dart';
+import '../../cup_map/presentation/coffee_cup_map_consent_tile.dart';
 import '../../presentation/reference/coffee_capture_hint.dart';
 import '../../presentation/reference/coffee_reference_tokens.dart';
 import '../../../reading_commerce/presentation/reading_credit_link.dart';
@@ -113,6 +114,10 @@ class CoffeeV3FinalReviewView extends StatelessWidget {
             SizedBox(height: AppSpacing.s8),
             const ReadingCreditLink(),
           ],
+          SizedBox(height: AppSpacing.s16),
+          // Optional, off by default: the reading is sent and read the same
+          // either way.
+          const CoffeeCupMapConsentTile(),
           SizedBox(height: AppSpacing.s12),
           OraclyGoldButton(
             label: CoffeeV3Copy.reviewCta,

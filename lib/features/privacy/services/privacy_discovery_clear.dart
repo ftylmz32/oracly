@@ -6,6 +6,7 @@ import '../../../core/domain/repositories/birth_chart_repository.dart';
 import '../../../core/memory/oracly_memory.dart';
 import '../../../core/memory/oracly_memory_store.dart';
 import '../../../core/services/history_service.dart';
+import '../../../features/coffee/cup_map/services/coffee_cup_map_photo_archive.dart';
 import '../../../features/coffee/cup_map/services/coffee_cup_map_store.dart';
 import '../../../features/coffee/data/coffee_reading_store.dart';
 import '../../../features/palm/data/palm_reading_store.dart';
@@ -32,8 +33,14 @@ abstract final class PrivacyDiscoveryClear {
     // Dream records are owned (and durability-checked) by PrivacyDreamClear.
     await storage.setStringList(CoffeeReadingStore.key, const []);
     await storage.setStringList(PalmReadingStore.key, const []);
-    // Its photos lived in the coffee archive purged above.
-    await storage.remove(CoffeeCupMapStore.key);
+    // Fincan Haritası is reading history too: its photos, then its pins
+    // and notes. The keep-photos choice is a setting and stays.
+    // Best effort like the image wipe above: the map is dropped only once
+    // its photos are proven gone; otherwise it stays as their locator and
+    // the strict account wipe reclaims both.
+    if (await CoffeeCupMapPhotoArchive.purgeStrict()) {
+      await storage.remove(CoffeeCupMapStore.key);
+    }
 
     await history.clear();
     await storage.setStringList('astrology_history', const []);
