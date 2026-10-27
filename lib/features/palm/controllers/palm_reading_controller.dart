@@ -49,8 +49,14 @@ class PalmReadingController extends ChangeNotifier
 
   bool get canAccelerate =>
       liveState?.kind == ReadingLiveKind.waiting &&
+      !_isInstantOperation &&
       !_accelerating &&
       quotedForCurrent;
+  bool get _isInstantOperation {
+    final snapshot = liveState?.snapshot;
+    return snapshot != null && snapshot.readyAt == snapshot.createdAt;
+  }
+
   bool get accelerating => _accelerating;
   String? get accelerationError => _accelerationError;
 
@@ -228,6 +234,18 @@ class PalmReadingController extends ChangeNotifier
         _error = null;
         _lastError = null;
         if (state.kind == ReadingLiveKind.waiting) {
+          final pending = _pendingStore?.load(ReadingType.palm);
+          if (live.serverOwnedCompletion &&
+              pending?.operationId == operationId &&
+              !await _restagePendingIfNeeded(live, operationId)) {
+            _scheduleTargetOperationPoll(
+              token: token,
+              live: live,
+              operationId: operationId,
+            );
+            safeNotify();
+            return;
+          }
           unawaited(refreshAccelerationCost(live, operationId));
         }
         _scheduleTargetOperationPoll(
@@ -242,10 +260,7 @@ class PalmReadingController extends ChangeNotifier
           code: state.snapshot?.failureCode,
           type: ReadingType.palm,
         );
-        _lastError = PalmAnalysisError(
-          PalmAnalysisErrorKind.unknown,
-          _error!,
-        );
+        _lastError = PalmAnalysisError(PalmAnalysisErrorKind.unknown, _error!);
         _phase = PalmPhase.error;
         safeNotify();
       case ReadingLiveKind.idle:
@@ -379,6 +394,15 @@ class PalmReadingController extends ChangeNotifier
         ? PalmHand.left
         : PalmHand.right;
     final token = ++_generation;
+    if (live.serverOwnedCompletion &&
+        !await _restagePendingIfNeeded(live, pending.operationId)) {
+      _scheduleTargetOperationPoll(
+        token: token,
+        live: live,
+        operationId: pending.operationId,
+      );
+      return;
+    }
     PalmReading? captured;
     Future<String> runPipeline() async {
       final reading = await _experience.analyzeStaged(
@@ -390,11 +414,13 @@ class PalmReadingController extends ChangeNotifier
       return reading.id;
     }
 
-    final resumed = await live.resume(
-      readingType: ReadingType.palm,
-      sourceRequestId: pending.sourceRequestId,
-      runPipeline: runPipeline,
-    );
+    final resumed = live.serverOwnedCompletion
+        ? await live.flow.recoverOperation(pending.operationId)
+        : await live.resume(
+            readingType: ReadingType.palm,
+            sourceRequestId: pending.sourceRequestId,
+            runPipeline: runPipeline,
+          );
     _applyAnalyzeSnapshot(
       token: token,
       live: live,

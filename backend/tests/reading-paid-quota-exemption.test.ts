@@ -83,6 +83,16 @@ function world(env: Record<string, string> = {}) {
     {
       async handle() {
         calls.handle += 1;
+        if (env.TEST_PALM_SUCCESS === 'true') {
+          return {
+            overall: 'synthetic paid palm result',
+            lifeLine: 'synthetic life',
+            headLine: 'synthetic head',
+            heartLine: 'synthetic heart',
+            fateLine: '',
+            takeaway: 'synthetic takeaway',
+          };
+        }
         throw new ProxyError(ErrorCode.spendGuard, 503); // terminal for Palm: failFinal + refund
       },
       async coffeeV3() {
@@ -188,6 +198,37 @@ function world(env: Record<string, string> = {}) {
 }
 
 describe('paid readings are not limited by the free daily quota', () => {
+  it('paid Palm is instant, consumes once, persists one worker result and spends zero gems',
+    async () => {
+      const w = world({ TEST_PALM_SUCCESS: 'true' });
+      const owner = identityKeyFromSubject('paid-palm-success');
+      await w.buy(owner, 'app.oracly.reading.palm');
+      const opened = await w.paidCreate(owner, 'palm', 'same-paid-palm');
+      expect(opened.kind).toBe('record');
+      if (opened.kind !== 'record') return;
+      expect(opened.record.readyAtMs).toBe(opened.record.createdAtMs);
+      expect((await w.balance(owner)).palm).toBe(0);
+
+      await Promise.allSettled([
+        w.processor.process(opened.record.operationId),
+        w.processor.process(opened.record.operationId),
+      ]);
+      expect(w.calls.handle).toBe(1);
+      expect((await w.balance(owner)).palm).toBe(0);
+      const completed = await w.operations.get(owner, opened.record.operationId);
+      expect(completed.status).toBe('ready');
+      expect(completed.gemDebitId).toBeNull();
+      expect(await new ReadingResultRepository(w.store).get(opened.record.operationId))
+        .toMatchObject({ ownerUserId: owner, readingType: 'palm' });
+
+      const replay = await w.paidCreate(owner, 'palm', 'same-paid-palm');
+      expect(replay.kind).toBe('record');
+      if (replay.kind === 'record') {
+        expect(replay.record.operationId).toBe(opened.record.operationId);
+      }
+      expect((await w.balance(owner)).palm).toBe(0);
+    });
+
   it('a second and third paid Coffee V3 the same day reach the provider, one '
     + 'credit each, refunded once each on a terminal failure', async () => {
     const w = world();

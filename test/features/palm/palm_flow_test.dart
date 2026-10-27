@@ -22,6 +22,8 @@ import 'package:oracly_new/features/palm/presentation/palm_reference_screen.dart
 import 'package:oracly_new/features/palm/presentation/palm_result_view.dart';
 import 'package:oracly_new/features/palm/providers/palm_providers.dart';
 import 'package:oracly_new/features/palm/services/unavailable_palm_analysis.dart';
+import 'package:oracly_new/features/reading_commerce/copy/reading_commerce_copy.dart';
+import 'package:oracly_new/features/reading_commerce/models/reading_commerce_view.dart';
 import 'package:oracly_new/shared/widgets/oracly_gold_button.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -51,7 +53,9 @@ void main() {
     );
   });
 
-  testWidgets('landing offers camera, gallery, and hand choice', (tester) async {
+  testWidgets('landing offers camera, gallery, and hand choice', (
+    tester,
+  ) async {
     await tester.binding.setSurfaceSize(const Size(390, 844));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     SharedPreferences.setMockInitialValues({});
@@ -68,8 +72,33 @@ void main() {
     expect(find.text('KAHVE FALI'), findsNothing);
   });
 
-  testWidgets('gallery pick opens preview and enables analyze CTA',
-      (tester) async {
+  testWidgets('owned paid Palm right unlocks capture before any photo', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final storage = await LocalStorage.open();
+    await tester.pumpWidget(
+      _app(
+        storage,
+        bypassPaidEntryForTest: false,
+        commerceViewForTest: const ReadingCommerceView(
+          coffeeCredits: 0,
+          palmCredits: 1,
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.text(ReadingCommerceCopy.usePalmCredit), findsOneWidget);
+    expect(find.text(PalmCopy.landingCameraLabel), findsNothing);
+    await tester.tap(find.text(ReadingCommerceCopy.usePalmCredit));
+    await tester.pump();
+    expect(find.text(PalmCopy.captureHeading), findsOneWidget);
+  });
+
+  testWidgets('gallery pick opens preview and enables analyze CTA', (
+    tester,
+  ) async {
     await tester.binding.setSurfaceSize(const Size(390, 844));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     SharedPreferences.setMockInitialValues({});
@@ -93,9 +122,7 @@ void main() {
 
     expect(find.text(PalmCopy.previewLabel), findsOneWidget);
     expect(find.text(PalmCopy.usePhotoLabel), findsOneWidget);
-    final cta = tester.widget<OraclyGoldButton>(
-      find.byType(OraclyGoldButton),
-    );
+    final cta = tester.widget<OraclyGoldButton>(find.byType(OraclyGoldButton));
     expect(cta.onPressed, isNotNull);
   });
 
@@ -106,26 +133,25 @@ void main() {
     final storage = await LocalStorage.open();
     await tester.pumpWidget(_app(storage, images: const _SilentPalmImages()));
     await tester.pump();
-    ProviderScope.containerOf(tester.element(find.byType(PalmReferenceScreen)))
-        .read(palmReadingControllerProvider)
-        .startCapture();
+    ProviderScope.containerOf(
+      tester.element(find.byType(PalmReferenceScreen)),
+    ).read(palmReadingControllerProvider).startCapture();
     await tester.pump();
 
     expect(find.text(PalmCopy.analyzeCta), findsNothing);
     expect(find.text(PalmCopy.captureGuide), findsOneWidget);
   });
 
-  testWidgets('result shows the hand story and only observed line asides',
-      (tester) async {
+  testWidgets('result shows the hand story and only observed line asides', (
+    tester,
+  ) async {
     await tester.binding.setSurfaceSize(const Size(390, 844));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     SharedPreferences.setMockInitialValues({});
     final storage = await LocalStorage.open();
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
-          localStorageProvider.overrideWithValue(storage),
-        ],
+        overrides: [localStorageProvider.overrideWithValue(storage)],
         child: MaterialApp(
           home: Scaffold(
             body: PalmResultView(
@@ -155,7 +181,10 @@ void main() {
     expect(find.text(PalmCopy.fateTitle), findsOneWidget);
     expect(find.text(PalmCopy.symbolsTitle), findsOneWidget);
     expect(find.textContaining('Avuç açık ve sakin duruyor.'), findsOneWidget);
-    expect(find.textContaining('Kalp çizgisi yakınlık temasını taşıyor.'), findsOneWidget);
+    expect(
+      find.textContaining('Kalp çizgisi yakınlık temasını taşıyor.'),
+      findsOneWidget,
+    );
     expect(find.text(PalmCopy.sourceNote, skipOffstage: false), findsOneWidget);
     expect(find.text(PalmCopy.disclaimer, skipOffstage: false), findsNothing);
   });
@@ -165,9 +194,7 @@ void main() {
     final storage = await LocalStorage.open();
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
-          localStorageProvider.overrideWithValue(storage),
-        ],
+        overrides: [localStorageProvider.overrideWithValue(storage)],
         child: MaterialApp(
           home: Scaffold(
             body: PalmResultView(
@@ -206,9 +233,9 @@ void main() {
   ];
 
   for (final size in viewports) {
-    testWidgets(
-        'landing fits ${size.width.toInt()}x${size.height.toInt()}',
-        (tester) async {
+    testWidgets('landing fits ${size.width.toInt()}x${size.height.toInt()}', (
+      tester,
+    ) async {
       await tester.binding.setSurfaceSize(size);
       addTearDown(() => tester.binding.setSurfaceSize(null));
       SharedPreferences.setMockInitialValues({});
@@ -243,19 +270,26 @@ void main() {
   });
 }
 
-Widget _app(LocalStorage storage, {CoffeeImageInputPort? images}) {
+Widget _app(
+  LocalStorage storage, {
+  CoffeeImageInputPort? images,
+  bool bypassPaidEntryForTest = true,
+  ReadingCommerceView? commerceViewForTest,
+}) {
   return ProviderScope(
     overrides: [
       localStorageProvider.overrideWithValue(storage),
       palmAnalysisProvider.overrideWithValue(const UnavailablePalmAnalysis()),
       if (images != null) coffeeImageInputProvider.overrideWithValue(images),
     ],
-    child: const MaterialApp(
-      home: PalmReferenceScreen(bypassPaidEntryForTest: true),
+    child: MaterialApp(
+      home: PalmReferenceScreen(
+        bypassPaidEntryForTest: bypassPaidEntryForTest,
+        commerceViewForTest: commerceViewForTest,
+      ),
     ),
   );
 }
-
 
 class _SilentPalmImages implements CoffeeImageInputPort {
   const _SilentPalmImages();

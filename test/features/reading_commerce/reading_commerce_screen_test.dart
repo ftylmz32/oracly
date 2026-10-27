@@ -158,4 +158,26 @@ void main() {
     expect(find.text(ReadingCommerceCopy.buy), findsNothing);
     expect(find.text(ReadingCommerceCopy.usePalmCredit), findsNothing);
   });
+
+  testWidgets(
+    'owned palm credit can continue once server fulfillment is enabled',
+    (tester) async {
+      var continued = false;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ReadingCommerceBody(
+            view: const ReadingCommerceView(coffeeCredits: 0, palmCredits: 1),
+            focus: ReadingCommerceFocus.palm,
+            fulfillmentAvailable: true,
+            onContinue: () => continued = true,
+          ),
+        ),
+      );
+
+      expect(find.text(ReadingCommerceCopy.usePalmCredit), findsOneWidget);
+      expect(find.text(ReadingCommerceCopy.palmUnavailable), findsNothing);
+      await tester.tap(find.text(ReadingCommerceCopy.usePalmCredit));
+      expect(continued, isTrue);
+    },
+  );
 }

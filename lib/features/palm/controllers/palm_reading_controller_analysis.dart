@@ -36,11 +36,16 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
     needsReadingCredit = false;
     safeNotify();
     final cleaned = image.path.replaceAll(RegExp(r'[^A-Za-z0-9]'), '');
-    final tail = cleaned.length >= 12 ? cleaned.substring(cleaned.length - 12) : cleaned;
+    final tail = cleaned.length >= 12
+        ? cleaned.substring(cleaned.length - 12)
+        : cleaned;
     // A retry after a terminal failure must get a fresh operation — a
     // failed operation can never later transition to ready.
     final tokenPart = token.toRadixString(36).padLeft(4, '0');
-    final source = ('palm$tokenPart$tail').padRight(16, '0').substring(0, 16);
+    final source =
+        _retrySourceRequestId ??
+        ('palm$tokenPart$tail').padRight(16, '0').substring(0, 16);
+    _retrySourceRequestId = source;
     PalmReading? captured;
     Future<String> runPipeline() async {
       final reading = await _experience.analyze(image, hand: _hand);
@@ -50,12 +55,46 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
 
     final mimeType = image.mimeType ?? 'image/jpeg';
     final stagedBytes = await File(image.path).readAsBytes();
+    String? recoveryImagePath;
+    if (live.serverOwnedCompletion) {
+      try {
+        recoveryImagePath = await PalmImageArchive.persist(
+          readingId: 'pending_$source',
+          sourcePath: image.path,
+        );
+      } catch (_) {
+        _setAnalysisError(
+          'stage_prepare',
+          PalmAnalysisError(
+            PalmAnalysisErrorKind.unavailable,
+            PalmCopy.analysisUnavailable,
+          ),
+          'pending_image_unavailable',
+        );
+        safeNotify();
+        return;
+      }
+    }
     final state = await live.submit(
       readingType: ReadingType.palm,
       sourceRequestId: source,
       imageBytes: stagedBytes,
       mimeType: mimeType,
       handSide: _hand.name,
+      onOperationCreated: recoveryImagePath == null
+          ? null
+          : (snapshot) =>
+                _pendingStore?.save(
+                  ReadingType.palm,
+                  ReadingPendingOperation(
+                    operationId: snapshot.operationId,
+                    sourceRequestId: source,
+                    mimeType: mimeType,
+                    handSide: _hand.name,
+                    localImagePath: recoveryImagePath,
+                  ),
+                ) ??
+                Future<bool>.value(false),
       runPipeline: runPipeline,
     );
     final stagedOperationId = state.snapshot?.operationId;
@@ -72,6 +111,14 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
           handSide: _hand.name,
         ),
       );
+      await PalmImageArchive.deleteIfOwned(recoveryImagePath);
+      recoveryImagePath = null;
+    }
+    if (state.failureStage != 'stage') {
+      await PalmImageArchive.deleteIfOwned(recoveryImagePath);
+    }
+    if (state.failureStage != 'begin' && state.failureStage != 'stage') {
+      _retrySourceRequestId = null;
     }
     if (_disposed || token != _generation) return;
     _applyAnalyzeSnapshot(
@@ -114,7 +161,9 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
           // imagePath — leave _image null rather than fabricate an empty
           // path; a normal in-session run always has a real local path.
           final path = captured.imagePath ?? fallbackImagePath;
-          _image = path.isEmpty ? null : CoffeeImagePick(path: path, mimeType: 'image/jpeg');
+          _image = path.isEmpty
+              ? null
+              : CoffeeImagePick(path: path, mimeType: 'image/jpeg');
           _phase = PalmPhase.result;
           OraclyFeedbackGate.successfulAnalysis();
         } else {
@@ -122,12 +171,16 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
           // operation — reload its persisted result rather than leaving a
           // stale spinner up.
           final resultId = state.snapshot?.resultId;
-          final saved = resultId == null ? null : _experience.savedById(resultId);
+          final saved = resultId == null
+              ? null
+              : _experience.savedById(resultId);
           if (saved != null) {
             final path = saved.imagePath;
             final exists = path != null && File(path).existsSync();
             _reading = exists ? saved : saved.copyWith(clearImagePath: true);
-            _image = exists ? CoffeeImagePick(path: path, mimeType: 'image/jpeg') : null;
+            _image = exists
+                ? CoffeeImagePick(path: path, mimeType: 'image/jpeg')
+                : null;
             _phase = PalmPhase.result;
           } else {
             // The poll timer is already cancelled: an unfetched result must
@@ -143,8 +196,14 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
         }
       case ReadingLiveKind.failed:
         _resumeTimer?.cancel();
-        needsReadingCredit = state.backendCode == 'reading_entitlement_required';
-        if (!needsReadingCredit) unawaited(_pendingStore?.clear(ReadingType.palm));
+        needsReadingCredit =
+            state.backendCode == 'reading_entitlement_required';
+        // A lost/failed staging response is recoverable: the entitlement is
+        // already bound to this operation and the app-private image copy is
+        // the only way to idempotently restage it after a restart.
+        if (!needsReadingCredit && state.failureStage != 'stage') {
+          unawaited(_pendingStore?.clear(ReadingType.palm));
+        }
         _setAnalysisError(
           'analyze',
           PalmAnalysisError(
@@ -184,20 +243,23 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
   void _scheduleServerPoll(ReadingFeatureRunner live) {
     _resumeTimer?.cancel();
     final token = _generation;
-    _resumeTimer = Timer(const Duration(seconds: 3), () => unawaited(() async {
-      if (_disposed || token != _generation) return;
-      final state = await live.flow.recover(ReadingType.palm);
-      if (_disposed || token != _generation) return;
-      _applyAnalyzeSnapshot(
-        token: token,
-        live: live,
-        source: state.snapshot?.operationId ?? '',
-        fallbackImagePath: '',
-        runPipeline: () async => '',
-        capturedReading: () => null,
-        state: state,
-      );
-    }()));
+    _resumeTimer = Timer(
+      const Duration(seconds: 3),
+      () => unawaited(() async {
+        if (_disposed || token != _generation) return;
+        final state = await live.flow.recover(ReadingType.palm);
+        if (_disposed || token != _generation) return;
+        _applyAnalyzeSnapshot(
+          token: token,
+          live: live,
+          source: state.snapshot?.operationId ?? '',
+          fallbackImagePath: '',
+          runPipeline: () async => '',
+          capturedReading: () => null,
+          state: state,
+        );
+      }()),
+    );
   }
 
   /// False only when the result could not be fetched yet (retryable).
@@ -241,7 +303,10 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
       // wait screen.
       _setAnalysisError(
         'restore',
-        PalmAnalysisError(PalmAnalysisErrorKind.unknown, ReadingLiveCopy.failed),
+        PalmAnalysisError(
+          PalmAnalysisErrorKind.unknown,
+          ReadingLiveCopy.failed,
+        ),
         error,
       );
       safeNotify();
@@ -283,14 +348,16 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
         : remaining + const Duration(seconds: 1);
     _resumeTimer = Timer(
       delay,
-      () => unawaited(_resumeAnalyze(
-        token: token,
-        live: live,
-        source: source,
-        fallbackImagePath: fallbackImagePath,
-        runPipeline: runPipeline,
-        capturedReading: capturedReading,
-      )),
+      () => unawaited(
+        _resumeAnalyze(
+          token: token,
+          live: live,
+          source: source,
+          fallbackImagePath: fallbackImagePath,
+          runPipeline: runPipeline,
+          capturedReading: capturedReading,
+        ),
+      ),
     );
   }
 
@@ -303,11 +370,17 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
     required PalmReading? Function() capturedReading,
   }) async {
     if (_disposed || token != _generation) return;
-    final state = await live.resume(
-      readingType: ReadingType.palm,
-      sourceRequestId: source,
-      runPipeline: runPipeline,
-    );
+    final operationId = liveState?.snapshot?.operationId;
+    if (live.serverOwnedCompletion && operationId != null) {
+      await _restagePendingIfNeeded(live, operationId);
+    }
+    final state = live.serverOwnedCompletion && operationId != null
+        ? await live.flow.recoverOperation(operationId)
+        : await live.resume(
+            readingType: ReadingType.palm,
+            sourceRequestId: source,
+            runPipeline: runPipeline,
+          );
     if (_disposed || token != _generation) return;
     _applyAnalyzeSnapshot(
       token: token,
@@ -318,6 +391,36 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
       capturedReading: capturedReading,
       state: state,
     );
+  }
+
+  Future<bool> _restagePendingIfNeeded(
+    ReadingFeatureRunner live,
+    String operationId,
+  ) async {
+    final pending = _pendingStore?.load(ReadingType.palm);
+    final path = pending?.operationId == operationId
+        ? pending?.localImagePath
+        : null;
+    if (pending == null || path == null) return true;
+    if (!await PalmImageArchive.exists(path)) return false;
+    final staged = await live.restageExisting(
+      operationId: operationId,
+      imageBytes: await File(path).readAsBytes(),
+      mimeType: pending.mimeType,
+      handSide: pending.handSide ?? PalmHand.right.name,
+    );
+    if (!staged) return false;
+    await _pendingStore?.save(
+      ReadingType.palm,
+      ReadingPendingOperation(
+        operationId: pending.operationId,
+        sourceRequestId: pending.sourceRequestId,
+        mimeType: pending.mimeType,
+        handSide: pending.handSide,
+      ),
+    );
+    await PalmImageArchive.deleteIfOwned(path);
+    return true;
   }
 
   Future<void> reinterpret() async {
@@ -348,7 +451,9 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
     _lastError = null;
     safeNotify();
     final cleaned = current.id.replaceAll(RegExp(r'[^A-Za-z0-9]'), '');
-    final tail = cleaned.length >= 12 ? cleaned.substring(cleaned.length - 12) : cleaned;
+    final tail = cleaned.length >= 12
+        ? cleaned.substring(cleaned.length - 12)
+        : cleaned;
     final tokenPart = token.toRadixString(36).padLeft(4, '0');
     final source = ('repalm$tokenPart$tail').padRight(16, '0').substring(0, 16);
     PalmReinterpretResult? captured;

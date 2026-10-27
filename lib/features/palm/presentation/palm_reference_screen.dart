@@ -38,6 +38,7 @@ class PalmReferenceScreen extends ConsumerStatefulWidget {
     this.savedReadingId,
     this.operationId,
     this.bypassPaidEntryForTest = false,
+    this.commerceViewForTest,
   });
 
   /// When set, restores that persisted palm reading on open.
@@ -46,6 +47,7 @@ class PalmReferenceScreen extends ConsumerStatefulWidget {
   /// Completion deep-link target. Takes precedence over feature-wide recovery.
   final String? operationId;
   final bool bypassPaidEntryForTest;
+  final ReadingCommerceView? commerceViewForTest;
 
   @override
   ConsumerState<PalmReferenceScreen> createState() =>
@@ -117,6 +119,21 @@ class _PalmReferenceScreenState extends ConsumerState<PalmReferenceScreen> {
           OraclySnackBar.show(context, message: check.guidance!);
         }
         if (!mounted) return;
+      }
+      if (controller.usesServerOwnedCompletion) {
+        final analytics = ref.read(analyticsServiceProvider);
+        analytics.logPalmStarted();
+        final started = DateTime.now();
+        await controller.analyze();
+        if (!mounted) return;
+        if (controller.phase == PalmPhase.result &&
+            controller.reading != null) {
+          analytics.logPalmSuccess(latency: DateTime.now().difference(started));
+          PersonalDiscoveryRefresh.invalidate(ref);
+        } else if (controller.phase == PalmPhase.error) {
+          analytics.logPalmFailure(errorCategory: 'analysis');
+        }
+        return;
       }
       final operations = ref.read(paidAiOperationCoordinatorProvider);
       final wallet = ref.read(gemWalletProvider);
@@ -207,10 +224,11 @@ class _PalmReferenceScreenState extends ConsumerState<PalmReferenceScreen> {
                     child:
                         controller.phase == PalmPhase.entry &&
                             !widget.bypassPaidEntryForTest
-                        ? const ReadingCommerceScreen(
+                        ? ReadingCommerceScreen(
+                            view: widget.commerceViewForTest,
                             embedded: true,
                             focus: ReadingCommerceFocus.palm,
-                            fulfillmentAvailable: false,
+                            onContinue: controller.startCapture,
                           )
                         : PalmReferenceBody(
                             controller: controller,

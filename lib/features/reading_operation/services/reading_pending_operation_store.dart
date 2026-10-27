@@ -17,19 +17,22 @@ class ReadingPendingOperation {
     required this.sourceRequestId,
     required this.mimeType,
     this.handSide,
+    this.localImagePath,
   });
 
   final String operationId;
   final String sourceRequestId;
   final String mimeType;
   final String? handSide;
+  final String? localImagePath;
 
   Map<String, dynamic> toJson() => {
-        'operationId': operationId,
-        'sourceRequestId': sourceRequestId,
-        'mimeType': mimeType,
-        if (handSide != null) 'handSide': handSide,
-      };
+    'operationId': operationId,
+    'sourceRequestId': sourceRequestId,
+    'mimeType': mimeType,
+    if (handSide != null) 'handSide': handSide,
+    if (localImagePath != null) 'localImagePath': localImagePath,
+  };
 
   static ReadingPendingOperation? fromJson(Object? json) {
     if (json is! Map) return null;
@@ -40,11 +43,13 @@ class ReadingPendingOperation {
     if (sourceRequestId is! String || sourceRequestId.isEmpty) return null;
     if (mimeType is! String || mimeType.isEmpty) return null;
     final handSide = json['handSide'];
+    final localImagePath = json['localImagePath'];
     return ReadingPendingOperation(
       operationId: operationId,
       sourceRequestId: sourceRequestId,
       mimeType: mimeType,
       handSide: handSide is String ? handSide : null,
+      localImagePath: localImagePath is String ? localImagePath : null,
     );
   }
 }
@@ -54,7 +59,8 @@ class ReadingPendingOperationStore {
 
   final LocalStorage _storage;
 
-  static String _key(ReadingType type) => 'reading_pending_operation_${type.name}';
+  static String _key(ReadingType type) =>
+      'reading_pending_operation_${type.name}';
 
   ReadingPendingOperation? load(ReadingType type) {
     final raw = _storage.getString(_key(type));
@@ -92,9 +98,10 @@ class ReadingPendingOperationStore {
     for (final type in ReadingType.values) {
       await removeKey(_key(type));
     }
-    for (final key in storage.keys
-        .where((k) => k.startsWith('reading_pending_operation_'))
-        .toList()) {
+    for (final key
+        in storage.keys
+            .where((k) => k.startsWith('reading_pending_operation_'))
+            .toList()) {
       await removeKey(key);
     }
     if (failed.isNotEmpty) {

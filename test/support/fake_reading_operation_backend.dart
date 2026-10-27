@@ -20,6 +20,7 @@ class _FakeOp {
   String status = 'waiting';
   String? resultId;
   bool claimedOnce = false;
+
   /// SMD1 — set once at creation, exactly like the real
   /// `createIfAbsent`/`executionMode` contract: never overwritten by a
   /// later `create` call that reuses the same `sourceRequestId`.
@@ -30,7 +31,10 @@ class _FakeOp {
 /// `immediatelyEligible: true` (default) means a freshly-created operation
 /// can be claimed right away — tests don't need to fake wait durations.
 class FakeReadingOperationBackend {
-  FakeReadingOperationBackend({this.immediatelyEligible = true});
+  FakeReadingOperationBackend({
+    this.immediatelyEligible = true,
+    this.loseFirstStageResponse = false,
+  });
 
   /// Mutable so a test can flip false -> true mid-run to simulate a
   /// commercial wait timer elapsing without a real wait. Also drives the
@@ -40,6 +44,7 @@ class FakeReadingOperationBackend {
   /// `waitFinished` on `waiting` (every fake snapshot always claimed the
   /// wait was already over).
   bool immediatelyEligible;
+  bool loseFirstStageResponse;
   final Map<String, _FakeOp> _byId = {};
   final Map<String, _FakeOp> _bySource = {};
   // Mirrors the server's `readingOperationActive` doc: written once when an
@@ -124,6 +129,10 @@ class FakeReadingOperationBackend {
     }
     final stage = _stagePath.firstMatch(path);
     if (method == 'POST' && stage != null && _byId[stage.group(1)!] != null) {
+      if (loseFirstStageResponse) {
+        loseFirstStageResponse = false;
+        return null;
+      }
       return ReadingOperationWire(
         statusCode: 200,
         json: {
@@ -440,13 +449,16 @@ class FakeReadingOperationBackend {
   /// shape. Callers decide how to wrap this per-endpoint response shape.
   Map<String, dynamic> _publicJson(_FakeOp op) {
     final now = DateTime.now().toUtc();
+    final readyAt = immediatelyEligible
+        ? now
+        : now.add(const Duration(milliseconds: 1));
     return {
       'operationId': op.id,
       'readingType': op.readingType,
       'status': op.status,
       'durable': op.executionMode == 'durable',
       'createdAt': now.toIso8601String(),
-      'readyAt': now.toIso8601String(),
+      'readyAt': readyAt.toIso8601String(),
       'serverNow': now.toIso8601String(),
       'waitFinished': immediatelyEligible,
       'remainingMs': immediatelyEligible ? 0 : 1,

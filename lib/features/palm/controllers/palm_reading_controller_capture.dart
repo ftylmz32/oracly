@@ -26,6 +26,7 @@ mixin PalmReadingCapture on ChangeNotifier {
   Future<void> Function(int balance)? _acceptAuthoritativeBalance;
   int _generation = 0;
   Timer? _resumeTimer;
+  String? _retrySourceRequestId;
 
   void bindCapture(
     PalmExperienceService experience,
@@ -77,6 +78,8 @@ mixin PalmReadingCapture on ChangeNotifier {
     ReadingFeatureRunner live,
     String operationId,
   ) async {
+    final snapshot = liveState?.snapshot;
+    if (snapshot != null && snapshot.readyAt == snapshot.createdAt) return;
     if (_accelerationCostFor == operationId && _accelerationCost != null) {
       return;
     }
@@ -98,6 +101,7 @@ mixin PalmReadingCapture on ChangeNotifier {
   String? get qualityHint => _qualityHint;
   CoffeeImageInputPort get images => _images;
   bool get analysisAvailable => _experience.analysisAvailable;
+  bool get usesServerOwnedCompletion => _live?.serverOwnedCompletion == true;
   bool get lastVersionAdded => _versionAdded;
   int get versionReloadToken => _versionReloadToken;
 
@@ -107,6 +111,7 @@ mixin PalmReadingCapture on ChangeNotifier {
   }
 
   void startCapture() {
+    _retrySourceRequestId = null;
     _phase = PalmPhase.capture;
     _error = null;
     _lastError = null;
@@ -129,6 +134,7 @@ mixin PalmReadingCapture on ChangeNotifier {
     _accelerationCost = null;
     _accelerationCostFor = null;
     _accelerationPriceToken = null;
+    _retrySourceRequestId = null;
     safeNotify();
   }
 

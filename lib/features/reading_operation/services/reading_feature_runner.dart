@@ -3,6 +3,7 @@ library;
 
 import '../../../core/auth/owner_history_scope.dart';
 import '../models/reading_operation_status.dart';
+import '../models/reading_operation_snapshot.dart';
 import 'reading_live_flow.dart';
 import 'reading_operation_context.dart';
 import 'reading_operation_input_gateway.dart';
@@ -20,6 +21,7 @@ class ReadingFeatureRunner {
 
   final ReadingLiveFlow flow;
   final ReadingStagedImageGateway? stagedImages;
+
   /// SMD1 — Soulmate's durable-submission counterpart to [stagedImages]:
   /// no image bytes, just the small structured input record the durable
   /// worker needs to regenerate the same request server-side.
@@ -50,7 +52,8 @@ class ReadingFeatureRunner {
       return begun;
     }
     final gateway = inputs;
-    final saved = gateway != null &&
+    final saved =
+        gateway != null &&
         await gateway.save(operationId: snapshot.operationId, fields: fields);
     if (!saved) {
       await flow.failFinal(snapshot.operationId);
@@ -75,6 +78,8 @@ class ReadingFeatureRunner {
     List<int>? imageBytes,
     String? mimeType,
     String? handSide,
+    Future<bool> Function(ReadingOperationSnapshot snapshot)?
+    onOperationCreated,
   }) async {
     final begun = await flow.begin(
       readingType: readingType,
@@ -98,6 +103,18 @@ class ReadingFeatureRunner {
     }
     final hasStagedInput =
         imageBytes != null || mimeType != null || handSide != null;
+    if (beginSnapshot != null && onOperationCreated != null) {
+      final durable = await onOperationCreated(beginSnapshot);
+      if (!durable) {
+        final refunded = await flow.failFinal(beginSnapshot.operationId);
+        return ReadingLiveState(
+          kind: ReadingLiveKind.failed,
+          snapshot: beginSnapshot,
+          refunded: refunded,
+          failureStage: 'pending_save',
+        );
+      }
+    }
     if (beginSnapshot != null &&
         stagedImages != null &&
         hasStagedInput &&
@@ -131,6 +148,22 @@ class ReadingFeatureRunner {
     return _claimAndExecute(begun: begun, runPipeline: runPipeline);
   }
 
+  Future<bool> restageExisting({
+    required String operationId,
+    required List<int> imageBytes,
+    required String mimeType,
+    required String handSide,
+  }) async {
+    final gateway = stagedImages;
+    if (gateway == null) return false;
+    return gateway.stage(
+      operationId: operationId,
+      bytes: imageBytes,
+      mimeType: mimeType,
+      handSide: handSide,
+    );
+  }
+
   /// Re-checks an operation `submit` already created (and, for Coffee/Palm,
   /// already durably staged) and claims + executes it if it is now
   /// eligible. Never re-stages the image and never creates a second
@@ -152,7 +185,8 @@ class ReadingFeatureRunner {
     required Future<String> Function() runPipeline,
   }) {
     if (serverOwnedCompletion &&
-        (readingType == ReadingType.coffee || readingType == ReadingType.palm)) {
+        (readingType == ReadingType.coffee ||
+            readingType == ReadingType.palm)) {
       return flow.recover(readingType);
     }
     return flow
@@ -169,10 +203,12 @@ class ReadingFeatureRunner {
     final type = begun.snapshot?.readingType;
     if (serverOwnedCompletion &&
         (type == ReadingType.coffee || type == ReadingType.palm)) {
-      return Future.value(ReadingLiveState(
-        kind: ReadingLiveKind.processing,
-        snapshot: begun.snapshot,
-      ));
+      return Future.value(
+        ReadingLiveState(
+          kind: ReadingLiveKind.processing,
+          snapshot: begun.snapshot,
+        ),
+      );
     }
     return _claimAndExecute(
       begun: begun,
