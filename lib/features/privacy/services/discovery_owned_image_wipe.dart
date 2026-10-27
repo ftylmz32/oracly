@@ -4,6 +4,7 @@ library;
 import '../../../core/auth/owned_file_cleanup_journal.dart';
 import '../../../core/auth/owned_file_cleanup_result.dart';
 import '../../../core/data/datasources/local_storage.dart';
+import '../../coffee/cup_map/services/coffee_cup_map_store.dart';
 import '../../coffee/data/coffee_reading_store.dart';
 import '../../coffee/services/coffee_image_archive.dart';
 import '../../palm/data/palm_reading_store.dart';
@@ -24,6 +25,9 @@ abstract final class DiscoveryOwnedImageWipe {
     final paths = <String>{};
     for (final reading in CoffeeReadingStore(storage).all()) {
       _addPath(paths, reading.imagePath);
+    }
+    for (final path in CoffeeCupMapStore.archivedPaths(storage)) {
+      _addPath(paths, path);
     }
     for (final reading in PalmReadingStore(storage).all()) {
       _addPath(paths, reading.imagePath);
@@ -48,6 +52,9 @@ abstract final class DiscoveryOwnedImageWipe {
     final paths = <String>{...OwnedFileCleanupJournal.read(storage)};
     for (final reading in CoffeeReadingStore(storage).all()) {
       _addPath(paths, reading.imagePath);
+    }
+    for (final path in CoffeeCupMapStore.archivedPaths(storage)) {
+      _addPath(paths, path);
     }
     for (final reading in PalmReadingStore(storage).all()) {
       _addPath(paths, reading.imagePath);

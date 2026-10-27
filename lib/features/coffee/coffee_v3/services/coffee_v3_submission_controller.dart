@@ -84,6 +84,14 @@ enum CoffeeV3SubmissionOutcome {
   notEligible,
 }
 
+/// Optional, best-effort: receives the bound photos of a restored result
+/// before their working copies are released. Never affects the handoff.
+typedef CoffeeV3ResultPhotoKeeper = Future<void> Function({
+  required String resultId,
+  required String? submissionOwnerId,
+  required List<CoffeeV3PhotoAsset> assets,
+});
+
 class CoffeeV3SubmissionController {
   CoffeeV3SubmissionController({
     required this.flow,
@@ -94,6 +102,7 @@ class CoffeeV3SubmissionController {
     ImageNormalizeMessages messages = coffeeV2DefaultNormalizeMessages,
     bool Function()? creationAllowed,
     String Function()? newSourceRequestId,
+    this.resultPhotoKeeper,
   })  : byteLoader = byteLoader ?? const FileCoffeeV2ByteLoader(),
         normalizer = normalizer ?? DefaultCoffeeV3Normalizer(messages),
         _messages = messages,
@@ -112,6 +121,7 @@ class CoffeeV3SubmissionController {
   final ImageNormalizeMessages _messages;
   final bool Function() _creationAllowed;
   final String Function() _newSourceRequestId;
+  final CoffeeV3ResultPhotoKeeper? resultPhotoKeeper;
 
   CoffeeV3SubmissionRecord _record;
 
@@ -359,6 +369,7 @@ class CoffeeV3SubmissionController {
   /// operation/result identity stays until explicit acknowledgement.
   Future<void> onResultRestored(String resultId) async {
     final previous = _record;
+    await _keepResultPhotos(resultId, previous);
     await _commitRecord(
       _record.copyWith(
         slots: CoffeeV3SubmissionRecord.empty().slots,
@@ -386,6 +397,29 @@ class CoffeeV3SubmissionController {
     if (operationId != null) await store.acknowledgeDurable(operationId);
     await store.clearDurable();
     _record = CoffeeV3SubmissionRecord.empty();
+  }
+
+  /// Only an ACTIVE record's own photos, only for the result of its own
+  /// operation; any failure is swallowed so the handoff always proceeds.
+  Future<void> _keepResultPhotos(
+    String resultId,
+    CoffeeV3SubmissionRecord record,
+  ) async {
+    final keeper = resultPhotoKeeper;
+    if (keeper == null || !record.isActive) return;
+    final assets = [
+      for (final slot in coffeeV3CanonicalSlotOrder) ?record.slots[slot]?.asset,
+    ];
+    if (assets.isEmpty) return;
+    try {
+      await keeper(
+        resultId: resultId,
+        // The store stamps the owner on write; the in-memory copy may not
+        // carry it yet.
+        submissionOwnerId: record.ownerId ?? store.ownerId,
+        assets: assets,
+      ).timeout(const Duration(seconds: 10));
+    } catch (_) {}
   }
 
   Future<void> _deleteTempFiles(CoffeeV3SubmissionRecord record) async {

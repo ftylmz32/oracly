@@ -13,6 +13,7 @@ import '../../../../core/reading_ux/reading_long_form_scroll.dart';
 import '../../../../core/reading_version/services/reading_version_payload.dart';
 import '../../../personal_discovery/services/personal_theme_extractor.dart';
 import '../../copy/coffee_copy.dart';
+import '../../cup_map/presentation/coffee_cup_map_entry.dart';
 import '../../models/coffee_reading.dart';
 import 'coffee_reference_tokens.dart';
 import 'coffee_result_actions.dart';
@@ -122,6 +123,8 @@ class _CoffeeResultViewState extends ConsumerState<CoffeeResultView> {
         FeatureFlagRollback.useExperimental(FeatureFlagSurface.coffeeResult)
             ? CoffeeResultSections(reading: reading, markKeys: markKeys)
             : CoffeeResultStable(reading: reading, markKeys: markKeys),
+        // Only readings that kept their capture photos show it.
+        CoffeeCupMapEntry(readingId: reading.id),
         CoffeeResultActions(
           reading: reading,
           themes: themes,

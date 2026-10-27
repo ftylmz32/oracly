@@ -13,6 +13,7 @@ import '../../../../core/providers/backend_providers.dart'
 import '../../../gems/providers/gem_providers.dart';
 import '../../../reading_operation/providers/reading_live_provider.dart';
 import '../../coffee_v2/providers/coffee_v2_providers.dart';
+import '../../cup_map/services/coffee_cup_map_keeper.dart';
 import '../../providers/coffee_providers.dart';
 import '../controllers/coffee_v3_flow_controller.dart';
 import '../services/coffee_v3_creation_gate.dart';
@@ -65,6 +66,8 @@ final coffeeV3FlowControllerProvider =
               flow: runner.flow,
               stagedImages: stagedImages,
               store: ref.read(coffeeV3SubmissionStoreProvider),
+              resultPhotoKeeper:
+                  CoffeeCupMapKeeper(ref.read(localStorageProvider)).keep,
             )
           : null;
       final controller = CoffeeV3FlowController(

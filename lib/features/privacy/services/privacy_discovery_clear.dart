@@ -6,6 +6,7 @@ import '../../../core/domain/repositories/birth_chart_repository.dart';
 import '../../../core/memory/oracly_memory.dart';
 import '../../../core/memory/oracly_memory_store.dart';
 import '../../../core/services/history_service.dart';
+import '../../../features/coffee/cup_map/services/coffee_cup_map_store.dart';
 import '../../../features/coffee/data/coffee_reading_store.dart';
 import '../../../features/palm/data/palm_reading_store.dart';
 import '../../../features/tarot/data/datasources/tarot_local_datasource.dart';
@@ -31,6 +32,8 @@ abstract final class PrivacyDiscoveryClear {
     // Dream records are owned (and durability-checked) by PrivacyDreamClear.
     await storage.setStringList(CoffeeReadingStore.key, const []);
     await storage.setStringList(PalmReadingStore.key, const []);
+    // Its photos lived in the coffee archive purged above.
+    await storage.remove(CoffeeCupMapStore.key);
 
     await history.clear();
     await storage.setStringList('astrology_history', const []);
