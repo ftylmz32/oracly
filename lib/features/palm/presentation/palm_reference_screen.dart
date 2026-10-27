@@ -24,6 +24,8 @@ import '../services/palm_image_validator.dart';
 import '../../personal_discovery/services/personal_discovery_refresh.dart';
 import '../../quality_loop/providers/quality_loop_providers.dart';
 import '../../quality_loop/widgets/quality_loop_gate.dart';
+import '../../reading_commerce/models/reading_commerce_view.dart';
+import '../../reading_commerce/presentation/reading_commerce_screen.dart';
 import '../../../core/quality/quality_feature.dart';
 import 'palm_atmosphere.dart';
 import 'palm_reference_app_bar.dart';
@@ -35,6 +37,7 @@ class PalmReferenceScreen extends ConsumerStatefulWidget {
     super.key,
     this.savedReadingId,
     this.operationId,
+    this.bypassPaidEntryForTest = false,
   });
 
   /// When set, restores that persisted palm reading on open.
@@ -42,6 +45,7 @@ class PalmReferenceScreen extends ConsumerStatefulWidget {
 
   /// Completion deep-link target. Takes precedence over feature-wide recovery.
   final String? operationId;
+  final bool bypassPaidEntryForTest;
 
   @override
   ConsumerState<PalmReferenceScreen> createState() =>
@@ -79,9 +83,9 @@ class _PalmReferenceScreenState extends ConsumerState<PalmReferenceScreen> {
 
   void _handleBack(PalmReadingController controller) {
     if (controller.phase == PalmPhase.error) {
-      ref.read(qualitySignalRecorderProvider).abandonedIfOpen(
-            QualityFeature.palm,
-          );
+      ref
+          .read(qualitySignalRecorderProvider)
+          .abandonedIfOpen(QualityFeature.palm);
     }
     if (controller.phase == PalmPhase.capture ||
         controller.phase == PalmPhase.error ||
@@ -144,9 +148,7 @@ class _PalmReferenceScreenState extends ConsumerState<PalmReferenceScreen> {
         }
         return;
       }
-      analytics.logPalmSuccess(
-        latency: DateTime.now().difference(started),
-      );
+      analytics.logPalmSuccess(latency: DateTime.now().difference(started));
       await GemSpendGuard.settleOperationCaptured(
         coordinator: operations,
         wallet: wallet,
@@ -186,9 +188,7 @@ class _PalmReferenceScreenState extends ConsumerState<PalmReferenceScreen> {
         },
         child: OraclyScaffold(
           safeArea: false,
-          backgroundOverlay: const PalmAtmosphere(
-            child: SizedBox.shrink(),
-          ),
+          backgroundOverlay: const PalmAtmosphere(child: SizedBox.shrink()),
           child: SafeArea(
             bottom: false,
             child: Padding(
@@ -201,16 +201,22 @@ class _PalmReferenceScreenState extends ConsumerState<PalmReferenceScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  PalmReferenceAppBar(
-                    onBack: () => _handleBack(controller),
-                  ),
+                  PalmReferenceAppBar(onBack: () => _handleBack(controller)),
                   SizedBox(height: PalmTokens.gap),
                   Expanded(
-                    child: PalmReferenceBody(
-                      controller: controller,
-                      busy: _starting,
-                      onAnalyze: () => _analyze(controller),
-                    ),
+                    child:
+                        controller.phase == PalmPhase.entry &&
+                            !widget.bypassPaidEntryForTest
+                        ? const ReadingCommerceScreen(
+                            embedded: true,
+                            focus: ReadingCommerceFocus.palm,
+                            fulfillmentAvailable: false,
+                          )
+                        : PalmReferenceBody(
+                            controller: controller,
+                            busy: _starting,
+                            onAnalyze: () => _analyze(controller),
+                          ),
                   ),
                 ],
               ),

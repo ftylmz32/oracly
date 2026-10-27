@@ -12,6 +12,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/design_system/chamber_waiting_stage.dart';
 import '../../../../shared/navigation/oracly_navigation.dart';
 import '../../../personal_discovery/services/personal_discovery_refresh.dart';
+import '../../../reading_commerce/models/reading_commerce_view.dart';
+import '../../../reading_commerce/presentation/reading_commerce_screen.dart';
 import '../../coffee_v2/presentation/coffee_v2_flow_screen.dart';
 import '../../copy/coffee_copy.dart';
 import '../../presentation/reference/coffee_error_view.dart';
@@ -26,7 +28,9 @@ import 'coffee_v3_preview_view.dart';
 import 'coffee_v3_step_view.dart';
 
 class CoffeeV3FlowScreen extends ConsumerStatefulWidget {
-  const CoffeeV3FlowScreen({super.key});
+  const CoffeeV3FlowScreen({super.key, this.bypassPaidEntryForTest = false});
+
+  final bool bypassPaidEntryForTest;
 
   @override
   ConsumerState<CoffeeV3FlowScreen> createState() => _CoffeeV3FlowScreenState();
@@ -34,6 +38,7 @@ class CoffeeV3FlowScreen extends ConsumerStatefulWidget {
 
 class _CoffeeV3FlowScreenState extends ConsumerState<CoffeeV3FlowScreen> {
   String? _journalRefreshedFor;
+  bool _paidEntryRequested = false;
 
   void _handleBack(BuildContext context) {
     if (Navigator.of(context).canPop()) {
@@ -62,40 +67,48 @@ class _CoffeeV3FlowScreenState extends ConsumerState<CoffeeV3FlowScreen> {
     return CoffeeLandingChamber(
       onBack: () => _handleBack(context),
       child: switch (stage) {
-        CoffeeV3FlowStage.booting ||
-        CoffeeV3FlowStage.exitToDefault =>
+        CoffeeV3FlowStage.booting || CoffeeV3FlowStage.exitToDefault =>
           ChamberWaitingStage(message: CoffeeCopy.analyzing),
         CoffeeV3FlowStage.unavailable => CoffeeErrorView(
-            message: CoffeeCopy.analysisUnavailable,
-            onRetry: () {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute<void>(
-                  builder: (_) => const CoffeeReferenceScreen(),
+          message: CoffeeCopy.analysisUnavailable,
+          onRetry: () {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute<void>(
+                builder: (_) => const CoffeeReferenceScreen(),
+              ),
+            );
+          },
+          onBack: () => _handleBack(context),
+        ),
+        CoffeeV3FlowStage.intro =>
+          !_paidEntryRequested
+              ? CoffeeV3IntroView(
+                  onStart: widget.bypassPaidEntryForTest
+                      ? controller.dismissIntro
+                      : () => setState(() => _paidEntryRequested = true),
+                )
+              : ReadingCommerceScreen(
+                  embedded: true,
+                  focus: ReadingCommerceFocus.coffee,
+                  onContinue: controller.dismissIntro,
                 ),
-              );
-            },
-            onBack: () => _handleBack(context),
-          ),
-        CoffeeV3FlowStage.intro => CoffeeV3IntroView(
-            onStart: controller.dismissIntro,
-          ),
         CoffeeV3FlowStage.step => CoffeeV3StepView(
-            controller: controller,
-            slot: controller.currentStepSlot,
-          ),
+          controller: controller,
+          slot: controller.currentStepSlot,
+        ),
         CoffeeV3FlowStage.preview => CoffeeV3PreviewView(
-            controller: controller,
-          ),
+          controller: controller,
+        ),
         CoffeeV3FlowStage.finalReview => CoffeeV3FinalReviewView(
-            controller: controller,
-          ),
+          controller: controller,
+        ),
         CoffeeV3FlowStage.activeStaging => CoffeeV3ActiveStagingView(
-            controller: controller,
-          ),
+          controller: controller,
+        ),
         CoffeeV3FlowStage.activeObserving => CoffeeV3ActiveObservingView(
-            controller: controller,
-            onBack: () => _handleBack(context),
-          ),
+          controller: controller,
+          onBack: () => _handleBack(context),
+        ),
       },
     );
   }

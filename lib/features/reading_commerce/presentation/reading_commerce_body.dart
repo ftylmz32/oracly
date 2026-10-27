@@ -12,17 +12,47 @@ class ReadingCommerceBody extends StatelessWidget {
     super.key,
     required this.view,
     this.onBuy,
+    this.focus = ReadingCommerceFocus.all,
+    this.onContinue,
+    this.fulfillmentAvailable = true,
+    this.onRetry,
   });
 
   final ReadingCommerceView view;
   final void Function(String productId)? onBuy;
+  final ReadingCommerceFocus focus;
+  final VoidCallback? onContinue;
+  final bool fulfillmentAvailable;
+  final VoidCallback? onRetry;
 
   @override
   Widget build(BuildContext context) {
-    final message = view.message ??
-        (view.showCoffee || view.showPalm || view.showPack
-            ? null
-            : ReadingCommerceCopy.closed);
+    final hasFocusedCredit = switch (focus) {
+      ReadingCommerceFocus.coffee => view.coffeeCredits > 0,
+      ReadingCommerceFocus.palm => view.palmCredits > 0,
+      ReadingCommerceFocus.all => false,
+    };
+    final showCoffee =
+        focus != ReadingCommerceFocus.palm &&
+        !hasFocusedCredit &&
+        fulfillmentAvailable &&
+        view.showCoffee;
+    final showPalm =
+        focus != ReadingCommerceFocus.coffee &&
+        !hasFocusedCredit &&
+        fulfillmentAvailable &&
+        view.showPalm;
+    final showPack =
+        focus != ReadingCommerceFocus.palm &&
+        !hasFocusedCredit &&
+        fulfillmentAvailable &&
+        view.showPack;
+    final message = !fulfillmentAvailable && focus == ReadingCommerceFocus.palm
+        ? ReadingCommerceCopy.palmUnavailable
+        : view.message ??
+              (view.showCoffee || view.showPalm || view.showPack
+                  ? null
+                  : ReadingCommerceCopy.closed);
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
       children: [
@@ -60,8 +90,24 @@ class ReadingCommerceBody extends StatelessWidget {
             ),
           ),
         ],
+        if (onRetry != null) ...[
+          SizedBox(height: AppSpacing.s16),
+          OraclyGoldButton(
+            label: ReadingCommerceCopy.retry,
+            expanded: true,
+            onPressed: onRetry,
+          ),
+        ],
         SizedBox(height: AppSpacing.s24),
-        if (view.showCoffee)
+        if (hasFocusedCredit && fulfillmentAvailable)
+          OraclyGoldButton(
+            label: focus == ReadingCommerceFocus.coffee
+                ? ReadingCommerceCopy.useCoffeeCredit
+                : ReadingCommerceCopy.usePalmCredit,
+            expanded: true,
+            onPressed: onContinue,
+          ),
+        if (showCoffee)
           _Offer(
             title: ReadingCommerceCopy.coffee,
             price: view.coffeePrice!,
@@ -69,7 +115,7 @@ class ReadingCommerceBody extends StatelessWidget {
                 ? null
                 : () => onBuy!(ReadingCommerceView.coffeeId),
           ),
-        if (view.showPalm)
+        if (showPalm)
           _Offer(
             title: ReadingCommerceCopy.palm,
             price: view.palmPrice!,
@@ -77,7 +123,7 @@ class ReadingCommerceBody extends StatelessWidget {
                 ? null
                 : () => onBuy!(ReadingCommerceView.palmId),
           ),
-        if (view.showPack)
+        if (showPack)
           _Offer(
             title: ReadingCommerceCopy.pack,
             price: view.packPrice!,
@@ -106,7 +152,10 @@ class _Offer extends StatelessWidget {
         children: [
           Text(title, style: ReadingTypography.body(color: OraclyChrome.cream)),
           SizedBox(height: AppSpacing.s8),
-          Text(price, style: ReadingTypography.reflection(color: OraclyChrome.goldLight)),
+          Text(
+            price,
+            style: ReadingTypography.reflection(color: OraclyChrome.goldLight),
+          ),
           SizedBox(height: AppSpacing.s8),
           OraclyGoldButton(
             label: ReadingCommerceCopy.buy,

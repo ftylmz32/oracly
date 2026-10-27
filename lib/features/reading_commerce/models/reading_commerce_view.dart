@@ -1,6 +1,8 @@
 /// What the purchase screen may show. A missing store price hides that buy.
 library;
 
+enum ReadingCommerceFocus { all, coffee, palm }
+
 class ReadingCommerceView {
   const ReadingCommerceView({
     required this.coffeeCredits,
@@ -28,10 +30,8 @@ class ReadingCommerceView {
   static const palmId = 'app.oracly.reading.palm';
   static const packId = 'app.oracly.reading.coffee.pack3';
 
-  factory ReadingCommerceView.closed() => const ReadingCommerceView(
-        coffeeCredits: 0,
-        palmCredits: 0,
-      );
+  factory ReadingCommerceView.closed() =>
+      const ReadingCommerceView(coffeeCredits: 0, palmCredits: 0);
 
   factory ReadingCommerceView.decide({
     required bool commerceOpen,

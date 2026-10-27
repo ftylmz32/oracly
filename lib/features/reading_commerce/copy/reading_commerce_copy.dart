@@ -13,12 +13,16 @@ abstract final class ReadingCommerceCopy {
   static const palm = 'El falı';
   static const pack = '3 kahve falı';
   static const buy = 'Satın al';
-  static const pending =
-      'Ödeme henüz tamamlanmadı.\nHak tanımlanmadı.';
+  static const retry = 'Yeniden dene';
+  static const pending = 'Ödeme henüz tamamlanmadı.\nHak tanımlanmadı.';
   static const canceled = 'Ödeme tamamlanmadı.';
   static const failed =
       'Ödemeyi doğrulayamadık.\nSatın alma duruyor; yeniden açınca tekrar deneriz.';
   static const granted = 'Hak hesabına eklendi.';
+  static const useCoffeeCredit = '1 kahve falı hakkıyla devam et';
+  static const usePalmCredit = '1 el falı hakkıyla devam et';
+  static const palmUnavailable =
+      'El falı hakkın hesabında güvende. Güvenli yorumlama bağlantısı hazır olmadığı için fotoğraf ve satın alma şimdilik kapalı.';
   static const creditNeeded =
       'Bu fal bir hak ister.\nHakların ve mağazanın durumu bir sonraki ekranda.';
   static const openCredits = 'Fal haklarına bak';

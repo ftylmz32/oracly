@@ -177,6 +177,8 @@ Widget _app(LocalStorage storage) {
       localStorageProvider.overrideWithValue(storage),
       palmAnalysisProvider.overrideWithValue(const UnavailablePalmAnalysis()),
     ],
-    child: const MaterialApp(home: PalmReferenceScreen()),
+    child: const MaterialApp(
+      home: PalmReferenceScreen(bypassPaidEntryForTest: true),
+    ),
   );
 }

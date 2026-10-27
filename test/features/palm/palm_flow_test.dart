@@ -250,7 +250,9 @@ Widget _app(LocalStorage storage, {CoffeeImageInputPort? images}) {
       palmAnalysisProvider.overrideWithValue(const UnavailablePalmAnalysis()),
       if (images != null) coffeeImageInputProvider.overrideWithValue(images),
     ],
-    child: const MaterialApp(home: PalmReferenceScreen()),
+    child: const MaterialApp(
+      home: PalmReferenceScreen(bypassPaidEntryForTest: true),
+    ),
   );
 }
 

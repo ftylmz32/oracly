@@ -101,7 +101,9 @@ void main() {
         OpenAiCoffeeAnalysis(ai: NoProviderAi()),
       ),
     ],
-    child: const MaterialApp(home: CoffeeV3FlowScreen()),
+    child: const MaterialApp(
+      home: CoffeeV3FlowScreen(bypassPaidEntryForTest: true),
+    ),
   );
 
   Future<void> drain(WidgetTester tester, {int iterations = 20}) async {
