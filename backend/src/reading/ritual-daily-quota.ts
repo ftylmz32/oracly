@@ -4,6 +4,7 @@
  * involved. A stored body replays. A client abort keeps the slot.
  */
 import { createHash } from 'node:crypto';
+import { assertNoDeletionBarrier } from '../account/deletion-barrier.js';
 import type { FirestoreLike } from '../billing/entitlement-repository.js';
 import type { AppConfig } from '../config.js';
 import { ErrorCode, errorEnvelope } from '../errors.js';
@@ -101,6 +102,8 @@ export async function admitRitualQuota(input: {
   const attemptRef = store.collection(RITUAL_ATTEMPTS).doc(docId(`${input.identity}\0${kind}\0${fullKey}`));
   const limit = RITUAL_DAILY_LIMIT[kind];
   return store.runTransaction(async (tx) => {
+    // A deleted (or being deleted) account gets no new or replayed record.
+    await assertNoDeletionBarrier(tx, store, input.identity);
     const [counterSnap, attemptSnap] = await Promise.all([tx.get(counterRef), tx.get(attemptRef)]);
     const attempt = attemptSnap.data();
     const hold: RitualHold = { kind, operationId, fullKey, day };

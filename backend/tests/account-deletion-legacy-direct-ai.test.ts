@@ -13,81 +13,20 @@
  * deletion tests). No AI, no network.
  */
 import { describe, expect, it } from 'vitest';
-import type { Firestore } from '@google-cloud/firestore';
-import { FirestoreAccountDeletionRepository } from '../src/account/account-deletion.js';
 import { ACCOUNT_DELETION_RECEIPTS, accountDeletionReceiptId } from '../src/account/deletion-barrier.js';
 import { identityKeyFromSubject } from '../src/auth/identity.js';
 import { MemoryDocumentStore } from '../src/reading/memory-document-store.js';
 import type { ReadingOperationRecord } from '../src/reading/operation-model.js';
 import { claimedLegacyCoffee, claimedLegacyPalm } from '../src/reading/reading-commerce-gate.js';
+import { realDeletion } from './support/deletion-adapter.js';
 
 const PIN = 'readingLegacyDirectAi';
 const A = identityKeyFromSubject('user-a');
 const B = identityKeyFromSubject('user-b');
 
-/** Deletion transport over the shared MemoryDocumentStore; `failOnce` makes
- * the next batch commit touching that collection throw (an interrupted run). */
-class DeletionAdapter {
-  failOnce: string | null = null;
-  constructor(private readonly store: MemoryDocumentStore) {}
-
-  collection(name: string) {
-    const store = this.store;
-    return {
-      doc(id: string) {
-        const ref = store.collection(name).doc(id);
-        return {
-          path: `${name}/${id}`,
-          get: () => ref.get(),
-          async set(data: Record<string, unknown>) {
-            await store.runTransaction(async (tx) => { tx.set(ref, data); });
-          },
-        };
-      },
-      where(field: string, _op: string, value: unknown) {
-        return {
-          async get() {
-            const docs = [...store.docs.entries()]
-              .filter(([path]) => path.startsWith(`${name}/`))
-              .filter(([, data]) => data[field] === value)
-              .map(([path, data]) => ({
-                ref: Object.assign(store.collection(name).doc(path.slice(name.length + 1)), { path }),
-                data: () => ({ ...data }),
-              }));
-            return { docs, empty: docs.length === 0, size: docs.length };
-          },
-        };
-      },
-    };
-  }
-
-  batch() {
-    const refs: { path: string }[] = [];
-    const self = this;
-    return {
-      delete(ref: { path: string }) { refs.push(ref); },
-      async commit() {
-        const failing = self.failOnce;
-        if (failing && refs.some((ref) => ref.path.startsWith(`${failing}/`))) {
-          self.failOnce = null;
-          throw new Error(`injected failure deleting ${failing}`);
-        }
-        await self.store.runTransaction(async (tx) => {
-          for (const ref of refs) tx.delete(ref as never);
-        });
-      },
-    };
-  }
-
-  runTransaction<T>(fn: (tx: never) => Promise<T>): Promise<T> {
-    return this.store.runTransaction(fn as never);
-  }
-}
-
 function world() {
   const store = new MemoryDocumentStore();
-  const adapter = new DeletionAdapter(store);
-  const deletion = new FirestoreAccountDeletionRepository(adapter as unknown as Firestore, null, null);
+  const { adapter, deletion } = realDeletion(store);
   const pins = (owner: string) => [...store.docs.entries()]
     .filter(([path, data]) => path.startsWith(`${PIN}/`) && data.ownerUserId === owner).length;
   const receipt = (owner: string) =>

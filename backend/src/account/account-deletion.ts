@@ -33,6 +33,14 @@ const DELETE_COLLECTIONS = [
   'readingLegacyDirectAi',
 ] as const;
 
+/** Free-quota records owned by an `identity` field: the attempts keep the
+ * delivered response `body`; the day counters keep the charge rows. Their
+ * writers check the deletion barrier, so nothing reappears after the sweep. */
+const IDENTITY_COLLECTIONS = [
+  'ritualDailyQuota', 'ritualDailyQuotaAttempts',
+  'freeTextQuota', 'freeTextQuotaAttempts',
+] as const;
+
 /** Production deletion is retry-safe: every delete is idempotent and the receipt
  * becomes `accepted` only after content cleanup and purchase-binding
  * anonymization finish. WAVE 3.2 — the SAME receipt document is first written
@@ -91,9 +99,13 @@ export class FirestoreAccountDeletionRepository implements AccountDeletionReposi
       throw new Error('account_deletion_object_store_unavailable');
     }
 
-    for (const collection of DELETE_COLLECTIONS) {
+    const sweeps = [
+      ...DELETE_COLLECTIONS.map((collection) => ({ collection, field: 'ownerUserId' })),
+      ...IDENTITY_COLLECTIONS.map((collection) => ({ collection, field: 'identity' })),
+    ];
+    for (const { collection, field } of sweeps) {
       const snapshot = await this.firestore.collection(collection)
-        .where('ownerUserId', '==', identityKey).get();
+        .where(field, '==', identityKey).get();
       for (let offset = 0; offset < snapshot.docs.length; offset += 400) {
         const batch = this.firestore.batch();
         for (const doc of snapshot.docs.slice(offset, offset + 400)) batch.delete(doc.ref);

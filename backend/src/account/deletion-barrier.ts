@@ -50,6 +50,16 @@ export async function assertNoDeletionBarrier(
   }
 }
 
+/** Transactional read for a writer that must quietly write nothing for a
+ * deleted owner (a settlement after the response was already produced). */
+export async function deletionBarrierExists(
+  tx: FirestoreTransactionLike,
+  firestore: FirestoreLike,
+  ownerUserId: string,
+): Promise<boolean> {
+  return (await tx.get(barrierRef(firestore, ownerUserId))).exists;
+}
+
 /** Non-transactional read, only for guarding a side effect that cannot join
  * a transaction (a GCS upload). Always paired with a transactional re-check. */
 export async function hasDeletionBarrier(

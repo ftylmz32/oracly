@@ -59,6 +59,7 @@ import {
   failRitualQuota,
   finishRitualQuota,
 } from '../reading/ritual-daily-quota-settle.js';
+import { findAccountDeletedError } from '../account/deletion-barrier.js';
 import type { ReadingOperationRepository } from '../reading/operation-repository.js';
 import { claimedLegacyCoffee, claimedLegacyPalm } from '../reading/reading-commerce-gate.js';
 import { denySoulmateWithoutPremium } from '../reading/soulmate-ai-route-gate.js';
@@ -631,7 +632,10 @@ export async function registerAiRoutes(
             // The hold stays open. The same operation id resumes it.
           }
         }
-        const proxy = error instanceof ProxyError ? error : null;
+        // A deleted (or being deleted) account: the quota writers refused it.
+        const proxy = error instanceof ProxyError
+          ? error
+          : findAccountDeletedError(error) ? new ProxyError(ErrorCode.unauthorized, 401) : null;
         const code = proxy?.code ?? ErrorCode.internalError;
         const status = proxy?.httpStatus ?? 200;
         const payload = asRecord(asRecord(request.body)?.payload);
