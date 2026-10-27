@@ -28,6 +28,9 @@ const DELETE_COLLECTIONS = [
   // SMD1 — Soulmate portrait metadata; the GCS object itself is deleted
   // below (mirrors the staged-image GCS cleanup right above it).
   'readingSoulmatePortraits',
+  // Legacy Coffee / Palm direct-AI one-reading pins (request key + phases;
+  // no reading content). Written only behind the deletion barrier check.
+  'readingLegacyDirectAi',
 ] as const;
 
 /** Production deletion is retry-safe: every delete is idempotent and the receipt

@@ -6,6 +6,7 @@
  * A client price cannot open this.
  */
 import { randomBytes } from 'node:crypto';
+import { assertNoDeletionBarrier } from '../account/deletion-barrier.js';
 import type { FirestoreLike } from '../billing/entitlement-repository.js';
 import type { AppConfig } from '../config.js';
 import { ErrorCode, type ErrorCodeName } from '../errors.js';
@@ -92,6 +93,8 @@ async function admitOnce(input: DirectReadingInput, operation: ReadingOperationR
   const phase = input.idempotencyKey.slice(requestKey.length);
   try {
     return await store.runTransaction(async (tx) => {
+      // A deleted (or being deleted) account writes no pin: the sweep would miss it.
+      await assertNoDeletionBarrier(tx, store, input.ownerUserId);
       const ref = store.collection(LEGACY_DIRECT_AI).doc(operation.operationId);
       const pinned = (await tx.get(ref)).data();
       const admitted: unknown[] = Array.isArray(pinned?.admitted) ? pinned.admitted : [];
