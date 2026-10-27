@@ -60,7 +60,7 @@ import {
   finishRitualQuota,
 } from '../reading/ritual-daily-quota-settle.js';
 import type { ReadingOperationRepository } from '../reading/operation-repository.js';
-import { claimedLegacyCoffee } from '../reading/reading-commerce-gate.js';
+import { claimedLegacyCoffee, claimedLegacyPalm } from '../reading/reading-commerce-gate.js';
 import { denySoulmateWithoutPremium } from '../reading/soulmate-ai-route-gate.js';
 import type { SoulmateEntitlementGuard } from '../reading/soulmate-entitlement-guard.js';
 import { admitLunaText, type LunaFreeHold } from '../reading/luna-premium-gate.js';
@@ -344,13 +344,22 @@ export async function registerAiRoutes(
           producerKey = replayKey;
           producerAttempt = claim.attemptId;
         }
-        // Reading commerce: past the delivered replays, a coffee_analysis is
-        // new work. It is allowed only for a claimed pre-rollout operation;
-        // the catch below releases the free slot and the replay claim.
+        // Reading commerce: past the delivered replays, a coffee_analysis or
+        // palm_analysis is new work. It is allowed only for a claimed
+        // pre-rollout operation; paid readings run in the worker. The catch
+        // below releases the free slot and the replay claim.
         if (
-          validated.operation === 'coffee_analysis' &&
           config.readingCommerceEnabled &&
-          !(await claimedLegacyCoffee(options.readingOperations, identity, validated.payload))
+          (validated.operation === 'coffee_analysis'
+            ? !(await claimedLegacyCoffee(options.readingOperations, identity, validated.payload))
+            : validated.operation === 'palm_analysis' &&
+              !(await claimedLegacyPalm({
+                operations: options.readingOperations,
+                store: options.ritualQuotaStore,
+                ownerUserId: identity,
+                payload: validated.payload,
+                idempotencyKey: idemKey,
+              })))
         ) {
           throw new ProxyError(ErrorCode.readingEntitlementRequired, 403);
         }

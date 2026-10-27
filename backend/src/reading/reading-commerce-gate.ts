@@ -20,8 +20,11 @@ import type {
   ReadingType,
 } from './operation-model.js';
 import { ReadingOperationError, type ReadingOperationService } from './operation-service.js';
+import { ritualOperationId } from './ritual-daily-quota.js';
 
 const SPEND_DAYS = 'aiSpendDays';
+/** Server-only: the one request key a pre-rollout Palm operation may be read under. */
+const LEGACY_DIRECT_AI = 'readingLegacyDirectAi';
 
 export type CommerceCreateInput = {
   readingType: ReadingType;
@@ -51,24 +54,66 @@ export function freeCoffeeCreateClosed(enabled: boolean, input: CommerceCreateIn
  * or foreign operations would be a new free reading.
  */
 export async function claimedLegacyCoffee(
-  operations: { getById(operationId: string): Promise<ReadingOperationRecord | null> } | undefined,
+  operations: OperationLookup | undefined,
   ownerUserId: string,
   payload: unknown,
 ): Promise<boolean> {
+  const operation = await claimedOperation(operations, ownerUserId, payload);
+  return operation?.readingType === 'coffee' &&
+    operation.coffeeCaptureContract == null;
+}
+
+/**
+ * Commerce on: `/v1/ai/complete` palm_analysis may only fulfil a Palm
+ * operation made before the rollout (it waited; a paid Palm is instant and
+ * belongs to the worker), owned by the caller and already claimed. The first
+ * request key (phase suffix aside) is pinned to the operation, so the same
+ * claimed operation cannot buy another reading under a new key.
+ */
+export async function claimedLegacyPalm(input: {
+  operations: OperationLookup | undefined;
+  store: FirestoreLike | undefined;
+  ownerUserId: string;
+  payload: unknown;
+  idempotencyKey: string | null;
+}): Promise<boolean> {
+  const operation = await claimedOperation(input.operations, input.ownerUserId, input.payload);
+  if (operation?.readingType !== 'palm' || !(operation.readyAtMs > operation.createdAtMs)) return false;
+  const requestKey = ritualOperationId(input.idempotencyKey);
+  const store = input.store;
+  if (!store || !requestKey) return false;
+  try {
+    return await store.runTransaction(async (tx) => {
+      const ref = store.collection(LEGACY_DIRECT_AI).doc(operation.operationId);
+      const pinned = (await tx.get(ref)).data();
+      if (pinned) return pinned.ownerUserId === input.ownerUserId && pinned.requestKey === requestKey;
+      tx.set(ref, { ownerUserId: input.ownerUserId, requestKey, readingType: 'palm' });
+      return true;
+    });
+  } catch {
+    return false;
+  }
+}
+
+type OperationLookup = { getById(operationId: string): Promise<ReadingOperationRecord | null> };
+
+/** The caller's own operation named by the payload, when it is claimed (`processing`). */
+async function claimedOperation(
+  operations: OperationLookup | undefined,
+  ownerUserId: string,
+  payload: unknown,
+): Promise<ReadingOperationRecord | null> {
   const operationId = payload && typeof payload === 'object'
     ? (payload as Record<string, unknown>).operationId
     : null;
-  if (!operations || typeof operationId !== 'string') return false;
+  if (!operations || typeof operationId !== 'string') return null;
   let operation: ReadingOperationRecord | null;
   try {
     operation = await operations.getById(operationId);
   } catch {
-    return false;
+    return null;
   }
-  return operation?.ownerUserId === ownerUserId &&
-    operation.readingType === 'coffee' &&
-    operation.status === 'processing' &&
-    operation.coffeeCaptureContract == null;
+  return operation?.ownerUserId === ownerUserId && operation.status === 'processing' ? operation : null;
 }
 
 export function readingFulfillmentOpen(config: AppConfig): boolean {
@@ -112,6 +157,10 @@ export async function openCommerceCreate(input: {
       : { kind: 'error', httpStatus: 403, code: ErrorCode.readingEntitlementRequired };
   }
   if (!commerceApplies(input.config.readingCommerceEnabled, input.body)) return { kind: 'skip' };
+  // A retry of a create made before the rollout (it waited) is that operation,
+  // not a new reading: no credit, no budget.
+  const earlier = await input.service.findCreated({ ownerUserId: input.ownerUserId, ...input.body });
+  if (earlier && earlier.readyAtMs > earlier.createdAtMs) return { kind: 'record', record: earlier };
   if (!input.store) return { kind: 'error', httpStatus: 503, code: ErrorCode.noConfiguration };
   if (!(await readingBudgetOpen(input.store, input.config, input.nowMs))) {
     return { kind: 'error', httpStatus: 503, code: ErrorCode.spendGuard };
