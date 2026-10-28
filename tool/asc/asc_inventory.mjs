@@ -2,8 +2,9 @@
 // GET requests only. Never prints the key, the bearer token or headers.
 // First non-2xx answer stops the run with its real status and Apple code;
 // there are no retries.
-import { createPrivateKey, sign } from 'node:crypto';
+import { sign } from 'node:crypto';
 import { writeFileSync } from 'node:fs';
+import { AscKeyError, loadAscPrivateKey } from './asc_key.mjs';
 
 const APP_ID = '6812580786';
 const BUNDLE_ID = 'app.oracly';
@@ -31,12 +32,22 @@ if (!env.key || !env.kid || !env.iss) {
   process.exit(2);
 }
 
+// Only the fixed reason code is printed; the key never reaches the log.
+let privateKey;
+try {
+  privateKey = loadAscPrivateKey(env.key);
+} catch (error) {
+  const reason = error instanceof AscKeyError ? error.reason : 'unexpected';
+  console.log(`STOP: private key not usable (${reason}). No Apple request was made.`);
+  process.exit(4);
+}
+
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
 const now = Math.floor(Date.now() / 1000);
 const unsigned = `${b64({ alg: 'ES256', kid: env.kid, typ: 'JWT' })}.` +
   b64({ iss: env.iss, iat: now, exp: now + 1200, aud: 'appstoreconnect-v1' });
 const signature = sign('sha256', Buffer.from(unsigned), {
-  key: createPrivateKey(env.key.replace(/\\n/g, '\n')),
+  key: privateKey,
   dsaEncoding: 'ieee-p1363',
 }).toString('base64url');
 const bearer = `${unsigned}.${signature}`;
@@ -57,6 +68,10 @@ function stop(path, status, body) {
 
 async function get(path, { optional = false } = {}) {
   const url = path.startsWith('http') ? path : `https://api.appstoreconnect.apple.com${path}`;
+  // The bearer token only ever goes to Apple (pagination links included).
+  if (new URL(url).origin !== 'https://api.appstoreconnect.apple.com') {
+    stop('pagination', 'foreign_host', null);
+  }
   const res = await fetch(url, { method: 'GET', headers: { Authorization: `Bearer ${bearer}` } });
   const body = await res.json().catch(() => null);
   const shown = url.replace('https://api.appstoreconnect.apple.com', '');
