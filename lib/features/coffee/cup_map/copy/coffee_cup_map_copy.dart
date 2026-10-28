@@ -63,8 +63,10 @@ abstract final class CoffeeCupMapCopy {
       'Kapalıyken fotoğraflar, falın hazır olunca cihazdan silinir.';
   static const consentFacts =
       'Bu seçim, fotoğrafların fal için gönderilmesini değiştirmez; fal iki '
-      'durumda da aynı okunur. Saklanan fotoğrafları telefon yer açmak için '
-      'silebilir. Her falın haritasını istediğin an silebilirsin.';
+      'durumda da aynı okunur. Fotoğraflar, işaretlerin ve notların '
+      'uygulamanın bu cihazdaki kendi alanında kalır; buluta eşitlenmez, cihaz '
+      'yedeklerine alınmaz. Telefon değiştirirsen ya da uygulamayı silersen '
+      'geri gelmez. Her falın haritasını istediğin an silebilirsin.';
   static const consentFuture = 'Bu ayar bundan sonra tamamlanan fallar için geçerli.';
 
   static const deleteMap = 'Bu falın haritasını sil';

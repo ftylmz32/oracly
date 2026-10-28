@@ -16,40 +16,68 @@ Nothing here says the feature is App Store ready.
 | Delete one reading's map | "Bu falın haritasını sil" → confirmation → photo files deleted first, then the map record (pins and notes). If a file cannot be deleted the record stays as its locator and the user is told. The reading text stays. |
 | Turn keeping off | The same switch at the bottom of the map. It applies to readings completed from then on; existing maps stay until deleted. |
 
-## 2. Where the photos live and why
+## 2. Where photos, pins and notes live and why
 
-`{app cache dir}/coffee_cup_map/` (`path_provider.getApplicationCacheDirectory`:
-Android `Context.getCacheDir()`, iOS `Library/Caches`).
+One app-private directory. Dart derives its path with `path_provider` (iOS:
+Application Support; Android: the files dir's parent + `no_backup`), so reads,
+deletes and wipes need no platform call. Only backup exclusion crosses the
+`app.oracly/cup_map_storage` channel (`MainActivity.kt`, `AppDelegate.swift`),
+and the native side accepts a path only inside the directory it computes
+itself — a mismatch answers `false` and nothing is kept:
 
-- **Backups.** Platform documentation excludes these directories from Android
-  Auto Backup / device-to-device transfer and from iCloud / Finder device
-  backups. This is a documented platform behavior, **not verified on a
-  device in this work**. The previous location (`coffee_images` in the
-  documents directory) is included in both platforms' backups — the app's
-  `backup_rules.xml` / `data_extraction_rules.xml` only exclude
-  `FlutterSecureStorage.xml` — so the map no longer uses it.
-- **Trade-off.** The OS may delete cache files to free space; the map then
-  shows "Bu fotoğraf artık cihazında değil" and keeps the pins listed.
-- **Metadata** (`coffee_cup_map_v1`: owner, reading id, photo paths and
-  checksums, pins, notes) and the choice (`coffee_cup_map_consent_v1`) live in
-  SharedPreferences, which Android Auto Backup includes. A restored record
-  without its photos degrades as above; it is never shown to another owner.
-- **Not encrypted at rest beyond the OS sandbox.** No such claim is made.
+| | Android | iOS |
+| --- | --- | --- |
+| Directory | `Context.getNoBackupFilesDir()/coffee_cup_map` | `Library/Application Support/coffee_cup_map` |
+| Evicted by the OS to free space? | No (not a cache dir) | No (Application Support is not purged) |
+| Backup exclusion | `no_backup` is skipped by Auto Backup and device transfer; also stated as a narrow `<exclude domain="root" path="no_backup/coffee_cup_map/"/>` in `backup_rules.xml` and both sections of `data_extraction_rules.xml` | `URLResourceValues.isExcludedFromBackup = true` on the directory and on every file written into it; re-applied after each atomic replace |
+| How the app checks | `isExcludedFromBackup` = canonical path strictly inside that directory | `isExcludedFromBackup` reads the resource value back |
+
+Contents: `photo_*.jpg` (the three reading photos) and `maps_v1.json`
+(owner, reading id, photo paths + SHA-256, pins, notes).
+
+- **Fail closed on exclusion.** A photo is kept only after the platform
+  confirms exclusion; otherwise the copy is deleted and nothing is kept. The
+  map file is written to `maps_v1.json.tmp`, confirmed excluded, then
+  renamed over the old file; if exclusion is not confirmed the old file is
+  left exactly as it was.
+- **Pins and notes are no longer in SharedPreferences** (which Android Auto
+  Backup and iOS backups include). Only the keep-photos choice
+  (`coffee_cup_map_consent_v1`, owner-stamped, a setting) stays there.
+- **Migration from `2e85526d`** (prefs key `coffee_cup_map_v1` + photos in
+  `{cache}/coffee_cup_map`): on first use each cache photo still present is
+  copied, excluded and checked against its recorded SHA-256; already-evicted
+  photos keep their old path (shown as missing, pins kept). Old data is
+  removed only after the new file is written; any failure removes this
+  run's copies, leaves the old data untouched and retries next time.
+- **Not synced, not restored.** A new phone, a reinstall or an app-data
+  clear does not bring maps back; the copy says so.
+- **No encryption claim** beyond the OS app sandbox / iOS data protection.
 - **Not uploaded again.** Keeping the photos does not change what is sent for
   the reading (still exactly 2 cup views + 1 saucer, unchanged contract).
+
+### Evidence
+
+- Android: `flutter build apk --debug` compiled the bridge (no install).
+  `aapt2 dump xmltree` of the built APK shows both rule files carrying
+  `no_backup/coffee_cup_map/` and the manifest pointing at them; the channel
+  name and `getNoBackupFilesDir` are in the compiled DEX.
+- iOS: **not compiled or run** (no macOS here). The Swift is unverified until
+  an Xcode build and a device check of the resource value.
+- Dart: a fake bridge with the same contract proves the fail-closed paths,
+  the audit that every file in the directory is excluded, restart and
+  cache-purge survival, and migration (section 6).
 
 ## 3. Ownership and deletion matrix
 
 | Event | Photos | Map (pins, notes) | Keep-photos choice |
 | --- | --- | --- | --- |
-| User deletes one map | deleted (fail-closed) | deleted | unchanged |
-| Discovery history clear | whole archive purged | deleted (kept as locator if purge fails, clear reports failure) | unchanged (a setting) |
-| Account switch / logout / account deletion (`UserLocalDataWipe`) | whole archive purged | deleted (kept + reported if purge fails) | deleted |
+| User deletes one map | deleted first (fail-closed) | removed once its photos are gone | unchanged |
+| Discovery history clear | every file in the directory + old cache purged (best effort) | removed with the directory contents | unchanged (a setting) |
+| Account switch / logout / account deletion (`UserLocalDataWipe`) | every file + old cache purged; anything left is reported | removed | deleted |
 | Another owner signed in | never shown | never shown or changed | read as off |
-| Uninstall | removed with the app sandbox | removed | removed |
+| Uninstall / app-data clear | removed with the app sandbox | removed | removed |
 
 All of the above is covered by tests (section 6).
-
 ## 4. Why `coffee_v3_three_view` is off by default
 
 `CoffeeV3CreationGate.creationAllowed = rolloutEnabled && Turkish UI`, where
@@ -115,15 +143,15 @@ production/business change outside this branch and was not made.
 > **Fincan Haritası (optional).** If you turn on "Fincan Haritası için
 > fotoğraflarımı sakla" before sending a coffee reading, the two cup photos
 > and the saucer photo of that completed reading are kept **on your device
-> only**, in the app's cache storage, so you can return to them and add your
+> only**, in the app's private storage, so you can return to them and add your
 > own marks and notes. They are not sent to ORACLY again and are not part of
 > the server retention above. Your marks and notes are stored on your device
 > only. You can delete one reading's map (its photos, marks and notes) from
 > the map screen; clearing reading history, account deletion, logging out /
-> switching account, or uninstalling the app also removes them. Your device's
-> operating system may remove the stored photos to free up space. The setting
-> is off unless you turn it on, and turning it off applies to readings
-> completed afterwards.
+> switching account, or uninstalling the app also removes them. They are not
+> synced or included in device backups, so they do not come back on a new
+> device or after reinstalling. The setting is off unless you turn it on, and
+> turning it off applies to readings completed afterwards.
 
 ### Privacy policy — "Local storage" list, add
 

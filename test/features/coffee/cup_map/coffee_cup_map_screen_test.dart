@@ -152,7 +152,7 @@ void main() {
     await tester.tap(find.text(CoffeeCupMapCopy.noteSave));
     await settle(tester);
 
-    final pin = store.load(_reading)!.pins.single;
+    final pin = (await store.load(_reading))!.pins.single;
     expect(pin.slot, CoffeeV3PhotoSlot.cupViewA);
     expect(pin.x, moreOrLessEquals(0.25, epsilon: 0.003));
     expect(pin.y, moreOrLessEquals(0.6, epsilon: 0.003));
@@ -172,7 +172,7 @@ void main() {
     await settle(tester);
     expect(find.text(CoffeeCupMapCopy.noteHint), findsOneWidget);
     await closeSheet(tester);
-    expect(store.load(_reading)!.pins, hasLength(1));
+    expect((await store.load(_reading))!.pins, hasLength(1));
   });
 
   testWidgets('zoomed and panned, a tap still lands on the right image point',
@@ -191,7 +191,7 @@ void main() {
     );
     await settle(tester);
     await closeSheet(tester);
-    final pin = store.load(_reading)!.pins.single;
+    final pin = (await store.load(_reading))!.pins.single;
     expect(pin.x, moreOrLessEquals(0.375, epsilon: 0.003));
     expect(pin.y, moreOrLessEquals(0.375, epsilon: 0.003));
     // The marker keeps a 44 px target at 2x.
@@ -209,7 +209,7 @@ void main() {
     await tester.tap(find.text(CoffeeCupMapCopy.pinAtCenter));
     await settle(tester);
     await closeSheet(tester);
-    final pin = store.load(_reading)!.pins.single;
+    final pin = (await store.load(_reading))!.pins.single;
     expect(pin.x, moreOrLessEquals(0.5, epsilon: 0.001));
     expect(pin.y, moreOrLessEquals(0.5, epsilon: 0.001));
   });
@@ -260,7 +260,7 @@ void main() {
     await settle(tester);
     await tester.tap(find.text(CoffeeCupMapCopy.noteDelete));
     await settle(tester);
-    expect(store.load(_reading)!.pins, isEmpty);
+    expect((await store.load(_reading))!.pins, isEmpty);
     expect(find.text(CoffeeCupMapCopy.listEmpty), findsOneWidget);
   });
 
@@ -283,17 +283,17 @@ void main() {
     // "Vazgeç" deletes nothing.
     await tester.tap(find.text(CoffeeCupMapCopy.deleteCancel));
     await settle(tester);
-    expect(store.load(_reading), isNotNull);
+    expect((await store.load(_reading)), isNotNull);
 
     await tester.tap(find.text(CoffeeCupMapCopy.deleteMap));
     await settle(tester);
     await tester.tap(find.text(CoffeeCupMapCopy.deleteConfirm));
     await settle(tester);
-    expect(store.load(_reading), isNull);
+    expect((await store.load(_reading)), isNull);
     for (final photo in photos) {
       expect(File(photo.path).existsSync(), isFalse);
     }
-    expect(storage.getString(CoffeeCupMapStore.key), isNot(contains('Silinecek')));
+    expect(cupMapFileText(), isNot(contains('Silinecek')));
   });
 
   testWidgets('if a photo cannot be deleted the map stays and says so',
@@ -310,7 +310,7 @@ void main() {
     await settle(tester);
     expect(find.text(CoffeeCupMapCopy.deleteFailed), findsOneWidget);
     expect(find.byType(CoffeeCupMapScreen), findsOneWidget);
-    expect(store.load(_reading), isNotNull);
+    expect((await store.load(_reading)), isNotNull);
   });
 
   testWidgets('the keep-photos choice is reachable here and turns off',
@@ -326,7 +326,7 @@ void main() {
     expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
     expect(CoffeeCupMapConsent(storage).keepPhotos, isFalse);
     // Turning it off never deletes an existing map.
-    expect(store.load(_reading), isNotNull);
+    expect((await store.load(_reading)), isNotNull);
   });
 
   testWidgets('a photo no longer on the device degrades, pins stay listed',

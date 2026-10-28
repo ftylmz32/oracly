@@ -41,6 +41,9 @@ class CoffeeCupMapPhoto {
   /// Checksum of the photo that was staged for this reading.
   final String sha256;
 
+  CoffeeCupMapPhoto withPath(String next) =>
+      CoffeeCupMapPhoto(slot: slot, path: next, sha256: sha256);
+
   Map<String, dynamic> toJson() => {
         'slot': slot.wireValue,
         'path': path,

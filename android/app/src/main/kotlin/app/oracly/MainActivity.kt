@@ -6,6 +6,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import java.io.File
 
 class MainActivity : FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +33,21 @@ class MainActivity : FlutterActivity() {
                     result.notImplemented()
                 }
             }
+        // Fincan Haritası photos + map file: app-private, never evicted, and
+        // under getNoBackupFilesDir(), which Auto Backup and device transfer
+        // skip. Dart derives the same path; a file is reported excluded only
+        // when its canonical path is inside THIS directory.
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "app.oracly/cup_map_storage")
+            .setMethodCallHandler { call, result ->
+                val dir = File(noBackupFilesDir, "coffee_cup_map")
+                when (call.method) {
+                    "excludeFromBackup", "isExcludedFromBackup" -> {
+                        val path = call.argument<String>("path")
+                        result.success(path != null && isInside(dir, File(path)))
+                    }
+                    else -> result.notImplemented()
+                }
+            }
         // Ambient music yields to calls and other apps' audio. Read-only
         // AudioManager state; no permission, never touches other apps.
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "oracly/audio")
@@ -47,5 +63,10 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+    }
+
+    private fun isInside(dir: File, file: File): Boolean {
+        val root = dir.canonicalPath + File.separator
+        return file.canonicalPath.startsWith(root)
     }
 }

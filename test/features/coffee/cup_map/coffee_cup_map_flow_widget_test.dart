@@ -27,6 +27,7 @@ import 'package:oracly_new/features/coffee/coffee_v3/services/coffee_v3_submissi
 import 'package:oracly_new/features/coffee/cup_map/copy/coffee_cup_map_copy.dart';
 import 'package:oracly_new/features/coffee/cup_map/presentation/coffee_cup_map_screen.dart';
 import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_consent.dart';
+import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_location.dart';
 import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_store.dart';
 import 'package:oracly_new/features/coffee/models/coffee_image_pick.dart';
 import 'package:oracly_new/features/coffee/presentation/reference/coffee_result_view.dart';
@@ -90,6 +91,7 @@ void main() {
     FeatureFlagRuntime.refreshFromRemote({'coffee_v3_three_view': true});
     temp = await Directory.systemTemp.createTemp('cup_map_flow_');
     PathProviderPlatform.instance = _SupportAndCache(temp.path);
+    CoffeeCupMapLocation.instance = FakeCupMapLocation(temp.path);
     SharedPreferences.setMockInitialValues({});
     storage = await LocalStorage.open();
     await storage.setString(UserLocalDataIsolation.ownerKey, _owner);
@@ -218,7 +220,7 @@ void main() {
         ['v3_cup_view_a', 'v3_cup_view_b', 'v3_saucer_view']);
     await completeOnServer(tester, opId, 'coffee-v3-flow-r1');
 
-    final map = CoffeeCupMapStore(storage).load('coffee-v3-flow-r1')!;
+    final map = (await CoffeeCupMapStore(storage).load('coffee-v3-flow-r1'))!;
     expect(map.photos, hasLength(3));
     // Sync: async IO never completes on the widget-test clock.
     final base = File(cupMapFixturePhoto).readAsBytesSync();
@@ -250,7 +252,7 @@ void main() {
     await settle(tester);
     await tester.tap(find.text(CoffeeCupMapCopy.noteClose));
     await settle(tester);
-    expect(CoffeeCupMapStore(storage).load('coffee-v3-flow-r1')!.pins, hasLength(1));
+    expect((await CoffeeCupMapStore(storage).load('coffee-v3-flow-r1'))!.pins, hasLength(1));
 
     await tester.runAsync(() async {
       Navigator.of(tester.element(find.byType(CoffeeCupMapScreen))).pop();
@@ -271,7 +273,7 @@ void main() {
     await settle(tester);
     expect(find.byType(CoffeeCupMapScreen), findsNothing);
     expect(find.text(CoffeeCupMapCopy.entryOpen), findsNothing);
-    expect(CoffeeCupMapStore(storage).load('coffee-v3-flow-r1'), isNull);
+    expect((await CoffeeCupMapStore(storage).load('coffee-v3-flow-r1')), isNull);
     for (final photo in map.photos) {
       expect(File(photo.path).existsSync(), isFalse);
     }
@@ -284,7 +286,7 @@ void main() {
       (tester) async {
     final opId = await captureAndSubmit(tester, keepPhotos: false);
     await completeOnServer(tester, opId, 'coffee-v3-flow-r2');
-    expect(storage.getString(CoffeeCupMapStore.key), isNull);
+    expect(cupMapFileText(), isNull);
     expect(find.text(CoffeeCupMapCopy.title), findsNothing);
     expect(find.text(CoffeeCupMapCopy.entryOpen), findsNothing);
     await tester.pumpWidget(const SizedBox());

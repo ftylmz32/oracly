@@ -38,13 +38,28 @@ class _CoffeeCupMapScreenState extends ConsumerState<CoffeeCupMapScreen> {
   String? _selectedPinId;
   bool _busy = false;
   bool _zoomed = false;
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
     _store = ref.read(coffeeCupMapStoreProvider);
-    _record = _store?.load(widget.readingId);
-    _slot = _record?.photos.first.slot;
+    _load();
+  }
+
+  Future<void> _load() async {
+    CoffeeCupMapRecord? record;
+    try {
+      record = await _store?.load(widget.readingId);
+    } catch (_) {
+      record = null;
+    }
+    if (!mounted) return;
+    setState(() {
+      _record = record;
+      _slot = record?.photos.first.slot;
+      _loading = false;
+    });
   }
 
   List<CoffeeCupMapPin> _pinsOf(CoffeeV3PhotoSlot slot) =>
@@ -211,7 +226,11 @@ class _CoffeeCupMapScreenState extends ConsumerState<CoffeeCupMapScreen> {
               ),
             ),
             Expanded(
-              child: _record == null ? const _Unavailable() : _body(context),
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _record == null
+                      ? const _Unavailable()
+                      : _body(context),
             ),
           ],
         ),

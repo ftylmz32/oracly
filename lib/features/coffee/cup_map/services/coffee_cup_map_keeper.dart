@@ -2,8 +2,8 @@
 /// owner has turned on "keep my photos" — at the one moment their link to
 /// that reading is certain: the V3 submission that created the operation
 /// has just restored the operation's own result. The photos are re-verified
-/// against the checksums recorded at capture and copied into the cup-map
-/// archive BEFORE V3 releases its working copies.
+/// against the checksums recorded at capture and copied into the durable,
+/// backup-excluded cup-map archive BEFORE V3 releases its working copies.
 ///
 /// Best effort by contract — no consent or any failure leaves the reading
 /// without a map and never touches the reading itself.
@@ -53,7 +53,7 @@ class CoffeeCupMapKeeper {
     if (!_consent.keepPhotos) return;
     final owner = _store.currentOwnerId;
     if (owner.isEmpty || submissionOwnerId != owner || assets.isEmpty) return;
-    if (_store.load(resultId) != null) return;
+    if (await _store.load(resultId) != null) return;
 
     final kept = <CoffeeCupMapPhoto>[];
     for (final slot in coffeeV3CanonicalSlotOrder) {

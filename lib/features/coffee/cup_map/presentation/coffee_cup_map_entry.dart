@@ -28,6 +28,7 @@ class CoffeeCupMapEntry extends ConsumerStatefulWidget {
 
 class _CoffeeCupMapEntryState extends ConsumerState<CoffeeCupMapEntry> {
   CoffeeCupMapRecord? _record;
+  int _generation = 0;
 
   @override
   void initState() {
@@ -43,11 +44,19 @@ class _CoffeeCupMapEntryState extends ConsumerState<CoffeeCupMapEntry> {
     _reload();
   }
 
-  void _reload() {
-    final record = ref.read(coffeeCupMapStoreProvider)?.load(widget.readingId);
+  Future<void> _reload() async {
+    final generation = ++_generation;
+    final readingId = widget.readingId;
+    CoffeeCupMapRecord? record;
+    try {
+      record = await ref.read(coffeeCupMapStoreProvider)?.load(readingId);
+    } catch (_) {
+      record = null;
+    }
     final usable =
         record != null && record.photos.any((p) => File(p.path).existsSync());
-    _record = usable ? record : null;
+    if (!mounted || generation != _generation) return;
+    setState(() => _record = usable ? record : null);
   }
 
   Future<void> _open() async {
@@ -56,7 +65,7 @@ class _CoffeeCupMapEntryState extends ConsumerState<CoffeeCupMapEntry> {
         builder: (_) => CoffeeCupMapScreen(readingId: widget.readingId),
       ),
     );
-    if (mounted) setState(_reload);
+    if (mounted) await _reload();
   }
 
   @override

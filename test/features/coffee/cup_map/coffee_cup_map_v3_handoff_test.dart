@@ -20,7 +20,6 @@ import 'package:oracly_new/features/coffee/coffee_v3/services/coffee_v3_submissi
 import 'package:oracly_new/features/coffee/coffee_v3/services/coffee_v3_submission_store.dart';
 import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_consent.dart';
 import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_keeper.dart';
-import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_photo_archive.dart';
 import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_store.dart';
 import 'package:oracly_new/features/coffee/data/coffee_reading_store.dart';
 import 'package:oracly_new/features/coffee/models/coffee_image_pick.dart';
@@ -151,11 +150,10 @@ void main() {
     );
     await waitFor(() => c.record.resultPendingAcknowledgement);
     expect(readings.byId('coffee-v3-map-r0')?.overall, _overall);
-    expect(storage.getString(CoffeeCupMapStore.key), isNull);
+    expect(cupMapFileText(), isNull);
     expect(
-      Directory('${temp.path}/cache/${CoffeeCupMapPhotoArchive.dirName}')
-          .existsSync(),
-      isFalse,
+      installedCupMapLocation.audit().isEmpty,
+      isTrue,
     );
     for (final path in workPaths) {
       expect(await File(path).exists(), isFalse);
@@ -184,7 +182,7 @@ void main() {
     await waitFor(() => c.record.resultPendingAcknowledgement);
 
     expect(readings.byId('coffee-v3-map-r1')?.overall, _overall);
-    final map = CoffeeCupMapStore(storage).load('coffee-v3-map-r1')!;
+    final map = (await CoffeeCupMapStore(storage).load('coffee-v3-map-r1'))!;
     expect(map.ownerId, _owner);
     expect(map.photos.map((p) => p.slot), coffeeV3CanonicalSlotOrder);
     for (final photo in map.photos) {
@@ -218,7 +216,7 @@ void main() {
     );
     await waitFor(() => c.record.resultPendingAcknowledgement);
     expect(c.reading?.id, 'coffee-v3-map-r2');
-    expect(CoffeeCupMapStore(storage).load('coffee-v3-map-r2'), isNull);
+    expect((await CoffeeCupMapStore(storage).load('coffee-v3-map-r2')), isNull);
     for (final path in workPaths) {
       expect(await File(path).exists(), isFalse);
     }
@@ -254,7 +252,7 @@ void main() {
       result: v3NarrativeV1Result(_overall),
     );
     await waitFor(() => c.record.resultPendingAcknowledgement);
-    expect(CoffeeCupMapStore(storage).load('coffee-v3-map-r3'), isNull);
-    expect(storage.getString(CoffeeCupMapStore.key), isNull);
+    expect((await CoffeeCupMapStore(storage).load('coffee-v3-map-r3')), isNull);
+    expect(cupMapFileText(), isNull);
   });
 }
