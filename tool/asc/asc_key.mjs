@@ -6,8 +6,13 @@
 //   - base64 of a whole PEM file
 //   - base64 of the PKCS#8 DER body (no PEM armour)
 // optionally wrapped in quotes. Anything else is refused.
-// Errors carry only a fixed reason code: never the key, its parts or length.
+// Like Codemagic's own cli-tools (EnvironmentArgumentValue), the variable
+// may instead hold "@env:<NAME>" or "@file:<path>"; one level is resolved.
+// Errors carry only a fixed reason code: never the key, its parts or length,
+// nor the referenced variable name or path.
 import { createPrivateKey } from 'node:crypto';
+import { readFileSync, statSync } from 'node:fs';
+import { homedir } from 'node:os';
 
 export class AscKeyError extends Error {
   constructor(reason) {
@@ -70,9 +75,35 @@ function normalize(raw) {
   return pemFromBody(compact);
 }
 
+// os.path.expandvars + expanduser, as cli-tools does for "@file:".
+function expandPath(path, env) {
+  const vars = path.replace(/\$(\w+)|\$\{(\w+)\}/g, (all, a, b) => env[a ?? b] ?? all);
+  return vars === '~' || vars.startsWith('~/') ? homedir() + vars.slice(1) : vars;
+}
+
+function resolveReference(raw, env) {
+  if (typeof raw !== 'string') return raw;
+  if (raw.startsWith('@env:')) {
+    const value = env[raw.slice(5)];
+    if (value === undefined) throw new AscKeyError('reference_env_missing');
+    return value;
+  }
+  if (raw.startsWith('@file:')) {
+    const path = expandPath(raw.slice(6), env);
+    try {
+      if (!statSync(path).isFile()) throw new AscKeyError('reference_file_missing');
+      return readFileSync(path, 'utf8');
+    } catch (error) {
+      if (error instanceof AscKeyError) throw error;
+      throw new AscKeyError('reference_file_missing');
+    }
+  }
+  return raw;
+}
+
 /** Returns a Node KeyObject for a valid Apple .p8 key, else throws AscKeyError. */
-export function loadAscPrivateKey(raw) {
-  const pem = normalize(raw);
+export function loadAscPrivateKey(raw, env = process.env) {
+  const pem = normalize(resolveReference(raw, env));
   let key;
   try {
     key = createPrivateKey({ key: pem, format: 'pem' });

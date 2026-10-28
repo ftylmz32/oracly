@@ -3,7 +3,10 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { createPublicKey, generateKeyPairSync, sign, verify } from 'node:crypto';
-import { test } from 'node:test';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { after, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { AscKeyError, loadAscPrivateKey } from './asc_key.mjs';
 
@@ -104,4 +107,72 @@ test('inventory script stops on a bad key before any Apple request and logs no k
     assert.ok(!out.includes(BODY.slice(i, i + 12)), 'no fragment of the key body');
   }
   assert.doesNotMatch(out, /BEGIN|PRIVATE KEY|Bearer|eyJ/);
+});
+
+// "@env:" / "@file:" references, as Codemagic cli-tools resolves them for
+// APP_STORE_CONNECT_PRIVATE_KEY (src/codemagic/cli/argument/typed_cli_argument.py).
+const dir = mkdtempSync(join(tmpdir(), 'asc-key-test-'));
+after(() => rmSync(dir, { recursive: true, force: true }));
+const keyFile = join(dir, 'AuthKey_TEST.p8');
+writeFileSync(keyFile, PEM);
+const badFile = join(dir, 'bad.p8');
+writeFileSync(badFile, corruptBody(5));
+
+const refEnv = {
+  ASC_KEY_PEM: PEM,
+  ASC_KEY_ESCAPED: PEM.replace(/\n/g, '\n'),
+  ASC_KEY_DIR: dir,
+  ASC_KEY_NESTED: `@file:${keyFile}`,
+};
+
+const acceptedRefs = {
+  '@env: holding a PEM': '@env:ASC_KEY_PEM',
+  '@env: holding an escaped PEM': '@env:ASC_KEY_ESCAPED',
+  '@file: absolute path': `@file:${keyFile}`,
+  '@file: path with $VAR': '@file:$ASC_KEY_DIR/AuthKey_TEST.p8',
+  '@file: path with ${VAR}': '@file:${ASC_KEY_DIR}/AuthKey_TEST.p8',
+};
+
+for (const [label, input] of Object.entries(acceptedRefs)) {
+  test(`accepts ${label}`, () => {
+    signsWithGeneratedKey(loadAscPrivateKey(input, refEnv));
+  });
+}
+
+const refusedRefs = {
+  '@env: naming an unset variable': ['@env:ASC_KEY_UNSET', 'reference_env_missing'],
+  '@file: missing file': [`@file:${join(dir, 'nope.p8')}`, 'reference_file_missing'],
+  '@file: a directory': [`@file:${dir}`, 'reference_file_missing'],
+  '@file: with a corrupt key': [`@file:${badFile}`, 'malformed_pem'],
+  'only one level of reference': ['@env:ASC_KEY_NESTED', 'unrecognized_format'],
+  'unknown @ prefix': [`@path:${keyFile}`, 'unrecognized_format'],
+};
+
+for (const [label, [input, reason]] of Object.entries(refusedRefs)) {
+  test(`refuses ${label} as ${reason}, naming neither variable nor path`, () => {
+    assert.throws(() => loadAscPrivateKey(input, refEnv), (error) => {
+      assert.ok(error instanceof AscKeyError);
+      assert.equal(error.reason, reason);
+      assert.ok(!error.message.includes('ASC_KEY') && !error.message.includes(dir));
+      return true;
+    });
+  });
+}
+
+test('inventory script resolves the reference before any request and does not log it', () => {
+  const script = fileURLToPath(new URL('./asc_inventory.mjs', import.meta.url));
+  const run = spawnSync(process.execPath, [script], {
+    env: {
+      ...process.env,
+      APP_STORE_CONNECT_PRIVATE_KEY: `@file:${join(dir, 'missing-secret-name.p8')}`,
+      APP_STORE_CONNECT_KEY_IDENTIFIER: 'TESTKEYID',
+      APP_STORE_CONNECT_ISSUER_ID: '00000000-0000-0000-0000-000000000000',
+      CM_BUILD_DIR: dir,
+    },
+    encoding: 'utf8',
+  });
+  const out = run.stdout + run.stderr;
+  assert.equal(run.status, 4);
+  assert.match(out, /STOP: private key not usable \(reference_file_missing\)\. No Apple request was made\./);
+  assert.doesNotMatch(out, /GET |missing-secret-name|asc-key-test-/);
 });
