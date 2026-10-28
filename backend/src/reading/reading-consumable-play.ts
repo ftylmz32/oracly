@@ -2,8 +2,17 @@
  * Google Play one-time product read and consume. No credentials live here.
  * purchaseState 0 is the only completed purchase. Pending and canceled grant nothing.
  */
+import { normalizeReadingOwnerToken } from './reading-owner-token.js';
+
 export type PlayConsumableDecision =
-  | { ok: true; transactionId: string; alreadyConsumed: boolean; licenseTest: boolean }
+  | {
+      ok: true;
+      transactionId: string;
+      alreadyConsumed: boolean;
+      licenseTest: boolean;
+      /** `obfuscatedExternalAccountId`; absent on purchases launched before owner tags. */
+      accountTag: string | null;
+    }
   | { ok: false; reason: 'pending' | 'canceled' | 'invalid' | 'product_mismatch'; transactionId?: string };
 
 /** Play sets purchaseType 0 only for a license-tester purchase. A real charge omits it. */
@@ -28,6 +37,7 @@ export function interpretPlayConsumable(
     transactionId: orderId,
     alreadyConsumed: Number(body.consumptionState) === 1,
     licenseTest: playLicenseTest(body),
+    accountTag: normalizeReadingOwnerToken(body.obfuscatedExternalAccountId),
   };
 }
 

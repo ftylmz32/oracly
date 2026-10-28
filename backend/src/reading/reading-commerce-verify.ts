@@ -13,7 +13,18 @@ export type ConsumableVerifyRequest = {
 };
 
 export type ConsumableVerifyResult =
-  | { ok: true; transactionId: string; environment?: 'Production' | 'Sandbox'; licenseTest?: boolean }
+  | {
+      ok: true;
+      transactionId: string;
+      environment?: 'Production' | 'Sandbox';
+      licenseTest?: boolean;
+      /**
+       * The account the store says the purchase was launched for
+       * (StoreKit 2 `appAccountToken`, Play `obfuscatedExternalAccountId`),
+       * normalized. The route compares it with the caller.
+       */
+      accountTag?: string | null;
+    }
   | {
       ok: false;
       reason:

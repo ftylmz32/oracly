@@ -16,6 +16,7 @@ import { ReadingFlow } from '../src/reading/reading-flow.js';
 import { createClosedConsumableVerifier } from '../src/reading/reading-commerce-verify.js';
 import type { ConsumableVerifier } from '../src/reading/reading-commerce-verify.js';
 import { ReadingEntitlementLedger } from '../src/reading/reading-entitlement-ledger.js';
+import { readingOwnerToken } from '../src/reading/reading-owner-token.js';
 import { provisionalWaitPolicy } from '../src/reading/wait-policy.js';
 import type { ServerClock } from '../src/reading/clock.js';
 import {
@@ -42,7 +43,12 @@ const admitting: ConsumableVerifier = {
   admitted: true,
   async verify(request) {
     if (!request.purchaseToken.startsWith('valid-')) return { ok: false, reason: 'unverified' };
-    return { ok: true, transactionId: `tx-${request.purchaseToken}` };
+    return {
+      ok: true,
+      transactionId: `tx-${request.purchaseToken}`,
+      // Like a real StoreKit 2 JWS: names the buyer (the default user-a).
+      accountTag: request.platform === 'ios' ? readingOwnerToken('user-a') : undefined,
+    };
   },
 };
 

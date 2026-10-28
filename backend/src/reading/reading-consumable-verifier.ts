@@ -58,6 +58,7 @@ export function createReadingConsumableVerifier(
             ok: true,
             transactionId: decision.transactionId,
             licenseTest: decision.licenseTest,
+            accountTag: decision.accountTag,
           };
         } catch {
           return { ok: false, reason: 'provider_unavailable' };
@@ -74,6 +75,7 @@ export function createReadingConsumableVerifier(
             transactionId: decoded.payload.transactionId,
             revocationDate: decoded.payload.revocationDate,
             type: decoded.payload.type == null ? null : String(decoded.payload.type),
+            appAccountToken: decoded.payload.appAccountToken ?? null,
           },
           {
             bundleId: config.appleBundleId,
@@ -82,7 +84,15 @@ export function createReadingConsumableVerifier(
           },
         );
         return decision.ok
-          ? { ok: true, transactionId: decision.transactionId, environment: decision.environment }
+          ? {
+              ok: true,
+              transactionId: decision.transactionId,
+              environment: decision.environment,
+              // App Review and TestFlight buy in Sandbox; the QA server
+              // treats it as the counterpart of a Play license test.
+              licenseTest: decision.environment === 'Sandbox',
+              accountTag: decision.accountTag,
+            }
           : { ok: false, reason: decision.reason, transactionId: decision.transactionId };
       } catch {
         return { ok: false, reason: 'provider_unavailable' };

@@ -17,6 +17,7 @@ import { registerReadingStagedImageRoutes } from './routes/reading-staged-image-
 import { registerHealth } from './routes/health.js';
 import { registerBillingRoutes } from './routes/billing.js';
 import { registerReadingCommerceRoutes } from './routes/reading-commerce.js';
+import type { AppleNotificationDecoder } from './reading/reading-apple-notifications.js';
 import type { ConsumableVerifier } from './reading/reading-commerce-verify.js';
 import { createReadingConsumableVerifier } from './reading/reading-consumable-verifier.js';
 import { registerReviewAccessRoutes } from './routes/review-access.js';
@@ -82,6 +83,8 @@ export type BuildOptions = {
   gemStore?: FirestoreLike;
   /** Test seam. Production uses the closed consumable verifier. */
   readingCommerceVerifier?: ConsumableVerifier;
+  /** Test seam. Production verifies App Store notifications from config. */
+  readingAppleNotifications?: AppleNotificationDecoder | null;
   rewardedAds?: Omit<RewardedAdRouteOptions, 'ledger' | 'appCheck' | 'clock'>;
   readingFlow?: ReadingFlow;
   /** Durable Coffee/Palm staged-image metadata store (BATCH 5I). */
@@ -268,6 +271,7 @@ export async function buildServer(options: BuildOptions) {
     store: options.gemStore,
     clock: readingClock,
     verifier: options.readingCommerceVerifier ?? createReadingConsumableVerifier(config),
+    appleNotifications: options.readingAppleNotifications,
     lookupOperation: async (ownerUserId, operationId) => {
       const record = await readingOperationRepository.getById(operationId);
       if (!record || record.ownerUserId !== ownerUserId) return null;

@@ -20,6 +20,12 @@ import {
   type ReadingCommerceProductId,
 } from '../reading/reading-commerce-catalog.js';
 import { billingQaRejectsPurchase, catalogPurchasable } from '../reading/reading-billing-qa.js';
+import { readingOwnerToken } from '../reading/reading-owner-token.js';
+import {
+  applyAppleReadingNotification,
+  createAppleNotificationDecoder,
+  type AppleNotificationDecoder,
+} from '../reading/reading-apple-notifications.js';
 import { syncVoidedReadingPurchases } from '../reading/reading-voided-sync.js';
 import { readingBudgetOpen, readingFulfillmentOpen } from '../reading/reading-commerce-gate.js';
 import {
@@ -33,6 +39,31 @@ import {
 
 const PRICE_KEYS = ['price', 'priceMinor', 'amount', 'currency', 'grants', 'cost'];
 
+/**
+ * The store names the buyer; the authenticated subject is authoritative.
+ * StoreKit 2 always carries the app's owner token, so an iOS purchase
+ * without one, or for another account, is refused. Play purchases launched
+ * before owner tags carry none and stay accepted; a Play tag for another
+ * account is refused.
+ */
+export function readingOwnerRefusal(
+  platform: 'android' | 'ios',
+  accountTag: string | null | undefined,
+  authSubject: string | undefined,
+): 'owner_unproven' | 'purchase_bound_to_other_account' | null {
+  const subject = authSubject?.trim() ?? '';
+  if (platform === 'ios') {
+    if (!subject || !accountTag) return 'owner_unproven';
+    return accountTag === readingOwnerToken(subject)
+      ? null
+      : 'purchase_bound_to_other_account';
+  }
+  if (accountTag && subject && accountTag !== readingOwnerToken(subject)) {
+    return 'purchase_bound_to_other_account';
+  }
+  return null;
+}
+
 function commerceAppId(config: AppConfig, platform: 'android' | 'ios'): string {
   const bundle = platform === 'ios' ? config.appleBundleId?.trim() : '';
   return bundle || config.playPackageName.trim();
@@ -44,6 +75,8 @@ export type ReadingCommerceRouteOptions = {
   clock?: ServerClock;
   verifier?: ConsumableVerifier;
   lookupOperation?: (ownerUserId: string, operationId: string) => Promise<{ ownerUserId: string } | null>;
+  /** Verifies App Store Server Notifications; `null` = not configured. */
+  appleNotifications?: AppleNotificationDecoder | null;
 };
 
 export async function registerReadingCommerceRoutes(
@@ -145,6 +178,13 @@ export async function registerReadingCommerceRoutes(
       productId: productId as ReadingCommerceProductId,
       purchaseToken,
     });
+    if (verified.ok) {
+      const refusal = readingOwnerRefusal(platform, verified.accountTag, request.authSubject);
+      if (refusal) {
+        // Nothing is bound or consumed, so the real owner can still claim it.
+        return reply.code(200).send(successEnvelope({ granted: false, reason: refusal }));
+      }
+    }
     if (verified.ok && billingQaRejectsPurchase(config.readingBillingQa, verified.licenseTest)) {
       return reply.code(200).send(successEnvelope({ granted: false, reason: 'not_license_test' }));
     }
@@ -201,6 +241,40 @@ export async function registerReadingCommerceRoutes(
       if (error instanceof ReadingEntitlementError && error.code === 'invalid') {
         return reply.code(400).send(errorEnvelope(ErrorCode.invalidRequest));
       }
+      return reply.code(503).send(errorEnvelope(ErrorCode.noConfiguration));
+    }
+  });
+
+  // App Store Server Notifications V2. Apple is the caller: no user auth or
+  // App Check; the signed payload is the proof. Unverifiable → 400 and
+  // nothing changes; a verified notification is always acknowledged.
+  const appleNotifications = options.appleNotifications === undefined
+    ? createAppleNotificationDecoder(config)
+    : options.appleNotifications;
+  app.post('/v1/reading-entitlements/apple-notifications', async (request, reply) => {
+    const body = request.body;
+    const signedPayload = body && typeof body === 'object' && !Array.isArray(body)
+      ? (body as Record<string, unknown>).signedPayload
+      : undefined;
+    if (typeof signedPayload !== 'string' || !signedPayload.trim()) {
+      return reply.code(400).send(errorEnvelope(ErrorCode.invalidRequest));
+    }
+    const bundleId = config.appleBundleId?.trim();
+    if (!appleNotifications || !bundleId || !options.store) {
+      return reply.code(503).send(errorEnvelope(ErrorCode.noConfiguration));
+    }
+    const notification = await appleNotifications(signedPayload.trim());
+    if (!notification) return reply.code(400).send(errorEnvelope(ErrorCode.invalidRequest));
+    try {
+      const outcome = await applyAppleReadingNotification({
+        store: options.store,
+        bundleId,
+        notification,
+        atMs: toEpochMs(clock.now()),
+      });
+      return reply.code(200).send(successEnvelope({ outcome }));
+    } catch {
+      // Apple retries a non-200; the ledger change is idempotent.
       return reply.code(503).send(errorEnvelope(ErrorCode.noConfiguration));
     }
   });

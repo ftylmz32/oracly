@@ -42,6 +42,7 @@ export async function testApp(
     gemLedger?: import('../src/reading/gem-ledger.js').GemLedger;
     gemStore?: import('../src/billing/entitlement-repository.js').FirestoreLike;
     readingCommerceVerifier?: import('../src/reading/reading-commerce-verify.js').ConsumableVerifier;
+    readingAppleNotifications?: import('../src/reading/reading-apple-notifications.js').AppleNotificationDecoder | null;
     readingFlow?: import('../src/reading/reading-flow.js').ReadingFlow;
     readingOperationInputRepository?: import('../src/reading/operation-input-repository.js').ReadingOperationInputRepository;
     rewardedAds?: import('../src/server.js').BuildOptions['rewardedAds'];
@@ -74,6 +75,7 @@ export async function testApp(
     gemLedger: options.gemLedger,
     gemStore: options.gemStore,
     readingCommerceVerifier: options.readingCommerceVerifier,
+    readingAppleNotifications: options.readingAppleNotifications,
     readingFlow: options.readingFlow,
     readingOperationInputRepository: options.readingOperationInputRepository,
     rewardedAds: options.rewardedAds,

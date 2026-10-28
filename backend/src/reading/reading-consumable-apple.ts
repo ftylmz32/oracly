@@ -3,6 +3,7 @@
  * verify a signature and is not a sandbox pass.
  */
 import { readingCommerceProduct } from './reading-commerce-catalog.js';
+import { normalizeReadingOwnerToken } from './reading-owner-token.js';
 
 export type AppleConsumablePayload = {
   bundleId?: string | null;
@@ -10,10 +11,16 @@ export type AppleConsumablePayload = {
   transactionId?: string | null;
   revocationDate?: number | null;
   type?: string | null;
+  appAccountToken?: string | null;
 };
 
 export type AppleConsumableDecision =
-  | { ok: true; transactionId: string; environment: 'Production' | 'Sandbox' }
+  | {
+      ok: true;
+      transactionId: string;
+      environment: 'Production' | 'Sandbox';
+      accountTag: string | null;
+    }
   | { ok: false; reason: 'bundle_mismatch' | 'product_mismatch' | 'revoked' | 'invalid'; transactionId?: string };
 
 export function interpretAppleConsumable(
@@ -33,5 +40,10 @@ export function interpretAppleConsumable(
   }
   if (payload.type != null && payload.type !== 'Consumable') return { ok: false, reason: 'invalid' };
   if (!transactionId) return { ok: false, reason: 'invalid' };
-  return { ok: true, transactionId, environment: expected.environment };
+  return {
+    ok: true,
+    transactionId,
+    environment: expected.environment,
+    accountTag: normalizeReadingOwnerToken(payload.appAccountToken),
+  };
 }

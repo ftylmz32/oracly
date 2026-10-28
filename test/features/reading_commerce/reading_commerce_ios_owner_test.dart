@@ -173,6 +173,15 @@ void main() {
       expect(a, isNot(contains('uid-account-a')));
     });
 
+    test('matches the server readingOwnerToken byte for byte', () {
+      // Same vector as backend/tests/reading-commerce-ios.test.ts: the
+      // server refuses an iOS purchase whose token differs from this.
+      expect(
+        ReadingOwnerToken.forUid('user-a'),
+        '434d797f-ce86-5c5e-8548-7bdd52c63fbc',
+      );
+    });
+
     test('is what a launched reading purchase sends to the store', () {
       final token = ReadingOwnerToken.forUid('uid-account-a');
       final param = ReadingCommerceBuyer.purchaseParamFor(
