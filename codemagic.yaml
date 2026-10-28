@@ -351,3 +351,248 @@ workflows:
     artifacts:
       - flutter_build_ios.log
       - /tmp/xcodebuild_logs/*.log
+
+  # Signed IPA for inspection only. Started by hand: no triggering and no
+  # publishing section, so Codemagic never uploads it to App Store Connect or
+  # TestFlight. Signing uses the existing ORACLY Codemagic integration and the
+  # App Store signing files already in Codemagic (ios_signing fetches them; it
+  # creates nothing in the Apple portal). The IPA is a build artifact only.
+  ios-signed-qa-check:
+    name: ORACLY iOS signed QA check (signed IPA artifact, no upload)
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+
+    integrations:
+      app_store_connect: "ORACLY Codemagic"
+
+    environment:
+      groups:
+        - ios_secrets
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: app.oracly
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+
+    scripts:
+      - name: Restore Firebase iOS config
+        script: |
+          if [ -z "${FIREBASE_IOS_PLIST_B64:-}" ]; then
+            echo "FIREBASE_IOS_PLIST_B64 is not configured"
+            exit 1
+          fi
+          mkdir -p ios/Runner
+          printf '%s' "$FIREBASE_IOS_PLIST_B64" | base64 --decode > ios/Runner/GoogleService-Info.plist
+          plutil -lint ios/Runner/GoogleService-Info.plist
+          FIREBASE_BUNDLE_ID=$(/usr/libexec/PlistBuddy -c 'Print :BUNDLE_ID' ios/Runner/GoogleService-Info.plist)
+          if [ "$FIREBASE_BUNDLE_ID" != "app.oracly" ]; then
+            echo "Firebase iOS config bundle mismatch: $FIREBASE_BUNDLE_ID"
+            exit 1
+          fi
+          echo "Firebase iOS config restored for app.oracly"
+
+      - name: Align FlutterFire iOS SDK versions
+        script: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path("pubspec.yaml")
+          text = p.read_text(encoding="utf-8")
+          replacements = {
+              "  firebase_core: ^4.13.0": "  firebase_core: 4.14.0",
+              "  firebase_auth: ^6.6.1": "  firebase_auth: 6.6.1",
+              "  firebase_app_check: 0.4.6": "  firebase_app_check: 0.4.7",
+              "  firebase_messaging: ^16.6.0": "  firebase_messaging: 16.6.0",
+          }
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f"Expected dependency line not found: {old}")
+              text = text.replace(old, new, 1)
+          p.write_text(text, encoding="utf-8")
+          print("Aligned FlutterFire packages to Firebase iOS SDK 12.18.0")
+          PY
+          rm -rf .dart_tool ios/Flutter/ephemeral
+          flutter pub get
+
+      - name: Refresh Xcode project tooling
+        script: gem update xcodeproj --no-document
+
+      - name: Normalize Xcode project encoding
+        script: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("ios/Runner.xcodeproj/project.pbxproj")
+          data = p.read_bytes()
+          if data.startswith(b"\xef\xbb\xbf"):
+              p.write_bytes(data[3:])
+              print("Removed UTF-8 BOM from project.pbxproj")
+          else:
+              print("project.pbxproj has no UTF-8 BOM")
+          PY
+
+      - name: Set up iOS code signing
+        script: xcode-project use-profiles --project ios/Runner.xcodeproj --verbose
+
+      - name: Create production dart-defines
+        script: |
+          mkdir -p tool
+          cat > tool/dart_defines.production.json <<'EOF'
+          {
+            "APP_ENV": "production",
+            "ORACLY_COFFEE_V3_ENABLED": "true",
+            "ORACLY_AI_PROXY_URL": "https://oracly-api-uya7zqzwra-ew.a.run.app/v1/ai/complete",
+            "ORACLY_BILLING_VERIFY_URL": "https://oracly-api-uya7zqzwra-ew.a.run.app/v1/billing/verify",
+            "ORACLY_AI_MODEL": "gpt-4o",
+            "ORACLY_AI_VISION": "true",
+            "ORACLY_AI_TIMEOUT_SECONDS": "45",
+            "ORACLY_AI_IMAGE_TIMEOUT_SECONDS": "120",
+            "ORACLY_PRIVACY_POLICY_URL": "https://github.com/ftylmz32/oracly/blob/main/docs/privacy-policy.md",
+            "ORACLY_TERMS_OF_USE_URL": "https://github.com/ftylmz32/oracly/blob/main/docs/terms-of-use.md",
+            "ORACLY_DATA_DELETION_URL": "https://github.com/ftylmz32/oracly/blob/main/docs/data-deletion.md",
+            "ORACLY_APP_VERSION": "1.0",
+            "ORACLY_BUILD_NUMBER": "11"
+          }
+          EOF
+          echo "Created tool/dart_defines.production.json"
+
+      - name: Validate production dart-defines
+        script: |
+          python3 - <<'PY'
+          import ipaddress
+          import json
+          import sys
+          from pathlib import Path
+          from urllib.parse import urlparse
+
+          path = Path("tool/dart_defines.production.json")
+          if not path.is_file():
+              raise SystemExit("missing tool/dart_defines.production.json")
+
+          data = json.loads(path.read_text(encoding="utf-8"))
+          app_env = data.get("APP_ENV")
+          ai = data.get("ORACLY_AI_PROXY_URL")
+          billing = data.get("ORACLY_BILLING_VERIFY_URL")
+
+          if app_env != "production":
+              raise SystemExit(f"APP_ENV must be production, got {app_env!r}")
+          if not isinstance(ai, str) or not isinstance(billing, str):
+              raise SystemExit("AI/billing URLs must be strings")
+
+          banned_substrings = (
+              "REPLACE_WITH",
+              "localhost",
+              "127.0.0.1",
+              "10.0.2.2",
+              "0.0.0.0",
+              "[::1]",
+              "::1",
+          )
+
+          def is_private_or_lan(host: str) -> bool:
+              h = host.lower().strip("[]")
+              if h.endswith(".local"):
+                  return True
+              try:
+                  ip = ipaddress.ip_address(h)
+              except ValueError:
+                  return False
+              return (
+                  ip.is_private
+                  or ip.is_loopback
+                  or ip.is_link_local
+                  or ip.is_unspecified
+              )
+
+          def validate_https(url: str, *, suffix: str, label: str) -> None:
+              raw = url.strip()
+              if not raw:
+                  raise SystemExit(f"{label} is empty")
+              upper = raw.upper()
+              for banned in banned_substrings:
+                  if banned.upper() in upper:
+                      raise SystemExit(f"{label} contains banned token {banned!r}")
+              parsed = urlparse(raw)
+              if parsed.scheme.lower() != "https":
+                  raise SystemExit(f"{label} must be HTTPS")
+              host = (parsed.hostname or "").lower()
+              if not host:
+                  raise SystemExit(f"{label} has no host")
+              if is_private_or_lan(host):
+                  raise SystemExit(f"{label} must not use localhost/LAN host {host!r}")
+              path = parsed.path.rstrip("/")
+              if not path.endswith(suffix):
+                  raise SystemExit(
+                      f"{label} must end with {suffix}, got path {parsed.path!r}"
+                  )
+
+          validate_https(ai, suffix="/v1/ai/complete", label="ORACLY_AI_PROXY_URL")
+          validate_https(
+              billing, suffix="/v1/billing/verify", label="ORACLY_BILLING_VERIFY_URL"
+          )
+
+          # Reject Cloud Run revision-tag hosts (e.g. tag---service-hash.a.run.app).
+          for label, url in (
+              ("ORACLY_AI_PROXY_URL", ai),
+              ("ORACLY_BILLING_VERIFY_URL", billing),
+          ):
+              host = (urlparse(url.strip()).hostname or "").lower()
+              if "---" in host:
+                  raise SystemExit(
+                      f"{label} must use the stable service URL, not revision tag host {host!r}"
+                  )
+
+          # Never allow secrets in dart-defines.
+          for forbidden in ("OPENAI_API_KEY", "API_KEY", "SECRET", "PASSWORD", "TOKEN"):
+              for key in data:
+                  if forbidden in key.upper():
+                      raise SystemExit(f"forbidden secret-like key in dart-defines: {key}")
+
+          print("Production dart-defines validated")
+          print(f"APP_ENV={app_env}")
+          print(f"ORACLY_AI_PROXY_URL={ai}")
+          print(f"ORACLY_BILLING_VERIFY_URL={billing}")
+          PY
+      # xcodebuild -exportArchive uploads by itself when destination=upload;
+      # pin it to a local export and require an App Store signing method.
+      - name: Force local export (never upload from xcodebuild)
+        script: |
+          set -euo pipefail
+          OPTS=/Users/builder/export_options.plist
+          /usr/libexec/PlistBuddy -c 'Delete :destination' "$OPTS" 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c 'Add :destination string export' "$OPTS"
+          METHOD=$(/usr/libexec/PlistBuddy -c 'Print :method' "$OPTS")
+          case "$METHOD" in
+            app-store|app-store-connect) ;;
+            *) echo "BLOCKED: export method is $METHOD, not an App Store signing"; exit 1 ;;
+          esac
+          [ "$(/usr/libexec/PlistBuddy -c 'Print :destination' "$OPTS")" = "export" ]
+          echo "Export options: method $METHOD, destination export"
+
+      - name: Build signed IPA (artifact only)
+        script: |
+          set -o pipefail
+          flutter build ipa --release             --dart-define-from-file=tool/dart_defines.production.json             --build-name=1.0             --build-number=11             --export-options-plist=/Users/builder/export_options.plist 2>&1 | tee flutter_build_ipa.log
+
+      - name: Check the signed IPA
+        script: |
+          set -euo pipefail
+          IPA=$(ls build/ios/ipa/*.ipa | head -n 1)
+          WORK=$(mktemp -d)
+          unzip -q "$IPA" -d "$WORK"
+          APP="$WORK/Payload/Runner.app"
+          set +e
+          codesign --verify --deep --strict "$APP" > "$WORK/codesign_verify.txt" 2>&1
+          echo "codesign_verify_exit=$?" >> "$WORK/codesign_verify.txt"
+          set -e
+          codesign -dvv "$APP" 2> "$WORK/codesign_details.txt" >/dev/null
+          codesign -d --entitlements - --xml "$APP" > "$WORK/entitlements.plist" 2>/dev/null
+          security cms -D -i "$APP/embedded.mobileprovision" > "$WORK/profile.plist"
+          python3 tool/ios/signed_ipa_check.py "$WORK" | tee signed_ipa_check.txt
+          rm -f ios/Runner/GoogleService-Info.plist
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - flutter_build_ipa.log
+      - signed_ipa_check.txt
+      - /tmp/xcodebuild_logs/*.log

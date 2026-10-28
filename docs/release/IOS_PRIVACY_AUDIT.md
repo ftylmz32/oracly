@@ -75,3 +75,28 @@ validates every embedded privacy manifest (`tool/ios/privacy_manifests.py`);
 - Signed entitlements of a real archive (gate above).
 - Xcode privacy report and App Store Connect processing (ITMS-91053/91061).
 - Backup exclusion, StoreKit sandbox, App Check on an iPhone.
+
+## 6. `ios-signed-qa-check` — signed IPA, no upload
+
+Manual Codemagic workflow on `chore/ios-signed-qa-check-20261028`. Same
+preparation and signing as `ios-release` (integration `ORACLY Codemagic`,
+`ios_signing: app_store / app.oracly`, `xcode-project use-profiles`), but no
+`triggering`, no `publishing`, and the export options are pinned to
+`destination=export` before `flutter build ipa`, so neither Codemagic nor
+xcodebuild uploads. Outputs are artifacts only: the IPA, build logs and
+`signed_ipa_check.txt`.
+
+`tool/ios/signed_ipa_check.py` then requires: bundle `app.oracly`;
+`codesign --verify --deep --strict` passing; an Apple/iPhone Distribution
+leaf certificate chaining to Apple Root CA; signed `aps-environment` and App
+Attest `production`, `get-task-allow` false; an unexpired App Store profile
+(no device list) for `app.oracly` with production push and App Attest; the
+bundled Firebase config for `app.oracly` / `oracly-7f613`; the
+`app.oracly/cup_map_storage` bridge in `Runner`; valid privacy manifests
+(section 4). It lists embedded SDK versions and prints no serials, profile
+UUIDs, team names or Firebase keys.
+
+Any missing signing file, wrong export method, capability or profile fails the
+build: that is a BLOCKED for the Apple portal / Codemagic identities, which this
+workflow never changes. A PASS is a signed-build check only, not App Review,
+TestFlight or an iPhone test.
