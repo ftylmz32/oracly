@@ -538,19 +538,18 @@ class _CoffeeCupMapScreenState extends ConsumerState<CoffeeCupMapScreen>
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 8),
-                _Guidance(onHelp: _showHelp),
-                // No photo, nothing to mark: the saved pins stay listed below.
+                // The action first, then one quiet line. No photo, nothing
+                // to mark: the saved pins stay listed below.
                 if (!missing) ...[
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 16),
                   Center(
-                    child: OraclyTextAction(
-                      label: CoffeeCupMapCopy.pinAtCenter,
-                      emphasized: true,
+                    child: _PinAtCenterButton(
                       onPressed: _busy ? null : _addAtCenter,
                     ),
                   ),
                 ],
+                const SizedBox(height: 8),
+                _Guidance(onHelp: _showHelp),
                 const SizedBox(height: 14),
                 _SectionRule(label: CoffeeCupMapCopy.listTitle),
                 const SizedBox(height: 10),
@@ -927,7 +926,69 @@ class _MissingThumb extends StatelessWidget {
   }
 }
 
-/// One short line under the strip, and the way to the full explanation.
+/// "Ortaya işaret koy" as a quiet outlined pill: clearly the one action,
+/// without a headline-sized label. Wraps at large text instead of shrinking.
+class _PinAtCenterButton extends StatelessWidget {
+  const _PinAtCenterButton({required this.onPressed});
+
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = onPressed != null;
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      label: CoffeeCupMapCopy.pinAtCenter,
+      excludeSemantics: true,
+      onTap: onPressed,
+      child: Material(
+        color: OraclyChrome.midnight.withValues(alpha: 0.4),
+        shape: StadiumBorder(
+          side: BorderSide(
+            color: OraclyChrome.gold.withValues(
+              alpha: enabled ? OraclyChrome.borderEmphasis : OraclyChrome.borderHairline,
+            ),
+          ),
+        ),
+        child: InkWell(
+          onTap: onPressed,
+          customBorder: const StadiumBorder(),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.add_location_alt_outlined,
+                    size: 18,
+                    color: OraclyChrome.goldLight.withValues(alpha: enabled ? 1 : 0.5),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      CoffeeCupMapCopy.pinAtCenter,
+                      textAlign: TextAlign.center,
+                      style: ReadingTypography.label(
+                        color: OraclyChrome.goldLight.withValues(alpha: enabled ? 1 : 0.5),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// One short line and the way to the full explanation. At large text sizes
+/// the line steps aside (it is in help, word for word) and only the help
+/// link remains, so the photo and the action keep the screen.
 class _Guidance extends StatelessWidget {
   const _Guidance({required this.onHelp});
 
@@ -935,6 +996,48 @@ class _Guidance extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final large = MediaQuery.textScalerOf(context).scale(16) / 16 > 1.3;
+    final infoIcon = Icon(
+      Icons.info_outline,
+      size: 18,
+      color: OraclyChrome.gold.withValues(alpha: 0.8),
+    );
+    if (large) {
+      return Center(
+        child: Tooltip(
+          message: CoffeeCupMapCopy.helpOpen,
+          child: Semantics(
+            button: true,
+            label: CoffeeCupMapCopy.helpOpen,
+            excludeSemantics: true,
+            onTap: onHelp,
+            child: InkWell(
+              onTap: onHelp,
+              borderRadius: OraclyChrome.pillRadius,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 44),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      infoIcon,
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          CoffeeCupMapCopy.helpShort,
+                          style: ReadingTypography.micro(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -949,11 +1052,7 @@ class _Guidance extends StatelessWidget {
           onPressed: onHelp,
           tooltip: CoffeeCupMapCopy.helpOpen,
           constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-          icon: Icon(
-            Icons.info_outline,
-            size: 18,
-            color: OraclyChrome.gold.withValues(alpha: 0.8),
-          ),
+          icon: infoIcon,
         ),
       ],
     );

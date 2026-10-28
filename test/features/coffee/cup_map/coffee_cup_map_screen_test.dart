@@ -22,6 +22,7 @@ import 'package:oracly_new/features/coffee/coffee_v3/models/coffee_v3_photo_slot
 import 'package:oracly_new/features/coffee/cup_map/copy/coffee_cup_map_copy.dart';
 import 'package:oracly_new/features/coffee/cup_map/models/coffee_cup_map_record.dart';
 import 'package:oracly_new/features/coffee/cup_map/presentation/coffee_cup_map_canvas.dart';
+import 'package:oracly_new/features/coffee/cup_map/presentation/coffee_cup_map_consent_tile.dart';
 import 'package:oracly_new/features/coffee/cup_map/presentation/coffee_cup_map_screen.dart';
 import 'package:oracly_new/features/coffee/cup_map/providers/coffee_cup_map_providers.dart';
 import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_consent.dart';
@@ -412,6 +413,60 @@ void main() {
     await tester.tap(find.text(CoffeeCupMapCopy.helpClose));
     await settle(tester);
     expect(find.text(CoffeeCupMapCopy.helpBody), findsNothing);
+  });
+
+  testWidgets('keep-photos card: off by default; device-only, no backup and '
+      'deletable are visible before opting in; full detail one tap away',
+      (tester) async {
+    await tester.binding.setSurfaceSize(const Size(390, 900));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        coffeeCupMapConsentProvider.overrideWithValue(CoffeeCupMapConsent(storage)),
+      ],
+      child: const MaterialApp(
+        home: Scaffold(body: SingleChildScrollView(child: CoffeeCupMapConsentTile())),
+      ),
+    ));
+    await tester.pump();
+    expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
+    for (final fact in [
+      CoffeeCupMapCopy.consentSummary,
+      CoffeeCupMapCopy.consentFactDevice,
+      CoffeeCupMapCopy.consentFactNoBackup,
+      CoffeeCupMapCopy.consentFactDelete,
+    ]) {
+      expect(find.text(fact), findsOneWidget, reason: fact);
+    }
+    final full = '${CoffeeCupMapCopy.consentBody}\n\n${CoffeeCupMapCopy.consentFacts}';
+    expect(find.text(full), findsNothing);
+    await tester.tap(find.text(CoffeeCupMapCopy.consentDetails));
+    await settle(tester);
+    expect(find.text(full), findsOneWidget);
+    expect(find.text(CoffeeCupMapCopy.consentDetailsHide), findsOneWidget);
+    // Reading the details never turns the choice on.
+    expect(CoffeeCupMapConsent(storage).keepPhotos, isFalse);
+  });
+
+  testWidgets('large text: the action stays, the guidance line gives way to '
+      'a help link (nothing is shrunk)', (tester) async {
+    await pumpScreen(tester, size: const Size(320, 640), textScale: 2);
+    expect(find.text(CoffeeCupMapCopy.intro), findsNothing);
+    expect(find.text(CoffeeCupMapCopy.helpShort), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text(CoffeeCupMapCopy.pinAtCenter),
+      100,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text(CoffeeCupMapCopy.pinAtCenter), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text(CoffeeCupMapCopy.helpShort),
+      100,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text(CoffeeCupMapCopy.helpShort));
+    await settle(tester);
+    expect(find.text(CoffeeCupMapCopy.helpBody), findsOneWidget);
   });
 
   for (final width in [320.0, 360.0, 390.0]) {

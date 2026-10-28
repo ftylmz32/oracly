@@ -28,6 +28,8 @@ abstract final class CoffeeCupMapCopy {
       'notların yalnızca bu cihazda kalır; bu falın haritasını istediğin an '
       'silebilirsin.';
   static const helpClose = 'Tamam';
+  /// Large text: the help link stands in for the guidance line.
+  static const helpShort = 'Nasıl çalışır?';
   /// Shown on the photo while it has no pins yet.
   static const gestureHint = 'Dokunarak işaret koy, iki parmakla yakınlaştır';
   static const photoLoading = 'Fotoğraf hazırlanıyor';
@@ -71,6 +73,16 @@ abstract final class CoffeeCupMapCopy {
   static const saveFailed = 'Kaydedilemedi. Tekrar dener misin?';
 
   static const consentTitle = 'Fincan Haritası için fotoğraflarımı sakla';
+
+  /// First glance: one sentence and three facts, all shown before opting in.
+  static const consentSummary =
+      'Açarsan, falın üç fotoğrafı sonra işaretleyebilmen için telefonunda '
+      'saklanır.';
+  static const consentFactDevice = 'Yalnızca bu cihazda kalır';
+  static const consentFactNoBackup = 'Buluta ve cihaz yedeklerine alınmaz';
+  static const consentFactDelete = 'Her falın haritasını istediğin an silebilirsin';
+  static const consentDetails = 'Ayrıntılar';
+  static const consentDetailsHide = 'Ayrıntıları gizle';
   static const consentBody =
       'Açıkken, tamamlanan Kahve Falı\'nın üç fotoğrafı yalnızca bu cihazda '
       'tutulur; fala dönüp gözüne takılan yerleri işaretleyebilirsin. '

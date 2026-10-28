@@ -293,10 +293,15 @@ void main() {
           ),
         ),
       ),
-      const Size(390, 420),
+      const Size(390, 760),
     );
     expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
     await _capture(tester, '07_consent_off');
+    await tester.tap(find.text(CoffeeCupMapCopy.consentDetails));
+    await frames(tester, 8);
+    await _capture(tester, '07b_consent_details');
+    await tester.tap(find.text(CoffeeCupMapCopy.consentDetailsHide));
+    await frames(tester, 8);
     await tester.tap(find.byType(Switch));
     for (var i = 0; i < 6; i++) {
       await tester.pump(const Duration(milliseconds: 50));
