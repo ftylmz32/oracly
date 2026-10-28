@@ -213,3 +213,120 @@ workflows:
         auth: integration
         submit_to_testflight: false
         submit_to_app_store: false
+
+  # Compile-only check of the Fincan Haritası build. Started by hand only:
+  # no triggering, no ios_signing, no publishing (nothing is uploaded to
+  # App Store Connect or TestFlight), no .app/.ipa artifact.
+  ios-compile-check:
+    name: ORACLY iOS compile check (no signing, no upload)
+    instance_type: mac_mini_m2
+    max_build_duration: 45
+
+    environment:
+      groups:
+        - ios_secrets
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+
+    scripts:
+      - name: Restore Firebase iOS config (not committed)
+        script: |
+          if [ -z "${FIREBASE_IOS_PLIST_B64:-}" ]; then
+            echo "FIREBASE_IOS_PLIST_B64 is not configured"
+            exit 1
+          fi
+          mkdir -p ios/Runner
+          printf '%s' "$FIREBASE_IOS_PLIST_B64" | base64 --decode > ios/Runner/GoogleService-Info.plist
+          plutil -lint ios/Runner/GoogleService-Info.plist >/dev/null
+          FIREBASE_BUNDLE_ID=$(/usr/libexec/PlistBuddy -c 'Print :BUNDLE_ID' ios/Runner/GoogleService-Info.plist)
+          if [ "$FIREBASE_BUNDLE_ID" != "app.oracly" ]; then
+            echo "Firebase iOS config bundle mismatch"
+            exit 1
+          fi
+          echo "Firebase iOS config restored for app.oracly"
+
+      - name: Align FlutterFire iOS SDK versions (as ios-release)
+        script: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path("pubspec.yaml")
+          text = p.read_text(encoding="utf-8")
+          replacements = {
+              "  firebase_core: ^4.13.0": "  firebase_core: 4.14.0",
+              "  firebase_auth: ^6.6.1": "  firebase_auth: 6.6.1",
+              "  firebase_app_check: 0.4.6": "  firebase_app_check: 0.4.7",
+              "  firebase_messaging: ^16.6.0": "  firebase_messaging: 16.6.0",
+          }
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f"Expected dependency line not found: {old}")
+              text = text.replace(old, new, 1)
+          p.write_text(text, encoding="utf-8")
+          print("Aligned FlutterFire packages to Firebase iOS SDK 12.18.0")
+          PY
+          rm -rf .dart_tool ios/Flutter/ephemeral
+          flutter --version
+          flutter pub get
+
+      - name: Refresh Xcode project tooling
+        script: gem update xcodeproj --no-document
+
+      - name: Normalize Xcode project encoding
+        script: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("ios/Runner.xcodeproj/project.pbxproj")
+          data = p.read_bytes()
+          if data.startswith(b"\xef\xbb\xbf"):
+              p.write_bytes(data[3:])
+              print("Removed UTF-8 BOM from project.pbxproj")
+          else:
+              print("project.pbxproj has no UTF-8 BOM")
+          PY
+
+      - name: Production dart-defines (same values as ios-release)
+        script: |
+          mkdir -p tool
+          cat > tool/dart_defines.production.json <<'JSON'
+          {
+            "APP_ENV": "production",
+            "ORACLY_COFFEE_V3_ENABLED": "true",
+            "ORACLY_AI_PROXY_URL": "https://oracly-api-uya7zqzwra-ew.a.run.app/v1/ai/complete",
+            "ORACLY_BILLING_VERIFY_URL": "https://oracly-api-uya7zqzwra-ew.a.run.app/v1/billing/verify",
+            "ORACLY_AI_MODEL": "gpt-4o",
+            "ORACLY_AI_VISION": "true",
+            "ORACLY_AI_TIMEOUT_SECONDS": "45",
+            "ORACLY_AI_IMAGE_TIMEOUT_SECONDS": "120",
+            "ORACLY_PRIVACY_POLICY_URL": "https://github.com/ftylmz32/oracly/blob/main/docs/privacy-policy.md",
+            "ORACLY_TERMS_OF_USE_URL": "https://github.com/ftylmz32/oracly/blob/main/docs/terms-of-use.md",
+            "ORACLY_DATA_DELETION_URL": "https://github.com/ftylmz32/oracly/blob/main/docs/data-deletion.md",
+            "ORACLY_APP_VERSION": "1.0",
+            "ORACLY_BUILD_NUMBER": "11"
+          }
+          JSON
+          python3 -c "import json; d=json.load(open('tool/dart_defines.production.json')); assert d['APP_ENV']=='production' and d['ORACLY_COFFEE_V3_ENABLED']=='true'; assert not any(s in k.upper() for k in d for s in ('SECRET','PASSWORD','TOKEN','API_KEY')); print('dart-defines ok')"
+
+      - name: Compile iOS release without code signing
+        script: |
+          set -o pipefail
+          flutter build ios --release --no-codesign \
+            --dart-define-from-file=tool/dart_defines.production.json \
+            --build-name=1.0 --build-number=11 2>&1 | tee flutter_build_ios.log
+
+      - name: Verify the built app (bundle id, Firebase config, cup map bridge)
+        script: |
+          APP=build/ios/iphoneos/Runner.app
+          test -d "$APP" || { echo "Runner.app missing"; exit 1; }
+          BUNDLE=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist")
+          [ "$BUNDLE" = "app.oracly" ] || { echo "bundle id is $BUNDLE"; exit 1; }
+          test -f "$APP/GoogleService-Info.plist" || { echo "GoogleService-Info.plist not bundled"; exit 1; }
+          strings "$APP/Runner" | grep -q 'app.oracly/cup_map_storage' \
+            || { echo "cup map storage channel not compiled in"; exit 1; }
+          echo "Runner.app: bundle app.oracly, Firebase config bundled, cup map storage bridge compiled"
+          rm -f ios/Runner/GoogleService-Info.plist
+
+    artifacts:
+      - flutter_build_ios.log
+      - /tmp/xcodebuild_logs/*.log
