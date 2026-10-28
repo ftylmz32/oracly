@@ -1,7 +1,8 @@
-"""All checks on a signed, unzipped ORACLY IPA (ios-signed-qa-check).
+"""All checks on a signed, unzipped ORACLY IPA.
 
 Usage (macOS, the workflow prepares the inputs):
-  python3 tool/ios/signed_ipa_check.py WORK
+  python3 tool/ios/signed_ipa_check.py WORK            App Store IPA (ios-signed-qa-check)
+  python3 tool/ios/signed_ipa_check.py WORK --ad-hoc   Ad Hoc IPA (ios-adhoc-qa-check)
 WORK holds:
   Payload/Runner.app         the unzipped app
   entitlements.plist         codesign -d --entitlements - --xml Runner.app
@@ -9,9 +10,13 @@ WORK holds:
   codesign_verify.txt        codesign --verify --deep --strict output + exit code line
   codesign_details.txt       codesign -dvv Runner.app (stderr)
 
+Ad Hoc: the profile must list registered devices (only their count is
+printed). If ORACLY_QA_DEVICE_UDIDS is set (comma separated), each of those
+UDIDs must be in the profile; their values are never printed.
+
 Prints one line per check and a version list of embedded SDKs; prints no
-certificate serials, profile UUIDs, Firebase API keys or team names. Exits 1
-when any check fails.
+certificate serials, profile UUIDs, device UDIDs, Firebase API keys or team
+names. Exits 1 when any check fails.
 """
 
 import datetime
@@ -58,13 +63,24 @@ def check_signature(verify_text, details_text):
     return problems
 
 
-def check_profile(profile, now=None):
-    """App Store distribution profile: no device list, not expired, production
-    push and App Attest, no get-task-allow, issued for app.oracly."""
+def check_profile(profile, now=None, ad_hoc=False, expected_devices=()):
+    """Distribution profile, not expired, production push and App Attest, no
+    get-task-allow, issued for app.oracly. App Store: no device list. Ad Hoc:
+    a non-empty device list (never all devices) holding expected_devices."""
     now = now or datetime.datetime.now(datetime.timezone.utc)
     problems = []
-    if profile.get('ProvisionedDevices') or profile.get('ProvisionsAllDevices'):
+    devices = profile.get('ProvisionedDevices') or []
+    if profile.get('ProvisionsAllDevices'):
+        problems.append('profile provisions all devices (enterprise, not App Store / Ad Hoc)')
+    if not ad_hoc and devices:
         problems.append('profile lists devices or all devices (not an App Store profile)')
+    if ad_hoc:
+        if not devices:
+            problems.append('Ad Hoc profile lists no registered devices')
+        registered = {str(d).strip().lower() for d in devices}
+        missing = [d for d in expected_devices if d.strip().lower() not in registered]
+        if missing:
+            problems.append(f'{len(missing)} expected test device(s) not in the Ad Hoc profile')
     expires = profile.get('ExpirationDate')
     if not isinstance(expires, datetime.datetime):
         problems.append('profile has no expiration date')
@@ -117,7 +133,12 @@ def sdk_versions(app):
     return rows
 
 
-def main(work):
+def expected_devices_from_env():
+    raw = os.environ.get('ORACLY_QA_DEVICE_UDIDS', '')
+    return tuple(d.strip() for d in raw.split(',') if d.strip())
+
+
+def main(work, ad_hoc=False):
     app = os.path.join(work, 'Payload', 'Runner.app')
     if not os.path.isdir(app):
         print('STOP: Payload/Runner.app missing')
@@ -134,8 +155,16 @@ def main(work):
             read('codesign_verify.txt'), read('codesign_details.txt'))))
         results.append(('signed entitlements', signed_entitlements.problems(
             _plist(os.path.join(work, 'entitlements.plist')))))
-        results.append(('App Store provisioning profile', check_profile(
-            _plist(os.path.join(work, 'profile.plist')))))
+        profile = _plist(os.path.join(work, 'profile.plist'))
+        if ad_hoc:
+            expected = expected_devices_from_env()
+            results.append(('Ad Hoc provisioning profile', check_profile(
+                profile, ad_hoc=True, expected_devices=expected)))
+            count = len(profile.get('ProvisionedDevices') or [])
+            note = f'{len(expected)} expected UDID(s) checked' if expected else 'no expected UDID given'
+            print(f'info Ad Hoc profile registers {count} device(s); {note}')
+        else:
+            results.append(('App Store provisioning profile', check_profile(profile)))
         results.append(('Firebase iOS config', check_firebase(app)))
         results.append(('Fincan Haritası bridge', check_cup_map_bridge(app)))
     except (OSError, plistlib.InvalidFileException, ValueError) as error:
@@ -154,9 +183,19 @@ def main(work):
     print('--- embedded SDK versions')
     for name, version in sdk_versions(app):
         print(f'     {name} {version}')
-    print('RESULT: FAIL' if failed else 'RESULT: PASS (signed IPA checks only, not App Store approval)')
+    if failed:
+        print('RESULT: FAIL')
+    elif ad_hoc:
+        print('RESULT: PASS (Ad Hoc IPA checks only; not yet installed on an iPhone)')
+    else:
+        print('RESULT: PASS (signed IPA checks only, not App Store approval)')
     return 1 if failed else 0
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv[1]) if len(sys.argv) == 2 else 2)
+    args = sys.argv[1:]
+    if len(args) == 1:
+        sys.exit(main(args[0]))
+    if len(args) == 2 and args[1] == '--ad-hoc':
+        sys.exit(main(args[0], ad_hoc=True))
+    sys.exit(2)

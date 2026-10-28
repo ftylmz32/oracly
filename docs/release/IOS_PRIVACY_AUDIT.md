@@ -100,3 +100,24 @@ Any missing signing file, wrong export method, capability or profile fails the
 build: that is a BLOCKED for the Apple portal / Codemagic identities, which this
 workflow never changes. A PASS is a signed-build check only, not App Review,
 TestFlight or an iPhone test.
+
+## 7. `ios-adhoc-qa-check` — Ad Hoc IPA for registered iPhones
+
+Same as section 6 with `ios_signing: ad_hoc / app.oracly` and an Ad Hoc
+export method (`ad-hoc` / `release-testing`), still pinned to
+`destination=export`, no trigger, no publishing; artifacts are the IPA,
+`flutter_build_adhoc_ipa.log` and `adhoc_ipa_check.txt`.
+`signed_ipa_check.py --ad-hoc` applies every section-6 check except that the
+profile must list registered devices (count printed, never the UDIDs) and
+must not provision all devices. Starting the build with
+`ORACLY_QA_DEVICE_UDIDS=<udid>[,<udid>]` also requires those devices.
+
+Prerequisites, none verifiable from this machine (no Apple Developer or
+Codemagic API access; the iPhone is paired by Bluetooth, not USB): the test
+iPhone's UDID registered under Devices; an Ad Hoc distribution profile for
+`app.oracly` with Push Notifications and App Attest, created after the
+device was registered; that profile uploaded to Codemagic's code signing
+identities. Without them the build fails at signing setup: BLOCKED.
+
+The Ad Hoc build uses the production dart-defines, so on the iPhone it talks
+to the production API (App Check App Attest) like a store build.
