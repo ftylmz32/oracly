@@ -30,6 +30,7 @@ import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_conse
 import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_location.dart';
 import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_store.dart';
 import 'package:oracly_new/features/coffee/models/coffee_image_pick.dart';
+import 'package:oracly_new/features/coffee/presentation/reference/coffee_reference_screen.dart';
 import 'package:oracly_new/features/coffee/presentation/reference/coffee_result_view.dart';
 import 'package:oracly_new/features/coffee/providers/coffee_providers.dart';
 import 'package:oracly_new/features/coffee/services/coffee_image_input_port.dart';
@@ -279,6 +280,37 @@ void main() {
     }
     // The reading itself stays.
     expect(find.text(_overall), findsWidgets);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('reopened from history (fresh app): the saved reading shows '
+      'the door and opens its map', (tester) async {
+    final opId = await captureAndSubmit(tester, keepPhotos: true);
+    await completeOnServer(tester, opId, 'coffee-v3-flow-r3');
+    await tester.pumpWidget(const SizedBox());
+    await drain(tester, iterations: 4);
+
+    // The same route Keşif Günlüğü / Kahve geçmişi pushes for a saved id.
+    await tester.pumpWidget(ProviderScope(
+      overrides: [localStorageProvider.overrideWithValue(storage)],
+      child: const MaterialApp(
+        home: CoffeeReferenceScreen(savedReadingId: 'coffee-v3-flow-r3'),
+      ),
+    ));
+    await drain(tester);
+    expect(find.byType(CoffeeResultView), findsOneWidget);
+    expect(find.text(_overall), findsWidgets);
+    final map = (await CoffeeCupMapStore(storage).load('coffee-v3-flow-r3'))!;
+    await tester.runAsync(() async {
+      final context = tester.element(find.byType(CoffeeResultView));
+      for (final photo in map.photos) {
+        await precacheImage(FileImage(File(photo.path)), context);
+      }
+    });
+    await drain(tester, iterations: 4);
+    expect(find.text(CoffeeCupMapCopy.entryOpen), findsOneWidget);
+    await tapAndDrain(tester, find.text(CoffeeCupMapCopy.entryOpen));
+    expect(find.byType(CoffeeCupMapScreen), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   });
 
