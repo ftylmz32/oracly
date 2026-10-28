@@ -10,6 +10,7 @@ library;
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
@@ -228,10 +229,11 @@ void main() {
     );
     await pumpScreen(tester, using: CoffeeCupMapStore(storage));
     expect(find.text(CoffeeCupMapCopy.listEmpty), findsOneWidget);
-    expect(find.text('${CoffeeCupMapCopy.photoLabel(CoffeeV3PhotoSlot.saucer)} · 1'),
-        findsOneWidget);
+    // Short visual label; the count is a badge, the full text a label.
+    expect(find.text('Tabak'), findsOneWidget);
+    expect(find.bySemanticsLabel('Tabak, 1 işaret'), findsOneWidget);
 
-    await tester.tap(find.text('Tabak · 1'));
+    await tester.tap(find.text('Tabak'));
     // The photos crossfade; afterwards only the saucer's canvas remains.
     await settle(tester);
     expect(find.text('Kenara doğru akan iz'), findsOneWidget);
@@ -347,6 +349,13 @@ void main() {
     await pumpScreen(tester);
     expect(find.text(CoffeeCupMapCopy.photoMissing), findsOneWidget);
     expect(find.text('Silinmeden önceki notum'), findsOneWidget);
+    // Nothing to mark on a photo that is gone; the tab says so.
+    expect(find.text(CoffeeCupMapCopy.pinAtCenter), findsNothing);
+    expect(find.text(CoffeeCupMapCopy.gestureHint), findsNothing);
+    expect(
+      find.bySemanticsLabel('Fincan 1, fotoğraf cihazda yok, 1 işaret'),
+      findsOneWidget,
+    );
     expect(tester.takeException(), isNull);
   });
 
@@ -390,6 +399,42 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('one short line on the map; the full explanation is one tap '
+      'away in help', (tester) async {
+    await pumpScreen(tester);
+    expect(find.text(CoffeeCupMapCopy.intro), findsOneWidget);
+    expect(find.text(CoffeeCupMapCopy.helpBody), findsNothing);
+    await tester.tap(find.byTooltip(CoffeeCupMapCopy.helpOpen));
+    await settle(tester);
+    expect(find.text(CoffeeCupMapCopy.helpBody), findsOneWidget);
+    expect(CoffeeCupMapCopy.helpBody, contains('ORACLY fotoğrafa sembol yerleştirmez'));
+    await tester.tap(find.text(CoffeeCupMapCopy.helpClose));
+    await settle(tester);
+    expect(find.text(CoffeeCupMapCopy.helpBody), findsNothing);
+  });
+
+  for (final width in [320.0, 360.0, 390.0]) {
+    testWidgets('${width.toInt()} px at 2x text: strip labels stay one line, '
+        'counts are badges, nothing overflows', (tester) async {
+      await store.addPin(
+        readingId: _reading,
+        slot: CoffeeV3PhotoSlot.saucer,
+        x: 0.5,
+        y: 0.5,
+      );
+      await pumpScreen(tester, size: Size(width, 640), textScale: 2);
+      expect(tester.takeException(), isNull);
+      for (final label in ['Fincan 1', 'Fincan 2', 'Tabak']) {
+        final text = find.text(label);
+        expect(text, findsOneWidget);
+        // One line, drawn inside its third of the strip.
+        expect(tester.renderObject<RenderParagraph>(text).didExceedMaxLines, isFalse);
+        expect(tester.getRect(text).width, lessThanOrEqualTo(width / 3));
+      }
+      expect(find.bySemanticsLabel('Tabak, 1 işaret'), findsOneWidget);
+    });
+  }
 
   group('result screen door', () {
     CoffeeReading v3Reading(String id) => CoffeeReading(

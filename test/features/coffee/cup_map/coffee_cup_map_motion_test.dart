@@ -190,6 +190,33 @@ void main() {
     expect(viewer.width / viewer.height, moreOrLessEquals(1, epsilon: 0.01));
   });
 
+  testWidgets('mid-crossfade: two photos, ONE frame (no double rim)',
+      (tester) async {
+    await pumpScreen(tester);
+    await settle(tester);
+    await tester.tap(find.text(CoffeeCupMapCopy.photoLabel(CoffeeV3PhotoSlot.saucer)));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 150));
+    final viewers = find.byType(InteractiveViewer);
+    expect(viewers, findsNWidgets(2), reason: 'both photos are mid-fade');
+    Element frameOf(int i) => tester.element(
+          find.ancestor(of: viewers.at(i), matching: find.byType(AnimatedContainer)).first,
+        );
+    expect(identical(frameOf(0), frameOf(1)), isTrue);
+    // The canvas itself draws no rim or shadow.
+    expect(
+      find.descendant(
+        of: find.byType(CoffeeCupMapCanvas).first,
+        matching: find.byWidgetPredicate(
+          (w) => w is Container && w.foregroundDecoration != null,
+        ),
+      ),
+      findsNothing,
+    );
+    await settle(tester);
+    expect(viewers, findsOneWidget);
+  });
+
   testWidgets('decoded photos leave the image cache with the screen',
       (tester) async {
     await pumpScreen(tester);

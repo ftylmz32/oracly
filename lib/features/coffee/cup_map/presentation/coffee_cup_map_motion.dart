@@ -20,8 +20,8 @@ abstract final class CoffeeCupMapMotion {
   /// First reveal of the map: photo, then strip, then the rest.
   static const Duration reveal = Duration(milliseconds: 620);
 
-  /// Photo crossfade between the three views.
-  static const Duration photo = Duration(milliseconds: 260);
+  /// Photo crossfade between the three views (and the frame's glide).
+  static const Duration photo = Duration(milliseconds: 300);
   static const Duration photoFirstFade = Duration(milliseconds: 240);
 
   static const Duration pinAppear = Duration(milliseconds: 300);

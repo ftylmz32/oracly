@@ -1,4 +1,6 @@
 /// One archived photo, zoomable and pannable, with the user's pins on top.
+/// It draws only the photo: the frame (rim, radius, shadow) belongs to the
+/// host's stage, so two photos crossfading never show two frames.
 /// The child of the [InteractiveViewer] is laid out at the image's own
 /// aspect ratio, so a tap's local position divided by the child size IS the
 /// normalized image coordinate at any zoom. Pins are sized in scene units
@@ -191,10 +193,10 @@ class CoffeeCupMapCanvasState extends State<CoffeeCupMapCanvas>
 
   @override
   Widget build(BuildContext context) {
-    if (_failed) return CoffeeCupMapMissingFrame(height: widget.maxHeight);
+    if (_failed) return const CoffeeCupMapMissingContent();
     final imageSize = _imageSize;
     if (imageSize == null) {
-      return CoffeeCupMapLoadingFrame(height: widget.maxHeight);
+      return const CoffeeCupMapLoadingContent();
     }
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -206,33 +208,9 @@ class CoffeeCupMapCanvasState extends State<CoffeeCupMapCanvas>
           width = height * aspect;
         }
         _childSize = Size(width, height);
-        final photo = Container(
+        final photo = SizedBox(
           width: width,
           height: height,
-          decoration: BoxDecoration(
-            color: OraclyChrome.midnight,
-            borderRadius: OraclyChrome.heroRadius,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.4),
-                blurRadius: 22,
-                offset: const Offset(0, 6),
-              ),
-              BoxShadow(
-                color: OraclyChrome.gold.withValues(alpha: OraclyChrome.glowSoft),
-                blurRadius: 24,
-              ),
-            ],
-          ),
-          // A border in `decoration` would inset the viewer by its width
-          // and skew every normalized tap; drawn on top it does not.
-          foregroundDecoration: BoxDecoration(
-            borderRadius: OraclyChrome.heroRadius,
-            border: Border.all(
-              color: OraclyChrome.gold.withValues(alpha: OraclyChrome.borderDefault),
-            ),
-          ),
-          clipBehavior: Clip.antiAlias,
           child: InteractiveViewer(
             transformationController: _transform,
             minScale: 1,

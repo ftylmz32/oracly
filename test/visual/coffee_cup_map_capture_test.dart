@@ -261,9 +261,12 @@ void main() {
 
     viewer.transformationController!.value = Matrix4.identity();
     await frames(tester, 6);
-    await tester.tap(find.text('Tabak · 1'));
+    await tester.tap(find.text('Fincan 2'));
     await frames(tester, 8);
-    await _capture(tester, '04_map_saucer');
+    await _capture(tester, '04a_map_cup_2');
+    await tester.tap(find.text('Tabak'));
+    await frames(tester, 8);
+    await _capture(tester, '04b_map_saucer');
 
     await tester.ensureVisible(find.text('Tabağın kenarına akan ince çizgi'));
     await tester.pump();
@@ -331,17 +334,19 @@ void main() {
     await _capture(tester, '06_map_320');
   });
 
-  testWidgets('320 px screen at 2x text', (tester) async {
-    await addUserPins();
-    await pump(
-      tester,
-      const CoffeeCupMapScreen(readingId: _reading),
-      const Size(320, 568),
-      textScale: 2,
-    );
-    expect(tester.takeException(), isNull);
-    await _capture(tester, '15_map_320_text2x');
-  });
+  for (final width in [320.0, 360.0, 390.0]) {
+    testWidgets('${width.toInt()} px screen at 2x text', (tester) async {
+      await addUserPins();
+      await pump(
+        tester,
+        const CoffeeCupMapScreen(readingId: _reading),
+        Size(width, 640),
+        textScale: 2,
+      );
+      expect(tester.takeException(), isNull);
+      await _capture(tester, '15_map_${width.toInt()}_text2x');
+    });
+  }
 
   testWidgets('door → map: frames of the opening', (tester) async {
     await addUserPins();
@@ -368,18 +373,34 @@ void main() {
     await _capture(tester, '13_open_settled');
   });
 
-  testWidgets('photo crossfade, mid-way', (tester) async {
+  testWidgets('photo crossfade at 25 / 50 / 75 %', (tester) async {
     await addUserPins();
     await pump(
       tester,
       const CoffeeCupMapScreen(readingId: _reading),
       const Size(390, 844),
     );
-    await tester.tap(find.text('Tabak · 1'));
+    // Cup 1 -> saucer: the two shapes differ, so the one frame must glide.
+    await tester.tap(find.text('Tabak'));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 120));
-    await _capture(tester, '14_crossfade_mid');
+    for (final percent in [25, 50, 75]) {
+      await tester.pump(const Duration(milliseconds: 75));
+      await _capture(tester, '14_crossfade_$percent');
+    }
     await frames(tester, 8);
+    expect(find.byType(InteractiveViewer), findsOneWidget);
+  });
+
+  testWidgets('help: the full explanation, one tap away', (tester) async {
+    await pump(
+      tester,
+      const CoffeeCupMapScreen(readingId: _reading),
+      const Size(390, 844),
+    );
+    await tester.tap(find.byTooltip(CoffeeCupMapCopy.helpOpen));
+    await frames(tester, 8);
+    expect(find.text(CoffeeCupMapCopy.helpBody), findsOneWidget);
+    await _capture(tester, '21_help');
   });
 
   testWidgets('a new pin: it settles in, its note sheet opens', (tester) async {

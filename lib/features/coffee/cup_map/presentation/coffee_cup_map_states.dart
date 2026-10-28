@@ -111,19 +111,33 @@ class CoffeeCupMapPhotoFrame extends StatelessWidget {
   }
 }
 
-/// While a photo decodes: a still gold ring with a slow, faint breath (rests
-/// on reduced motion and constrained devices). No spinner.
-class CoffeeCupMapLoadingFrame extends StatefulWidget {
+/// The loading stage before a map is known: the content below in a frame.
+class CoffeeCupMapLoadingFrame extends StatelessWidget {
   const CoffeeCupMapLoadingFrame({super.key, required this.height});
 
   final double height;
 
   @override
-  State<CoffeeCupMapLoadingFrame> createState() =>
-      _CoffeeCupMapLoadingFrameState();
+  Widget build(BuildContext context) {
+    return CoffeeCupMapPhotoFrame(
+      height: height,
+      child: const CoffeeCupMapLoadingContent(),
+    );
+  }
 }
 
-class _CoffeeCupMapLoadingFrameState extends State<CoffeeCupMapLoadingFrame>
+/// While a photo decodes: a still gold ring with a slow, faint breath (rests
+/// on reduced motion and constrained devices). No spinner, no frame of its
+/// own (the stage frames it).
+class CoffeeCupMapLoadingContent extends StatefulWidget {
+  const CoffeeCupMapLoadingContent({super.key});
+
+  @override
+  State<CoffeeCupMapLoadingContent> createState() =>
+      _CoffeeCupMapLoadingContentState();
+}
+
+class _CoffeeCupMapLoadingContentState extends State<CoffeeCupMapLoadingContent>
     with SingleTickerProviderStateMixin {
   late final AnimationController _breath = AnimationController(
     vsync: this,
@@ -146,9 +160,8 @@ class _CoffeeCupMapLoadingFrameState extends State<CoffeeCupMapLoadingFrame>
   Widget build(BuildContext context) {
     return Semantics(
       label: CoffeeCupMapCopy.photoLoading,
-      child: CoffeeCupMapPhotoFrame(
-        height: widget.height,
-        child: ExcludeSemantics(
+      child: ExcludeSemantics(
+        child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -181,30 +194,30 @@ class _CoffeeCupMapLoadingFrameState extends State<CoffeeCupMapLoadingFrame>
 }
 
 /// The photo was removed from the device; the pins stay listed below.
-class CoffeeCupMapMissingFrame extends StatelessWidget {
-  const CoffeeCupMapMissingFrame({super.key, required this.height});
-
-  final double height;
+class CoffeeCupMapMissingContent extends StatelessWidget {
+  const CoffeeCupMapMissingContent({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return CoffeeCupMapPhotoFrame(
-      height: height,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.hide_image_outlined,
-            size: 26,
-            color: OraclyChrome.gold.withValues(alpha: 0.75),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            CoffeeCupMapCopy.photoMissing,
-            textAlign: TextAlign.center,
-            style: ReadingTypography.secondary(),
-          ),
-        ],
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.hide_image_outlined,
+              size: 26,
+              color: OraclyChrome.gold.withValues(alpha: 0.75),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              CoffeeCupMapCopy.photoMissing,
+              textAlign: TextAlign.center,
+              style: ReadingTypography.secondary(),
+            ),
+          ],
+        ),
       ),
     );
   }

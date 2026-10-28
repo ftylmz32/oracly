@@ -8,6 +8,7 @@
 library;
 
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -209,7 +210,9 @@ class _CoffeeCupMapScreenState extends ConsumerState<CoffeeCupMapScreen>
         shape: RoundedRectangleBorder(
           borderRadius: OraclyChrome.cardRadius,
           side: BorderSide(
-            color: OraclyChrome.gold.withValues(alpha: OraclyChrome.borderDefault),
+            color: OraclyChrome.gold.withValues(
+              alpha: OraclyChrome.borderDefault,
+            ),
           ),
         ),
         title: Text(
@@ -323,12 +326,59 @@ class _CoffeeCupMapScreenState extends ConsumerState<CoffeeCupMapScreen>
   double _stageHeight(double available) =>
       (available * (available < 560 ? 0.64 : 0.58)).clamp(200.0, 560.0);
 
-  /// The stage for [slot]: as tall as its photo at [width], at most [max].
-  double _fittedStage(CoffeeV3PhotoSlot slot, double width, double max) {
+  /// The one frame for [slot]: exactly its photo fitted into [width] x
+  /// [max] (the canvas fits it the same way); a missing photo gets a short
+  /// frame for its message; not decoded yet, the whole stage.
+  Size _frameSize(
+    CoffeeV3PhotoSlot slot,
+    double width,
+    double max, {
+    required bool missing,
+  }) {
+    if (missing) return Size(width, math.min(max, 240));
     final aspect = _aspects[slot];
-    if (aspect == null || aspect <= 0 || width <= 0) return max;
-    return (width / aspect).clamp(0.0, max);
+    if (aspect == null || aspect <= 0 || width <= 0) return Size(width, max);
+    var height = width / aspect;
+    var w = width;
+    if (height > max) {
+      height = max;
+      w = height * aspect;
+    }
+    return Size(w, height);
   }
+
+  Future<void> _showHelp() => showDialog<void>(
+    context: context,
+    barrierColor: Colors.black.withValues(alpha: 0.6),
+    builder: (context) => AlertDialog(
+      backgroundColor: OraclyChrome.deepNavy,
+      shape: RoundedRectangleBorder(
+        borderRadius: OraclyChrome.cardRadius,
+        side: BorderSide(
+          color: OraclyChrome.gold.withValues(
+            alpha: OraclyChrome.borderDefault,
+          ),
+        ),
+      ),
+      title: Text(
+        CoffeeCupMapCopy.helpTitle,
+        style: ReadingTypography.sectionTitle(color: OraclyChrome.gold),
+      ),
+      content: SingleChildScrollView(
+        child: Text(
+          CoffeeCupMapCopy.helpBody,
+          style: ReadingTypography.secondary(),
+        ),
+      ),
+      actions: [
+        OraclyTextAction(
+          label: CoffeeCupMapCopy.helpClose,
+          emphasized: true,
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ],
+    ),
+  );
 
   /// Staggered first reveal: photo, then strip, then everything below.
   Widget _revealed(double from, double to, Widget child, {double lift = 10}) {
@@ -353,7 +403,12 @@ class _CoffeeCupMapScreenState extends ConsumerState<CoffeeCupMapScreen>
     final record = _record!;
     final slot = _slot!;
     final pins = _pinsOf(slot);
-    final photoDuration = CoffeeCupMapMotion.of(context, CoffeeCupMapMotion.photo);
+    final missing = !File(record.photoFor(slot)!.path).existsSync();
+    final frame = _frameSize(slot, width, stage, missing: missing);
+    final photoDuration = CoffeeCupMapMotion.of(
+      context,
+      CoffeeCupMapMotion.photo,
+    );
     // At most 12 pins a photo: everything is built, so the whole list is in
     // the semantics tree at once.
     return SingleChildScrollView(
@@ -371,52 +426,92 @@ class _CoffeeCupMapScreenState extends ConsumerState<CoffeeCupMapScreen>
             0,
             0.45,
             lift: 14,
-            AnimatedContainer(
-              // Follows the shape of the photo on show, so a square saucer
-              // and a tall cup both sit flush, gliding between the two.
-              duration: photoDuration,
-              curve: CoffeeCupMapMotion.ease,
-              height: _fittedStage(slot, width, stage),
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: AnimatedSwitcher(
-                      duration: photoDuration,
-                      switchInCurve: CoffeeCupMapMotion.ease,
-                      switchOutCurve: CoffeeCupMapMotion.exit,
-                      layoutBuilder: (current, previous) => Stack(
-                        alignment: Alignment.center,
-                        children: [...previous, ?current],
+            Center(
+              // ONE frame for all three views: rim, radius and shadow live
+              // here; it glides to the shape of the photo on show and only
+              // the photo inside crossfades. Each canvas keeps its natural
+              // size (OverflowBox) and is clipped by the frame, so nothing
+              // inside stretches or doubles while the frame moves.
+              child: AnimatedContainer(
+                duration: photoDuration,
+                curve: CoffeeCupMapMotion.ease,
+                width: frame.width,
+                height: frame.height,
+                decoration: BoxDecoration(
+                  color: OraclyChrome.midnight,
+                  borderRadius: OraclyChrome.heroRadius,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.4),
+                      blurRadius: 22,
+                      offset: const Offset(0, 6),
+                    ),
+                    BoxShadow(
+                      color: OraclyChrome.gold.withValues(
+                        alpha: OraclyChrome.glowSoft,
                       ),
-                      transitionBuilder: (child, animation) => FadeTransition(
-                        opacity: animation,
-                        child: ScaleTransition(
-                          scale: Tween(begin: 0.985, end: 1.0).animate(animation),
-                          child: child,
+                      blurRadius: 24,
+                    ),
+                  ],
+                ),
+                // On top, so the rim never insets the viewer (taps stay exact).
+                foregroundDecoration: BoxDecoration(
+                  borderRadius: OraclyChrome.heroRadius,
+                  border: Border.all(
+                    color: OraclyChrome.gold.withValues(
+                      alpha: OraclyChrome.borderDefault,
+                    ),
+                  ),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: AnimatedSwitcher(
+                        duration: photoDuration,
+                        switchInCurve: CoffeeCupMapMotion.ease,
+                        switchOutCurve: CoffeeCupMapMotion.exit,
+                        layoutBuilder: (current, previous) => Stack(
+                          alignment: Alignment.center,
+                          children: [...previous, ?current],
+                        ),
+                        transitionBuilder: (child, animation) =>
+                            FadeTransition(opacity: animation, child: child),
+                        child: KeyedSubtree(
+                          key: ValueKey(slot),
+                          child: OverflowBox(
+                            minWidth: width,
+                            maxWidth: width,
+                            minHeight: stage,
+                            maxHeight: stage,
+                            child: _canvasFor(
+                              record,
+                              slot,
+                              pins,
+                              stage,
+                              missing,
+                            ),
+                          ),
                         ),
                       ),
-                      child: KeyedSubtree(
-                        key: ValueKey(slot),
-                        child: _canvasFor(record, slot, pins, stage),
+                    ),
+                    if (pins.isEmpty && !_zoomed && !missing)
+                      const Positioned(
+                        left: 16,
+                        right: 16,
+                        bottom: 14,
+                        child: IgnorePointer(child: _PhotoHint()),
+                      ),
+                    Positioned(
+                      top: 10,
+                      right: 10,
+                      child: _ResetZoom(
+                        visible: _zoomed,
+                        onTap: () => _canvas?.resetZoom(),
                       ),
                     ),
-                  ),
-                  if (pins.isEmpty && !_zoomed)
-                    const Positioned(
-                      left: 16,
-                      right: 16,
-                      bottom: 14,
-                      child: IgnorePointer(child: _PhotoHint()),
-                    ),
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: _ResetZoom(
-                      visible: _zoomed,
-                      onTap: () => _canvas?.resetZoom(),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -443,21 +538,20 @@ class _CoffeeCupMapScreenState extends ConsumerState<CoffeeCupMapScreen>
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 14),
-                Text(
-                  CoffeeCupMapCopy.intro,
-                  textAlign: TextAlign.center,
-                  style: ReadingTypography.micro(),
-                ),
-                const SizedBox(height: 6),
-                Center(
-                  child: OraclyTextAction(
-                    label: CoffeeCupMapCopy.pinAtCenter,
-                    emphasized: true,
-                    onPressed: _busy ? null : _addAtCenter,
+                const SizedBox(height: 8),
+                _Guidance(onHelp: _showHelp),
+                // No photo, nothing to mark: the saved pins stay listed below.
+                if (!missing) ...[
+                  const SizedBox(height: 2),
+                  Center(
+                    child: OraclyTextAction(
+                      label: CoffeeCupMapCopy.pinAtCenter,
+                      emphasized: true,
+                      onPressed: _busy ? null : _addAtCenter,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 10),
+                ],
+                const SizedBox(height: 14),
                 _SectionRule(label: CoffeeCupMapCopy.listTitle),
                 const SizedBox(height: 10),
                 if (pins.isEmpty)
@@ -494,10 +588,13 @@ class _CoffeeCupMapScreenState extends ConsumerState<CoffeeCupMapScreen>
     CoffeeV3PhotoSlot slot,
     List<CoffeeCupMapPin> pins,
     double stage,
+    bool missing,
   ) {
     return Semantics(
-      label: CoffeeCupMapCopy.photoSemantics(slot, pins.length),
-      onTap: _addAtCenter,
+      label: missing
+          ? CoffeeCupMapCopy.photoMissing
+          : CoffeeCupMapCopy.photoSemantics(slot, pins.length),
+      onTap: missing ? null : _addAtCenter,
       child: CoffeeCupMapCanvas(
         key: _canvases[slot],
         photo: record.photoFor(slot)!,
@@ -528,7 +625,9 @@ class _PhotoHint extends StatelessWidget {
           borderRadius: OraclyChrome.pillRadius,
           color: OraclyChrome.midnight.withValues(alpha: 0.72),
           border: Border.all(
-            color: OraclyChrome.gold.withValues(alpha: OraclyChrome.borderHairline),
+            color: OraclyChrome.gold.withValues(
+              alpha: OraclyChrome.borderHairline,
+            ),
           ),
         ),
         child: Text(
@@ -552,7 +651,10 @@ class _ResetZoom extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final duration = CoffeeCupMapMotion.of(context, CoffeeCupMapMotion.pinSelect);
+    final duration = CoffeeCupMapMotion.of(
+      context,
+      CoffeeCupMapMotion.pinSelect,
+    );
     return IgnorePointer(
       ignoring: !visible,
       child: AnimatedOpacity(
@@ -568,7 +670,9 @@ class _ResetZoom extends StatelessWidget {
             color: OraclyChrome.midnight.withValues(alpha: 0.78),
             shape: CircleBorder(
               side: BorderSide(
-                color: OraclyChrome.gold.withValues(alpha: OraclyChrome.borderDefault),
+                color: OraclyChrome.gold.withValues(
+                  alpha: OraclyChrome.borderDefault,
+                ),
               ),
             ),
             child: InkWell(
@@ -643,11 +747,16 @@ class _PhotoTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final duration = CoffeeCupMapMotion.of(context, CoffeeCupMapMotion.pinSelect);
+    final duration = CoffeeCupMapMotion.of(
+      context,
+      CoffeeCupMapMotion.pinSelect,
+    );
+    final file = File(photo.path);
+    final missing = !file.existsSync();
     return Semantics(
       button: true,
       selected: selected,
-      label: '$label, $pins işaret',
+      label: CoffeeCupMapCopy.tabSemantics(label, pins, missing: missing),
       excludeSemantics: true,
       onTap: onTap,
       child: InkWell(
@@ -660,67 +769,85 @@ class _PhotoTab extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                AnimatedOpacity(
-                  opacity: selected ? 1 : 0.55,
-                  duration: duration,
-                  curve: CoffeeCupMapMotion.ease,
-                  child: AnimatedContainer(
-                    duration: duration,
-                    curve: CoffeeCupMapMotion.ease,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: selected
-                            ? OraclyChrome.goldLight
-                            : OraclyChrome.gold.withValues(
-                                alpha: OraclyChrome.borderHairline,
-                              ),
-                        width: selected ? 1.6 : 1,
-                      ),
-                      boxShadow: [
-                        if (selected)
-                          BoxShadow(
-                            color: OraclyChrome.gold.withValues(
-                              alpha: OraclyChrome.glowMedium,
-                            ),
-                            blurRadius: 14,
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    AnimatedOpacity(
+                      opacity: selected ? 1 : 0.55,
+                      duration: duration,
+                      curve: CoffeeCupMapMotion.ease,
+                      child: AnimatedContainer(
+                        duration: duration,
+                        curve: CoffeeCupMapMotion.ease,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: selected
+                                ? OraclyChrome.goldLight
+                                : OraclyChrome.gold.withValues(
+                                    alpha: OraclyChrome.borderHairline,
+                                  ),
+                            width: selected ? 1.6 : 1,
                           ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(13),
-                      child: SizedBox.expand(
-                        child: ColoredBox(
-                          color: OraclyChrome.midnight,
-                          child: Image(
-                            image: ResizeImage(
-                              FileImage(File(photo.path)),
-                              width: 240,
-                            ),
-                            fit: BoxFit.cover,
-                            excludeFromSemantics: true,
-                            errorBuilder: (_, _, _) => Icon(
-                              Icons.hide_image_outlined,
-                              size: 18,
-                              color: OraclyChrome.gold.withValues(alpha: 0.6),
-                            ),
+                          boxShadow: [
+                            if (selected)
+                              BoxShadow(
+                                color: OraclyChrome.gold.withValues(
+                                  alpha: OraclyChrome.glowMedium,
+                                ),
+                                blurRadius: 14,
+                              ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(13),
+                          child: SizedBox.expand(
+                            child: missing
+                                ? const _MissingThumb()
+                                : ColoredBox(
+                                    color: OraclyChrome.midnight,
+                                    child: Image(
+                                      image: ResizeImage(
+                                        FileImage(file),
+                                        width: 240,
+                                      ),
+                                      fit: BoxFit.cover,
+                                      excludeFromSemantics: true,
+                                      errorBuilder: (_, _, _) =>
+                                          const _MissingThumb(),
+                                    ),
+                                  ),
                           ),
                         ),
                       ),
                     ),
-                  ),
+                    if (pins > 0)
+                      Positioned(
+                        top: -6,
+                        right: -6,
+                        child: _CountBadge(count: pins, lit: selected),
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  pins == 0 ? label : '$label · $pins',
-                  maxLines: 2,
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.ellipsis,
-                  style: ReadingTypography.label(
-                    color: selected
-                        ? OraclyChrome.goldLight
-                        : OraclyChrome.cream.withValues(alpha: 0.72),
+                // Short and on one line at any text size: all three grow
+                // together up to 1.5x, then fit. The full name and count are
+                // in the tab's label.
+                MediaQuery.withClampedTextScaling(
+                  maxScaleFactor: 1.5,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      softWrap: false,
+                      style: ReadingTypography.label(
+                        color: selected
+                            ? OraclyChrome.goldLight
+                            : OraclyChrome.cream.withValues(alpha: 0.72),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -728,6 +855,107 @@ class _PhotoTab extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The pins on one view, as a small disc on its thumbnail corner.
+class _CountBadge extends StatelessWidget {
+  const _CountBadge({required this.count, required this.lit});
+
+  final int count;
+  final bool lit;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(minWidth: 22, minHeight: 22),
+      padding: const EdgeInsets.symmetric(horizontal: 5),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(11),
+        color: lit ? OraclyChrome.gold : OraclyChrome.deepNavy,
+        border: Border.all(
+          color: lit
+              ? OraclyChrome.goldLight
+              : OraclyChrome.gold.withValues(alpha: 0.6),
+        ),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.4), blurRadius: 4),
+        ],
+      ),
+      child: Text(
+        '$count',
+        // A fixed-size mark; the number is read in the tab's label.
+        textScaler: TextScaler.noScaling,
+        style: TextStyle(
+          color: lit ? OraclyChrome.midnight : OraclyChrome.cream,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          height: 1,
+        ),
+      ),
+    );
+  }
+}
+
+/// A view whose photo is no longer on the device.
+class _MissingThumb extends StatelessWidget {
+  const _MissingThumb();
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            OraclyChrome.deepNavy,
+            OraclyChrome.midnight.withValues(alpha: 0.9),
+          ],
+        ),
+      ),
+      child: Center(
+        child: Icon(
+          Icons.hide_image_outlined,
+          size: 20,
+          color: OraclyChrome.gold.withValues(alpha: 0.7),
+        ),
+      ),
+    );
+  }
+}
+
+/// One short line under the strip, and the way to the full explanation.
+class _Guidance extends StatelessWidget {
+  const _Guidance({required this.onHelp});
+
+  final VoidCallback onHelp;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Flexible(
+          child: Text(
+            CoffeeCupMapCopy.intro,
+            textAlign: TextAlign.center,
+            style: ReadingTypography.micro(),
+          ),
+        ),
+        IconButton(
+          onPressed: onHelp,
+          tooltip: CoffeeCupMapCopy.helpOpen,
+          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+          icon: Icon(
+            Icons.info_outline,
+            size: 18,
+            color: OraclyChrome.gold.withValues(alpha: 0.8),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -755,14 +983,19 @@ class _SectionRule extends StatelessWidget {
             line,
             ConstrainedBox(
               constraints: BoxConstraints(
-                maxWidth: (constraints.maxWidth - 48).clamp(0.0, double.infinity),
+                maxWidth: (constraints.maxWidth - 48).clamp(
+                  0.0,
+                  double.infinity,
+                ),
               ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Text(
                   label,
                   textAlign: TextAlign.center,
-                  style: ReadingTypography.sectionTitle(color: OraclyChrome.gold),
+                  style: ReadingTypography.sectionTitle(
+                    color: OraclyChrome.gold,
+                  ),
                 ),
               ),
             ),
@@ -785,7 +1018,9 @@ class _EmptyPins extends StatelessWidget {
         borderRadius: OraclyChrome.cardRadius,
         color: OraclyChrome.cardSurface.withValues(alpha: 0.32),
         border: Border.all(
-          color: OraclyChrome.gold.withValues(alpha: OraclyChrome.borderHairline * 0.7),
+          color: OraclyChrome.gold.withValues(
+            alpha: OraclyChrome.borderHairline * 0.7,
+          ),
         ),
       ),
       child: Text(
@@ -813,7 +1048,10 @@ class _PinRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final duration = CoffeeCupMapMotion.of(context, CoffeeCupMapMotion.pinSelect);
+    final duration = CoffeeCupMapMotion.of(
+      context,
+      CoffeeCupMapMotion.pinSelect,
+    );
     return Semantics(
       button: true,
       label: CoffeeCupMapCopy.pinSemantics(number, pin.note),

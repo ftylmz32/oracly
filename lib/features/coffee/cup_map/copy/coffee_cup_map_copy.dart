@@ -16,9 +16,18 @@ abstract final class CoffeeCupMapCopy {
   static String entryCount(int pins) =>
       pins == 0 ? 'Henüz işaretin yok' : '$pins işaretin var';
 
-  static const intro =
-      'Falın bu üç fotoğrafla okundu. '
-      'Buradaki işaretler yalnızca senin; ORACLY fotoğrafa sembol yerleştirmez.';
+  /// One short line on the map; the full detail is in [helpBody].
+  static const intro = 'İşaretleri sen koyarsın, yalnızca sende kalır.';
+
+  static const helpOpen = 'Fincan Haritası hakkında';
+  static const helpTitle = 'Fincan Haritası';
+  static const helpBody =
+      'Falın bu üç fotoğrafla okundu. Buradaki işaretleri ve notları yalnızca '
+      'sen koyarsın; ORACLY fotoğrafa sembol yerleştirmez.\n\n'
+      'Dokunarak işaret koy, iki parmakla yakınlaştır. İşaretlerin ve '
+      'notların yalnızca bu cihazda kalır; bu falın haritasını istediğin an '
+      'silebilirsin.';
+  static const helpClose = 'Tamam';
   /// Shown on the photo while it has no pins yet.
   static const gestureHint = 'Dokunarak işaret koy, iki parmakla yakınlaştır';
   static const photoLoading = 'Fotoğraf hazırlanıyor';
@@ -28,6 +37,10 @@ abstract final class CoffeeCupMapCopy {
         CoffeeV3PhotoSlot.cupViewB => 'Fincan 2',
         CoffeeV3PhotoSlot.saucer => 'Tabak',
       };
+
+  /// Strip tab, read in full by screen readers (the visual label is short).
+  static String tabSemantics(String label, int pins, {bool missing = false}) =>
+      missing ? '$label, fotoğraf cihazda yok, $pins işaret' : '$label, $pins işaret';
 
   static String photoSemantics(CoffeeV3PhotoSlot slot, int pins) =>
       '${photoLabel(slot)} fotoğrafı, $pins işaret. '
