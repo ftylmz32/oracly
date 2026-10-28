@@ -1,6 +1,9 @@
 /// Result-screen door to Fincan Haritası. Renders nothing unless this
 /// reading has a map with at least one photo still on the device — so V1/V2
 /// readings, older V3 readings and other owners never see it.
+///
+/// The reading's own three photos lead the card; it unfolds into the result
+/// once the photos are known, instead of popping in.
 library;
 
 import 'dart:io';
@@ -15,6 +18,7 @@ import '../../coffee_v3/models/coffee_v3_photo_slot.dart';
 import '../copy/coffee_cup_map_copy.dart';
 import '../models/coffee_cup_map_record.dart';
 import '../providers/coffee_cup_map_providers.dart';
+import 'coffee_cup_map_motion.dart';
 import 'coffee_cup_map_screen.dart';
 
 class CoffeeCupMapEntry extends ConsumerStatefulWidget {
@@ -61,8 +65,9 @@ class _CoffeeCupMapEntryState extends ConsumerState<CoffeeCupMapEntry> {
 
   Future<void> _open() async {
     await Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => CoffeeCupMapScreen(readingId: widget.readingId),
+      coffeeCupMapRoute<void>(
+        context,
+        CoffeeCupMapScreen(readingId: widget.readingId),
       ),
     );
     if (mounted) await _reload();
@@ -71,20 +76,54 @@ class _CoffeeCupMapEntryState extends ConsumerState<CoffeeCupMapEntry> {
   @override
   Widget build(BuildContext context) {
     final record = _record;
-    if (record == null) return const SizedBox.shrink();
+    return AnimatedSwitcher(
+      duration: CoffeeCupMapMotion.of(context, CoffeeCupMapMotion.door),
+      switchInCurve: CoffeeCupMapMotion.ease,
+      switchOutCurve: CoffeeCupMapMotion.exit,
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: animation,
+        child: SizeTransition(
+          sizeFactor: animation,
+          alignment: Alignment.topCenter,
+          child: child,
+        ),
+      ),
+      child: record == null
+          ? const SizedBox.shrink(key: ValueKey('none'))
+          : _DoorCard(key: const ValueKey('door'), record: record, onOpen: _open),
+    );
+  }
+}
+
+class _DoorCard extends StatelessWidget {
+  const _DoorCard({super.key, required this.record, required this.onOpen});
+
+  final CoffeeCupMapRecord record;
+  final VoidCallback onOpen;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(top: 8, bottom: 20),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 16),
       decoration: BoxDecoration(
-        borderRadius: OraclyChrome.cardRadius,
-        color: OraclyChrome.cardSurface.withValues(alpha: 0.62),
+        borderRadius: OraclyChrome.heroRadius,
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            OraclyChrome.deepNavy.withValues(alpha: 0.78),
+            OraclyChrome.cardSurface.withValues(alpha: 0.62),
+          ],
+        ),
         border: Border.all(
           color: OraclyChrome.gold.withValues(alpha: OraclyChrome.borderDefault),
         ),
         boxShadow: [
           BoxShadow(
-            color: OraclyChrome.gold.withValues(alpha: OraclyChrome.glowSoft),
-            blurRadius: 18,
+            color: Colors.black.withValues(alpha: 0.35),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
           ),
         ],
       ),
@@ -92,40 +131,54 @@ class _CoffeeCupMapEntryState extends ConsumerState<CoffeeCupMapEntry> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Semantics(
-            header: true,
-            child: Text(
-              CoffeeCupMapCopy.title,
-              style: ReadingTypography.sectionTitle(color: OraclyChrome.gold),
-            ),
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 4,
+            children: [
+              Semantics(
+                header: true,
+                child: Text(
+                  CoffeeCupMapCopy.title,
+                  style: ReadingTypography.sectionTitle(color: OraclyChrome.gold),
+                ),
+              ),
+              Text(
+                CoffeeCupMapCopy.entryCount(record.pins.length),
+                style: ReadingTypography.micro(),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Text(CoffeeCupMapCopy.entryBody, style: ReadingTypography.secondary()),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
+          // The reading's own photos, the way they were taken.
           ExcludeSemantics(
-            child: Row(
-              children: [
-                for (final slot in coffeeV3CanonicalSlotOrder)
-                  if (record.photoFor(slot) case final photo?)
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 3),
-                        child: _Thumb(photo: photo),
+            child: GestureDetector(
+              onTap: onOpen,
+              child: Row(
+                children: [
+                  for (final slot in coffeeV3CanonicalSlotOrder)
+                    if (record.photoFor(slot) case final photo?)
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: _Thumb(
+                            photo: photo,
+                            label: CoffeeCupMapCopy.photoLabel(slot),
+                          ),
+                        ),
                       ),
-                    ),
-              ],
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 10),
-          Text(
-            CoffeeCupMapCopy.entryCount(record.pins.length),
-            style: ReadingTypography.micro(),
-          ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
+          Text(CoffeeCupMapCopy.entryBody, style: ReadingTypography.secondary()),
+          const SizedBox(height: 16),
           OraclyGoldButton(
             label: CoffeeCupMapCopy.entryOpen,
             expanded: true,
-            onPressed: _open,
+            onPressed: onOpen,
           ),
         ],
       ),
@@ -134,29 +187,56 @@ class _CoffeeCupMapEntryState extends ConsumerState<CoffeeCupMapEntry> {
 }
 
 class _Thumb extends StatelessWidget {
-  const _Thumb({required this.photo});
+  const _Thumb({required this.photo, required this.label});
 
   final CoffeeCupMapPhoto photo;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
     final file = File(photo.path);
-    return AspectRatio(
-      aspectRatio: 1,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(14),
-        child: DecoratedBox(
-          decoration: const BoxDecoration(color: OraclyChrome.midnight),
-          child: file.existsSync()
-              ? Image.file(
-                  file,
-                  fit: BoxFit.cover,
-                  cacheWidth: 240,
-                  excludeFromSemantics: true,
-                )
-              : const SizedBox.shrink(),
+    return Column(
+      children: [
+        AspectRatio(
+          aspectRatio: 3 / 4,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              color: OraclyChrome.midnight,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.4),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            foregroundDecoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: OraclyChrome.gold.withValues(alpha: OraclyChrome.borderHairline),
+              ),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: file.existsSync()
+                ? Image.file(
+                    file,
+                    fit: BoxFit.cover,
+                    cacheWidth: 240,
+                    excludeFromSemantics: true,
+                    errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                  )
+                : const SizedBox.shrink(),
+          ),
         ),
-      ),
+        const SizedBox(height: 6),
+        Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: ReadingTypography.micro(),
+        ),
+      ],
     );
   }
 }

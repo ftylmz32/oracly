@@ -1,5 +1,6 @@
 /// Renders the real Fincan Haritası widgets (door card, map with pins, a
-/// zoomed photo, the note sheet, a 320 px screen) with real fonts and real
+/// zoomed photo, the note sheet, a 320 px screen, the loading / missing /
+/// unavailable states and frames of the motion) with real fonts and real
 /// photos, and — only when CUP_MAP_CAPTURE_DIR is set — writes PNGs there.
 /// CUP_MAP_PHOTO_DIR may point at a folder holding v3_cup_view_a.jpg,
 /// v3_cup_view_b.jpg and v3_saucer_view.jpg; otherwise the repo cup fixture
@@ -21,8 +22,10 @@ import 'package:oracly_new/core/theme/app_theme.dart';
 import 'package:oracly_new/features/coffee/coffee_v3/models/coffee_v3_photo_slot.dart';
 import 'package:oracly_new/features/coffee/cup_map/copy/coffee_cup_map_copy.dart';
 import 'package:oracly_new/features/coffee/cup_map/models/coffee_cup_map_record.dart';
+import 'package:oracly_new/features/coffee/cup_map/presentation/coffee_cup_map_canvas.dart';
 import 'package:oracly_new/features/coffee/cup_map/presentation/coffee_cup_map_entry.dart';
 import 'package:oracly_new/features/coffee/cup_map/presentation/coffee_cup_map_screen.dart';
+import 'package:oracly_new/features/coffee/cup_map/presentation/coffee_cup_map_states.dart';
 import 'package:oracly_new/features/coffee/cup_map/providers/coffee_cup_map_providers.dart';
 import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_store.dart';
 import 'package:oracly_new/features/coffee/cup_map/presentation/coffee_cup_map_consent_tile.dart';
@@ -142,7 +145,8 @@ void main() {
     final context = tester.element(find.byType(SizedBox));
     await tester.runAsync(() async {
       for (final photo in photos) {
-        await precacheImage(FileImage(File(photo.path)), context);
+        if (!File(photo.path).existsSync()) continue;
+        await precacheImage(coffeeCupMapPhotoImage(photo.path), context);
         await precacheImage(
           ResizeImage(FileImage(File(photo.path)), width: 240),
           context,
@@ -151,7 +155,18 @@ void main() {
     });
   }
 
-  Future<void> pump(WidgetTester tester, Widget home, Size size) async {
+  Future<void> frames(WidgetTester tester, int count) async {
+    for (var i = 0; i < count; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+  }
+
+  Future<void> pump(
+    WidgetTester tester,
+    Widget home,
+    Size size, {
+    double textScale = 1,
+  }) async {
     await tester.binding.setSurfaceSize(size);
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await precache(tester);
@@ -168,14 +183,19 @@ void main() {
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
             theme: _darkRoboto(),
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaler: TextScaler.linear(textScale),
+              ),
+              child: child!,
+            ),
             home: home,
           ),
         ),
       ),
     );
-    for (var i = 0; i < 12; i++) {
-      await tester.pump(const Duration(milliseconds: 50));
-    }
+    // Door unfold / map reveal finish (~0.6 s).
+    await frames(tester, 16);
   }
 
   Future<void> addUserPins() async {
@@ -236,14 +256,13 @@ void main() {
     viewer.transformationController!.value = Matrix4.identity()
       ..translateByDouble(-rect.width * 0.55, -rect.height * 0.6, 0, 1)
       ..scaleByDouble(2.5, 2.5, 1, 1);
-    await tester.pump();
+    await frames(tester, 6);
     await _capture(tester, '03_map_zoomed');
 
     viewer.transformationController!.value = Matrix4.identity();
+    await frames(tester, 6);
     await tester.tap(find.text('Tabak · 1'));
-    for (var i = 0; i < 6; i++) {
-      await tester.pump(const Duration(milliseconds: 50));
-    }
+    await frames(tester, 8);
     await _capture(tester, '04_map_saucer');
 
     await tester.ensureVisible(find.text('Tabağın kenarına akan ince çizgi'));
@@ -310,5 +329,104 @@ void main() {
     );
     expect(tester.takeException(), isNull);
     await _capture(tester, '06_map_320');
+  });
+
+  testWidgets('320 px screen at 2x text', (tester) async {
+    await addUserPins();
+    await pump(
+      tester,
+      const CoffeeCupMapScreen(readingId: _reading),
+      const Size(320, 568),
+      textScale: 2,
+    );
+    expect(tester.takeException(), isNull);
+    await _capture(tester, '15_map_320_text2x');
+  });
+
+  testWidgets('door → map: frames of the opening', (tester) async {
+    await addUserPins();
+    await pump(
+      tester,
+      const Scaffold(
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(20),
+            child: CoffeeCupMapEntry(readingId: _reading),
+          ),
+        ),
+      ),
+      const Size(390, 844),
+    );
+    await tester.tap(find.text(CoffeeCupMapCopy.entryOpen));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 120));
+    await _capture(tester, '11_open_t120ms');
+    await tester.pump(const Duration(milliseconds: 160));
+    await _capture(tester, '12_open_t280ms');
+    await frames(tester, 16);
+    expect(find.byType(CoffeeCupMapScreen), findsOneWidget);
+    await _capture(tester, '13_open_settled');
+  });
+
+  testWidgets('photo crossfade, mid-way', (tester) async {
+    await addUserPins();
+    await pump(
+      tester,
+      const CoffeeCupMapScreen(readingId: _reading),
+      const Size(390, 844),
+    );
+    await tester.tap(find.text('Tabak · 1'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 120));
+    await _capture(tester, '14_crossfade_mid');
+    await frames(tester, 8);
+  });
+
+  testWidgets('a new pin: it settles in, its note sheet opens', (tester) async {
+    await pump(
+      tester,
+      const CoffeeCupMapScreen(readingId: _reading),
+      const Size(390, 844),
+    );
+    await _capture(tester, '16_map_no_pins_hint');
+    final rect = tester.getRect(find.byType(InteractiveViewer));
+    await tester.tapAt(rect.topLeft + Offset(rect.width * 0.4, rect.height * 0.45));
+    await frames(tester, 12);
+    expect(find.text(CoffeeCupMapCopy.noteHint), findsOneWidget);
+    await _capture(tester, '17_note_new_pin');
+  });
+
+  testWidgets('states: photo missing, no map, loading', (tester) async {
+    await addUserPins();
+    File(photos.first.path).deleteSync();
+    await pump(
+      tester,
+      const CoffeeCupMapScreen(readingId: _reading),
+      const Size(390, 844),
+    );
+    expect(find.text(CoffeeCupMapCopy.photoMissing), findsOneWidget);
+    await _capture(tester, '18_state_photo_missing');
+
+    await pump(
+      tester,
+      const CoffeeCupMapScreen(readingId: 'no-such-reading'),
+      const Size(390, 844),
+    );
+    expect(find.text(CoffeeCupMapCopy.mapUnavailable), findsOneWidget);
+    await _capture(tester, '19_state_no_map');
+
+    await pump(
+      tester,
+      const Scaffold(
+        body: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: CoffeeCupMapLoadingFrame(height: 460),
+          ),
+        ),
+      ),
+      const Size(390, 844),
+    );
+    await _capture(tester, '20_state_loading');
   });
 }

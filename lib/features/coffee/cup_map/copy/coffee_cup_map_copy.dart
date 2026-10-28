@@ -19,8 +19,9 @@ abstract final class CoffeeCupMapCopy {
   static const intro =
       'Falın bu üç fotoğrafla okundu. '
       'Buradaki işaretler yalnızca senin; ORACLY fotoğrafa sembol yerleştirmez.';
-  static const gestureHint =
-      'İki parmakla yakınlaştır ve kaydır. İşaret koymak için fotoğrafa dokun.';
+  /// Shown on the photo while it has no pins yet.
+  static const gestureHint = 'Dokunarak işaret koy, iki parmakla yakınlaştır';
+  static const photoLoading = 'Fotoğraf hazırlanıyor';
 
   static String photoLabel(CoffeeV3PhotoSlot slot) => switch (slot) {
         CoffeeV3PhotoSlot.cupViewA => 'Fincan 1',

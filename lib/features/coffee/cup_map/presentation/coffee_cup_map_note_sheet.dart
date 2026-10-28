@@ -9,6 +9,8 @@ import '../../../../shared/widgets/oracly_gold_button.dart';
 import '../../../../shared/widgets/oracly_text_action.dart';
 import '../copy/coffee_cup_map_copy.dart';
 import '../models/coffee_cup_map_record.dart';
+import 'coffee_cup_map_motion.dart';
+import 'coffee_cup_map_states.dart';
 
 sealed class CoffeeCupMapNoteAction {
   const CoffeeCupMapNoteAction();
@@ -23,6 +25,8 @@ class CoffeeCupMapPinDeleted extends CoffeeCupMapNoteAction {
   const CoffeeCupMapPinDeleted();
 }
 
+const _sheetRadius = BorderRadius.vertical(top: Radius.circular(28));
+
 Future<CoffeeCupMapNoteAction?> showCoffeeCupMapNoteSheet(
   BuildContext context, {
   required int number,
@@ -31,10 +35,19 @@ Future<CoffeeCupMapNoteAction?> showCoffeeCupMapNoteSheet(
   return showModalBottomSheet<CoffeeCupMapNoteAction>(
     context: context,
     isScrollControlled: true,
-    backgroundColor: OraclyChrome.deepNavy,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-    ),
+    backgroundColor: Colors.transparent,
+    barrierColor: Colors.black.withValues(alpha: 0.55),
+    shape: const RoundedRectangleBorder(borderRadius: _sheetRadius),
+    clipBehavior: Clip.antiAlias,
+    // Rises with the app's enter curve, leaves a little faster.
+    sheetAnimationStyle: CoffeeCupMapMotion.reduced(context)
+        ? AnimationStyle.noAnimation
+        : const AnimationStyle(
+            duration: CoffeeCupMapMotion.sheetIn,
+            reverseDuration: CoffeeCupMapMotion.sheetOut,
+            curve: CoffeeCupMapMotion.ease,
+            reverseCurve: CoffeeCupMapMotion.exit,
+          ),
     builder: (_) => _NoteSheet(number: number, pin: pin),
   );
 }
@@ -59,100 +72,138 @@ class _NoteSheetState extends State<_NoteSheet> {
     super.dispose();
   }
 
+  OutlineInputBorder _border(Color color) => OutlineInputBorder(
+        borderRadius: BorderRadius.circular(18),
+        borderSide: BorderSide(color: color),
+      );
+
   @override
   Widget build(BuildContext context) {
     final inset = MediaQuery.viewInsetsOf(context).bottom;
-    return Padding(
-      padding: EdgeInsets.fromLTRB(20, 12, 20, 16 + inset),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: OraclyChrome.gold.withValues(alpha: 0.4),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Semantics(
-              header: true,
-              child: Text(
-                '${CoffeeCupMapCopy.pinName(widget.number)} · '
-                '${CoffeeCupMapCopy.noteTitle}',
-                style: ReadingTypography.sectionTitle(color: OraclyChrome.gold),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _text,
-              autofocus: !widget.pin.hasNote,
-              maxLength: CoffeeCupMapLimits.maxNoteLength,
-              minLines: 2,
-              maxLines: 4,
-              textCapitalization: TextCapitalization.sentences,
-              style: ReadingTypography.body(color: OraclyChrome.cream),
-              cursorColor: OraclyChrome.gold,
-              decoration: InputDecoration(
-                hintText: CoffeeCupMapCopy.noteHint,
-                hintStyle: ReadingTypography.secondary(),
-                filled: true,
-                fillColor: OraclyChrome.midnight.withValues(alpha: 0.6),
-                counterStyle: ReadingTypography.micro(),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(
-                    color: OraclyChrome.gold.withValues(
-                      alpha: OraclyChrome.borderDefault,
-                    ),
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(
-                    color: OraclyChrome.gold.withValues(
-                      alpha: OraclyChrome.borderDefault,
-                    ),
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: OraclyChrome.gold),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            OraclyGoldButton(
-              label: CoffeeCupMapCopy.noteSave,
-              expanded: true,
-              onPressed: () => Navigator.of(context).pop(
-                CoffeeCupMapNoteSaved(normalizeCoffeeCupMapNote(_text.text)),
-              ),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: _sheetRadius,
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [OraclyChrome.deepNavy, OraclyChrome.midnight],
+        ),
+        border: Border(
+          top: BorderSide(
+            color: OraclyChrome.gold.withValues(alpha: OraclyChrome.borderDefault),
+          ),
+        ),
+      ),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(22, 12, 22, 16 + inset),
+        child: SafeArea(
+          top: false,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                OraclyTextAction(
-                  label: CoffeeCupMapCopy.noteDelete,
-                  destructive: true,
-                  onPressed: () => Navigator.of(context).pop(
-                    const CoffeeCupMapPinDeleted(),
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: OraclyChrome.gold.withValues(alpha: 0.35),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                 ),
-                OraclyTextAction(
-                  label: CoffeeCupMapCopy.noteClose,
-                  onPressed: () => Navigator.of(context).pop(),
+                const SizedBox(height: 18),
+                Semantics(
+                  header: true,
+                  label: '${CoffeeCupMapCopy.pinName(widget.number)}, '
+                      '${CoffeeCupMapCopy.noteTitle}',
+                  excludeSemantics: true,
+                  child: Row(
+                    children: [
+                      CoffeeCupMapMedallion(
+                        number: widget.number,
+                        size: 34,
+                        emphasized: true,
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              CoffeeCupMapCopy.pinName(widget.number),
+                              style: ReadingTypography.sectionTitle(
+                                color: OraclyChrome.gold,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              CoffeeCupMapCopy.noteTitle,
+                              style: ReadingTypography.micro(),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _text,
+                  autofocus: !widget.pin.hasNote,
+                  maxLength: CoffeeCupMapLimits.maxNoteLength,
+                  minLines: 3,
+                  maxLines: 5,
+                  textCapitalization: TextCapitalization.sentences,
+                  style: ReadingTypography.body(color: OraclyChrome.cream),
+                  cursorColor: OraclyChrome.gold,
+                  decoration: InputDecoration(
+                    hintText: CoffeeCupMapCopy.noteHint,
+                    hintStyle: ReadingTypography.secondary(),
+                    filled: true,
+                    fillColor: OraclyChrome.midnight.withValues(alpha: 0.7),
+                    contentPadding: const EdgeInsets.all(16),
+                    counterStyle: ReadingTypography.micro(),
+                    border: _border(OraclyChrome.gold.withValues(
+                      alpha: OraclyChrome.borderHairline,
+                    )),
+                    enabledBorder: _border(OraclyChrome.gold.withValues(
+                      alpha: OraclyChrome.borderHairline,
+                    )),
+                    focusedBorder: _border(
+                      OraclyChrome.gold.withValues(alpha: OraclyChrome.borderEmphasis),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                OraclyGoldButton(
+                  label: CoffeeCupMapCopy.noteSave,
+                  expanded: true,
+                  onPressed: () => Navigator.of(context).pop(
+                    CoffeeCupMapNoteSaved(normalizeCoffeeCupMapNote(_text.text)),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    OraclyTextAction(
+                      label: CoffeeCupMapCopy.noteDelete,
+                      destructive: true,
+                      onPressed: () => Navigator.of(context).pop(
+                        const CoffeeCupMapPinDeleted(),
+                      ),
+                    ),
+                    OraclyTextAction(
+                      label: CoffeeCupMapCopy.noteClose,
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );

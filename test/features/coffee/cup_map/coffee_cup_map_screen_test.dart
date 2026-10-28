@@ -79,7 +79,7 @@ void main() {
     await tester.runAsync(() async {
       for (final photo in photos) {
         if (File(photo.path).existsSync()) {
-          await precacheImage(FileImage(File(photo.path)), context);
+          await precacheImage(coffeeCupMapPhotoImage(photo.path), context);
         }
       }
     });
@@ -113,7 +113,10 @@ void main() {
         ),
       ),
     );
-    await tester.pump(const Duration(milliseconds: 300));
+    // The map reveals itself (~0.6 s); let it finish on the test clock.
+    for (var i = 0; i < 16; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
   }
 
   /// Several frames: a sheet opened after an awaited write animates in.
@@ -229,7 +232,8 @@ void main() {
         findsOneWidget);
 
     await tester.tap(find.text('Tabak · 1'));
-    await tester.pump(const Duration(milliseconds: 300));
+    // The photos crossfade; afterwards only the saucer's canvas remains.
+    await settle(tester);
     expect(find.text('Kenara doğru akan iz'), findsOneWidget);
     expect(
       find.bySemanticsLabel(RegExp('İşaret 1, not: Kenara doğru akan iz')),
@@ -425,6 +429,8 @@ void main() {
         ),
       );
       await tester.pump(const Duration(seconds: 2));
+      // The door unfolds into the result once its photos are known.
+      await settle(tester);
     }
 
     testWidgets('a reading with a map shows the door and opens the map',

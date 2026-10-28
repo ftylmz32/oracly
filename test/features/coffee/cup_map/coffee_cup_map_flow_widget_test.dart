@@ -25,6 +25,7 @@ import 'package:oracly_new/features/coffee/coffee_v3/presentation/coffee_v3_flow
 import 'package:oracly_new/features/coffee/coffee_v3/providers/coffee_v3_providers.dart';
 import 'package:oracly_new/features/coffee/coffee_v3/services/coffee_v3_submission_store.dart';
 import 'package:oracly_new/features/coffee/cup_map/copy/coffee_cup_map_copy.dart';
+import 'package:oracly_new/features/coffee/cup_map/presentation/coffee_cup_map_canvas.dart';
 import 'package:oracly_new/features/coffee/cup_map/presentation/coffee_cup_map_screen.dart';
 import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_consent.dart';
 import 'package:oracly_new/features/coffee/cup_map/services/coffee_cup_map_location.dart';
@@ -234,13 +235,16 @@ void main() {
     await tester.runAsync(() async {
       final context = tester.element(find.byType(CoffeeResultView));
       for (final photo in map.photos) {
-        await precacheImage(FileImage(File(photo.path)), context);
+        await precacheImage(coffeeCupMapPhotoImage(photo.path), context);
       }
     });
     await drain(tester, iterations: 4);
+    // The door unfolds, then the map route rises and reveals the photo.
+    await settle(tester);
     expect(find.text(CoffeeCupMapCopy.entryOpen), findsOneWidget);
 
     await tapAndDrain(tester, find.text(CoffeeCupMapCopy.entryOpen));
+    await settle(tester);
     expect(find.byType(CoffeeCupMapScreen), findsOneWidget);
     final rect = tester.getRect(find.byType(InteractiveViewer));
     await tester.runAsync(() async {
@@ -304,12 +308,14 @@ void main() {
     await tester.runAsync(() async {
       final context = tester.element(find.byType(CoffeeResultView));
       for (final photo in map.photos) {
-        await precacheImage(FileImage(File(photo.path)), context);
+        await precacheImage(coffeeCupMapPhotoImage(photo.path), context);
       }
     });
     await drain(tester, iterations: 4);
+    await settle(tester);
     expect(find.text(CoffeeCupMapCopy.entryOpen), findsOneWidget);
     await tapAndDrain(tester, find.text(CoffeeCupMapCopy.entryOpen));
+    await settle(tester);
     expect(find.byType(CoffeeCupMapScreen), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   });
