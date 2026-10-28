@@ -204,6 +204,23 @@ workflows:
             --build-number=11 \
             --export-options-plist=/Users/builder/export_options.plist
 
+      # Upload gate: runs before publishing. On any mismatch the IPA is
+      # removed and the build fails, so nothing reaches App Store Connect.
+      - name: Verify signed IPA (distribution entitlements, privacy manifests)
+        script: |
+          set -euo pipefail
+          IPA=$(ls build/ios/ipa/*.ipa | head -n 1)
+          WORK=$(mktemp -d)
+          unzip -q "$IPA" -d "$WORK"
+          APP="$WORK/Payload/Runner.app"
+          codesign -d --entitlements - --xml "$APP" > "$WORK/entitlements.plist" 2>/dev/null
+          if ! python3 tool/ios/signed_entitlements.py "$WORK/entitlements.plist" \
+             || ! python3 tool/ios/privacy_manifests.py "$APP"; then
+            rm -f build/ios/ipa/*.ipa
+            echo "Signed IPA failed the upload gate; IPA removed"
+            exit 1
+          fi
+
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
@@ -326,6 +343,10 @@ workflows:
             || { echo "cup map storage channel not compiled in"; exit 1; }
           echo "Runner.app: bundle app.oracly, Firebase config bundled, cup map storage bridge compiled"
           rm -f ios/Runner/GoogleService-Info.plist
+
+      # Unsigned build: entitlements are checked only in ios-release.
+      - name: Privacy manifests in the built app
+        script: python3 tool/ios/privacy_manifests.py build/ios/iphoneos/Runner.app
 
     artifacts:
       - flutter_build_ios.log
