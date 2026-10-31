@@ -5,11 +5,12 @@ import { buildServer } from './server.js';
 import { AiProxyService } from './ai/service.js';
 import { createClosedSpendGuard, FirestoreSpendGuard } from './ai/spend-guard.js';
 import { ReadingProcessor } from './reading/reading-processor.js';
+import { withFreemiumSpend } from './reading/freemium-spend.js';
 
 loadEnvFile();
 const config = loadConfig();
 const readingWiring = createProductionReadingWiring(config);
-const spendGuard = config.aiDailySpendCapMicros
+const daySpendGuard = config.aiDailySpendCapMicros
   ? readingWiring.firestore
     ? new FirestoreSpendGuard(
         readingWiring.firestore,
@@ -19,6 +20,13 @@ const spendGuard = config.aiDailySpendCapMicros
       )
     : createClosedSpendGuard()
   : null;
+// Freemium V1 (dark): the same guard, plus the free share of the day. Off: unchanged.
+const spendGuard = withFreemiumSpend(
+  config,
+  daySpendGuard,
+  readingWiring.firestore,
+  () => readingWiring.clock?.now() ?? new Date(),
+);
 const processorService = new AiProxyService(config, undefined, readingWiring.stagedImages, spendGuard);
 const readingProcessor =
   readingWiring.readingFlow && readingWiring.results

@@ -16,6 +16,12 @@ import { serverDayKey } from './gem-wallet-policy.js';
 export const RITUAL_DAILY_LIMIT = { coffee: 1, palm: 2, dream: 3, astrology: 2 } as const;
 export type RitualKind = keyof typeof RITUAL_DAILY_LIMIT;
 
+/** Freemium V1 (dark): Palm is one free reading a day, like Coffee. */
+export function ritualDailyLimit(kind: RitualKind, config: AppConfig): number {
+  if (config.freemiumV1Enabled && kind === 'palm') return 1;
+  return RITUAL_DAILY_LIMIT[kind];
+}
+
 const CLAIM_MS = 70_000;
 const OPERATION_ID = /^[A-Za-z0-9._:-]{8,128}$/;
 const PHASE_SUFFIX = /:(?:observe|write)$/;
@@ -83,6 +89,8 @@ export async function admitRitualQuota(input: {
   operation: string;
   identity: string;
   idempotencyKey: string | null;
+  /** Freemium V1: the slot reserved at create time, on the day and tier it was reserved. */
+  slot?: { day: string; limit: number } | null;
 }): Promise<RitualAdmission> {
   const kind = ritualKindOf(input.operation);
   if (!kind) return { action: 'skip' };
@@ -95,12 +103,12 @@ export async function admitRitualQuota(input: {
   if (!fullKey || !operationId) {
     return { action: 'reply', status: 200, payload: errorEnvelope(ErrorCode.invalidRequest) };
   }
-  const day = serverDayKey(input.clock.now());
+  const day = input.slot?.day ?? serverDayKey(input.clock.now());
   const now = toEpochMs(input.clock.now());
   const store = input.store;
   const counterRef = store.collection(RITUAL_COUNTERS).doc(docId(`${input.identity}\0${day}\0${kind}`));
   const attemptRef = store.collection(RITUAL_ATTEMPTS).doc(docId(`${input.identity}\0${kind}\0${fullKey}`));
-  const limit = RITUAL_DAILY_LIMIT[kind];
+  const limit = input.slot?.limit ?? ritualDailyLimit(kind, input.config);
   return store.runTransaction(async (tx) => {
     // A deleted (or being deleted) account gets no new or replayed record.
     await assertNoDeletionBarrier(tx, store, input.identity);

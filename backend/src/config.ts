@@ -227,6 +227,13 @@ export type AppConfig = {
    */
   readingCommerceEnabled: boolean;
   /**
+   * Dark. Freemium V1 access for new Coffee V3 and Palm creates: the day's
+   * own allowance (free 1, Premium 2 in total), then an existing reading
+   * credit. Free use is held under its own share of the day's AI ceiling.
+   * Off unless ORACLY_FREEMIUM_V1_ENABLED is set to a true value.
+   */
+  freemiumV1Enabled: boolean;
+  /**
    * Dark, and also requires reading commerce. One coffee credit per
    * identity, under a daily abuse cap. Off unless
    * ORACLY_READING_TRIAL_ENABLED is exactly true. Account age is not
@@ -522,6 +529,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     coffeeV3Engine: env.ORACLY_COFFEE_V3_ENGINE?.trim() === 'narrative' ? 'narrative' : 'direct',
     palmEngine: env.ORACLY_PALM_ENGINE?.trim() === 'structured' ? 'structured' : 'direct',
     readingCommerceEnabled: parseBool(env.ORACLY_READING_COMMERCE_ENABLED, false),
+    freemiumV1Enabled: parseBool(env.ORACLY_FREEMIUM_V1_ENABLED, false),
     readingTrialEnabled: parseBool(env.ORACLY_READING_TRIAL_ENABLED, false),
     readingBillingQa,
   };

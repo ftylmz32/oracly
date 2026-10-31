@@ -39,6 +39,8 @@ import type { ReadingFlow } from '../reading/reading-flow.js';
 import { sanitizeCoffeeIntention } from '../reading/coffee-intention.js';
 import type { FirestoreLike } from '../billing/entitlement-repository.js';
 import { openCommerceCreate } from '../reading/reading-commerce-gate.js';
+import { freemiumApplies, openFreemiumCreate } from '../reading/freemium-access.js';
+import type { SoulmateEntitlementGuard } from '../reading/soulmate-entitlement-guard.js';
 
 const FORBIDDEN_BODY_KEYS = [
   'readyAt',
@@ -71,6 +73,8 @@ export type ReadingOperationRouteOptions = {
   policy?: WaitPolicy;
   flow?: ReadingFlow;
   commerceStore?: FirestoreLike | null;
+  /** Server Premium authority for Freemium V1 (dark). */
+  premium?: SoulmateEntitlementGuard;
 };
 
 export async function registerReadingOperationRoutes(
@@ -101,14 +105,24 @@ export async function registerReadingOperationRoutes(
         return reply.code(400).send(errorEnvelope(ErrorCode.invalidRequest));
       }
       try {
-        const commerce = await openCommerceCreate({
-          config,
-          store: options.commerceStore ?? null,
-          service,
-          ownerUserId: owner,
-          nowMs: toEpochMs(serviceClock(options)),
-          body: parsed,
-        });
+        const commerce = freemiumApplies(config, parsed)
+          ? await openFreemiumCreate({
+            config,
+            store: options.commerceStore ?? null,
+            service,
+            premium: options.premium,
+            ownerUserId: owner,
+            nowMs: toEpochMs(serviceClock(options)),
+            body: parsed,
+          })
+          : await openCommerceCreate({
+            config,
+            store: options.commerceStore ?? null,
+            service,
+            ownerUserId: owner,
+            nowMs: toEpochMs(serviceClock(options)),
+            body: parsed,
+          });
         if (commerce.kind === 'error') {
           return reply.code(commerce.httpStatus).send(errorEnvelope(commerce.code));
         }

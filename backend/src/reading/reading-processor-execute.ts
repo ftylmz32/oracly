@@ -25,6 +25,7 @@ import {
   type RitualHold,
 } from './ritual-daily-quota.js';
 import { failRitualQuota, finishRitualQuota } from './ritual-daily-quota-settle.js';
+import { freemiumSlotFor } from './freemium-access.js';
 import { spendReservationScope } from '../ai/spend-context.js';
 import { ErrorCode, ProxyError } from '../errors.js';
 
@@ -241,6 +242,10 @@ export async function executeClaimedReading(input: {
         // spend guards, consumption and refunds are unchanged.
         const purchased = (isCoffeeV3 || feature === 'palm') &&
           await input.flow.isPurchasedReading(operation.ownerUserId, operationId, feature);
+        // Freemium V1 (dark): charge the slot reserved at create, on its own day.
+        const slot = input.ritualQuota && !purchased
+          ? await freemiumSlotFor(input.ritualQuota.config, input.ritualQuota.store, operation.ownerUserId, operationId)
+          : null;
         const ritual = input.ritualQuota && !purchased
           ? await admitRitualQuota({
               config: input.ritualQuota.config,
@@ -249,6 +254,7 @@ export async function executeClaimedReading(input: {
               operation: `${feature}_analysis`,
               identity: operation.ownerUserId,
               idempotencyKey: operationId,
+              slot,
             })
           : { action: 'skip' as const };
         if (ritual.action === 'reply') {

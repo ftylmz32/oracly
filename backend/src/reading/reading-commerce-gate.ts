@@ -164,11 +164,7 @@ export async function openCommerceCreate(input: {
   ownerUserId: string;
   nowMs: number;
   body: CommerceCreateInput;
-}): Promise<
-  | { kind: 'skip' }
-  | { kind: 'record'; record: ReadingOperationRecord }
-  | { kind: 'error'; httpStatus: number; code: ErrorCodeName }
-> {
+}): Promise<CommerceCreateOutcome> {
   if (freeCoffeeCreateClosed(input.config.readingCommerceEnabled, input.body)) {
     // Only the same create made before the rollout comes back; never a new one.
     const existing = await input.service.findCreated({ ownerUserId: input.ownerUserId, ...input.body });
@@ -182,6 +178,23 @@ export async function openCommerceCreate(input: {
   const earlier = await input.service.findCreated({ ownerUserId: input.ownerUserId, ...input.body });
   if (earlier && earlier.readyAtMs > earlier.createdAtMs) return { kind: 'record', record: earlier };
   if (!input.store) return { kind: 'error', httpStatus: 503, code: ErrorCode.noConfiguration };
+  return openCreditCreate({ ...input, store: input.store });
+}
+
+export type CommerceCreateOutcome =
+  | { kind: 'skip' }
+  | { kind: 'record'; record: ReadingOperationRecord }
+  | { kind: 'error'; httpStatus: number; code: ErrorCodeName };
+
+/** One server-owned credit opens an instant Coffee V3 or Palm operation, inside the day budget. */
+export async function openCreditCreate(input: {
+  config: AppConfig;
+  store: FirestoreLike;
+  service: ReadingOperationService;
+  ownerUserId: string;
+  nowMs: number;
+  body: CommerceCreateInput;
+}): Promise<Exclude<CommerceCreateOutcome, { kind: 'skip' }>> {
   if (!(await readingBudgetOpen(input.store, input.config, input.nowMs))) {
     return { kind: 'error', httpStatus: 503, code: ErrorCode.spendGuard };
   }

@@ -265,6 +265,7 @@ export async function buildServer(options: BuildOptions) {
     // regardless of the client-side resume fix.
     flow: options.readingFlow,
     commerceStore: options.gemStore ?? null,
+    premium: options.soulmateEntitlement,
   });
   await registerReadingCommerceRoutes(app, config, {
     appCheck,
