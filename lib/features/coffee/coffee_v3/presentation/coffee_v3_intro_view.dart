@@ -13,9 +13,19 @@ import '../../../reading_commerce/presentation/reading_billing_qa_entry_link.dar
 import '../copy/coffee_v3_copy.dart';
 
 class CoffeeV3IntroView extends StatelessWidget {
-  const CoffeeV3IntroView({super.key, required this.onStart});
+  const CoffeeV3IntroView({
+    super.key,
+    required this.onStart,
+    this.allowance,
+    this.ctaLabel,
+  });
 
-  final VoidCallback onStart;
+  /// Null hides the start button (the day's reading is used).
+  final VoidCallback? onStart;
+
+  /// Freemium V1 allowance plate; absent keeps the intro unchanged.
+  final Widget? allowance;
+  final String? ctaLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -53,12 +63,17 @@ class CoffeeV3IntroView extends StatelessWidget {
             ),
             SizedBox(height: AppSpacing.s8),
           ],
+          if (allowance != null) ...[
+            SizedBox(height: AppSpacing.s16),
+            allowance!,
+          ],
           SizedBox(height: AppSpacing.s24),
-          OraclyGoldButton(
-            label: CoffeeV3Copy.introCta,
-            expanded: true,
-            onPressed: onStart,
-          ),
+          if (onStart != null)
+            OraclyGoldButton(
+              label: ctaLabel ?? CoffeeV3Copy.introCta,
+              expanded: true,
+              onPressed: onStart,
+            ),
           const ReadingBillingQaEntryLink(),
           SizedBox(height: AppSpacing.s24),
         ],

@@ -34,6 +34,7 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
     _error = null;
     _lastError = null;
     needsReadingCredit = false;
+    dailyQuotaReached = false;
     safeNotify();
     final cleaned = image.path.replaceAll(RegExp(r'[^A-Za-z0-9]'), '');
     final tail = cleaned.length >= 12
@@ -198,6 +199,12 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
         _resumeTimer?.cancel();
         needsReadingCredit =
             state.backendCode == 'reading_entitlement_required';
+        dailyQuotaReached = FreemiumRollout.enabled &&
+            isDailyQuotaAnswer(
+              ReadingAllowanceKind.palm,
+              httpStatus: state.httpStatus,
+              backendCode: state.backendCode,
+            );
         // A lost/failed staging response is recoverable: the entitlement is
         // already bound to this operation and the app-private image copy is
         // the only way to idempotently restage it after a restart.

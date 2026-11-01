@@ -6,9 +6,9 @@ import '../l10n_triple.dart';
 const kL10nPalm = <String, L10nTriple>{
   'palm.screen_title': L10nTriple('EL FALI', 'PALM READING', 'ХИРОМАНТИЯ'),
   'palm.landing_line': L10nTriple(
-    'Elindeki çizgilerin anlattığı hikâyeyi keşfet.',
-    'Discover the story told by the lines in your hand.',
-    'Открой историю, которую рассказывают линии на твоей ладони.',
+    'Çizgilerinin anlattığını keşfet.',
+    'Discover what your lines tell.',
+    'Узнай, о чём говорят твои линии.',
   ),
   'palm.ritual_title': L10nTriple(
     'Avucunu hazırla',

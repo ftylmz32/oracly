@@ -7,6 +7,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/design_system/app_spacing.dart';
 import '../../../../core/design_system/oracly_chrome.dart';
@@ -19,18 +20,30 @@ import '../../coffee_v2/presentation/coffee_v2_thumbnail.dart';
 import '../../cup_map/presentation/coffee_cup_map_consent_tile.dart';
 import '../../presentation/reference/coffee_capture_hint.dart';
 import '../../presentation/reference/coffee_reference_tokens.dart';
+import '../../../reading_access/copy/freemium_copy.dart';
+import '../../../reading_access/freemium_rollout.dart';
+import '../../../reading_access/models/reading_allowance.dart';
+import '../../../reading_access/presentation/coffee_allowance_panel.dart';
+import '../../../reading_access/presentation/reading_allowance_navigation.dart';
+import '../../../reading_access/providers/reading_allowance_providers.dart';
 import '../../../reading_commerce/presentation/reading_credit_link.dart';
 import '../controllers/coffee_v3_flow_controller.dart';
 import '../copy/coffee_v3_copy.dart';
 import '../models/coffee_v3_photo_slot.dart';
 
-class CoffeeV3FinalReviewView extends StatelessWidget {
+class CoffeeV3FinalReviewView extends ConsumerWidget {
   const CoffeeV3FinalReviewView({super.key, required this.controller});
 
   final CoffeeV3FlowController controller;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final freemium = FreemiumRollout.enabled;
+    final allowance = freemium
+        ? ref.watch(readingAllowanceProvider(ReadingAllowanceKind.coffee))
+        : null;
+    final quotaAnswered =
+        controller.createBlock == CoffeeV3CreateBlock.dailyQuota;
     final blockMessage = switch (controller.createBlock) {
       CoffeeV3CreateBlock.creationDisabled ||
       CoffeeV3CreateBlock.serverUnavailable =>
@@ -38,7 +51,8 @@ class CoffeeV3FinalReviewView extends StatelessWidget {
       CoffeeV3CreateBlock.connectionLost => CoffeeV3Copy.createConnectionLost,
       CoffeeV3CreateBlock.entitlementRequired =>
         CoffeeV3Copy.entitlementRequired,
-      null => null,
+      // Shown as the used plate below, never as a warning line.
+      CoffeeV3CreateBlock.dailyQuota || null => null,
     };
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(
@@ -114,10 +128,27 @@ class CoffeeV3FinalReviewView extends StatelessWidget {
             SizedBox(height: AppSpacing.s8),
             const ReadingCreditLink(),
           ],
+          if (allowance != null && quotaAnswered) ...[
+            SizedBox(height: AppSpacing.s12),
+            CoffeeAllowanceUsedCard(
+              view: ReadingAllowanceView(
+                kind: ReadingAllowanceKind.coffee,
+                status: ReadingAllowanceStatus.usedToday,
+                premium: allowance.premium,
+              ),
+              onRecheck: () => ref
+                  .read(readingAllowanceSignalsProvider)
+                  .clear(ReadingAllowanceKind.coffee),
+            ),
+          ],
           SizedBox(height: AppSpacing.s16),
           // Optional, off by default: the reading is sent and read the same
-          // either way.
-          const CoffeeCupMapConsentTile(),
+          // either way. Freemium V1: Fincan Haritası is a Premium room, so
+          // a non-member keeps no photos and sees where the door is.
+          if (allowance == null || allowance.premium)
+            const CoffeeCupMapConsentTile()
+          else
+            const _CupMapPremiumNote(),
           SizedBox(height: AppSpacing.s12),
           OraclyGoldButton(
             label: CoffeeV3Copy.reviewCta,
@@ -179,6 +210,61 @@ class _ReviewCard extends StatelessWidget {
             OraclyQuietLink(label: CoffeeV3Copy.reviewChange, onTap: onChange),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Freemium V1, non-member: where Fincan Haritası is, without a sale.
+class _CupMapPremiumNote extends StatelessWidget {
+  const _CupMapPremiumNote();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        AppSpacing.s16,
+        AppSpacing.s12,
+        AppSpacing.s12,
+        AppSpacing.s4,
+      ),
+      decoration: BoxDecoration(
+        borderRadius: OraclyChrome.cardRadius,
+        border: Border.all(
+          color: OraclyChrome.gold.withValues(alpha: OraclyChrome.borderHairline),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Icon(
+                  Icons.lock_outline_rounded,
+                  size: 16,
+                  color: OraclyChrome.gold.withValues(alpha: 0.75),
+                ),
+              ),
+              SizedBox(width: AppSpacing.s8),
+              Expanded(
+                child: Text(
+                  FreemiumCopy.cupMapReviewNote,
+                  style: ReadingTypography.bodySmall(color: OraclyChrome.cream),
+                ),
+              ),
+            ],
+          ),
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: OraclyQuietLink(
+              label: FreemiumCopy.cupMapLockedCta,
+              onTap: () => ReadingAllowanceNavigation.openPremium(context),
+            ),
+          ),
+        ],
       ),
     );
   }

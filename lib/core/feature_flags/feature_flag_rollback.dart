@@ -17,6 +17,7 @@ abstract final class FeatureFlagRollback {
       FeatureFlagSurface.astrologyVisual => ProductFeatureFlags.astrologyVisual,
       FeatureFlagSurface.dailyMessage => ProductFeatureFlags.newDailyEngine,
       FeatureFlagSurface.coffeeV3Capture => ProductFeatureFlags.coffeeV3ThreeView,
+      FeatureFlagSurface.freemiumV1 => ProductFeatureFlags.freemiumV1,
     };
   }
 

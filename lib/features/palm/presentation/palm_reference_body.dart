@@ -4,6 +4,11 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../reading_access/freemium_rollout.dart';
+import '../../reading_access/models/reading_allowance.dart';
+import '../../reading_access/presentation/palm_allowance_line.dart';
+import '../../reading_access/presentation/reading_allowance_navigation.dart';
+import '../../reading_access/providers/reading_allowance_providers.dart';
 import '../../reading_commerce/copy/reading_commerce_copy.dart';
 import '../../reading_commerce/presentation/reading_credit_link.dart';
 import '../controllers/palm_reading_controller.dart';
@@ -28,7 +33,22 @@ class PalmReferenceBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final freemium = FreemiumRollout.enabled;
+    final allowance = freemium
+        ? ref.watch(readingAllowanceProvider(ReadingAllowanceKind.palm))
+        : null;
+    Widget usedView() => PalmAllowanceUsedView(
+      view: allowance!,
+      onRecheck: () {
+        ref
+            .read(readingAllowanceSignalsProvider)
+            .clear(ReadingAllowanceKind.palm);
+        controller.backToEntry();
+      },
+      onBack: () => ReadingAllowanceNavigation.goHome(context),
+    );
     final landing = PalmLandingView(
+      allowance: allowance == null ? null : PalmAllowanceLine(view: allowance),
       hand: controller.hand,
       onHand: controller.selectHand,
       analysisAvailable: controller.analysisAvailable,
@@ -43,6 +63,8 @@ class PalmReferenceBody extends ConsumerWidget {
       },
     );
     return switch (controller.phase) {
+      PalmPhase.entry when allowance != null && !allowance.canStart =>
+        usedView(),
       PalmPhase.entry => landing,
       PalmPhase.capture => PalmCaptureView(
         controller: controller,
@@ -84,6 +106,8 @@ class PalmReferenceBody extends ConsumerWidget {
         onRetry: controller.image != null ? onAnalyze : controller.retryCapture,
         onBack: controller.backToEntry,
       ),
+      PalmPhase.error when allowance != null && controller.dailyQuotaReached =>
+        usedView(),
       PalmPhase.error => Column(
         children: [
           Expanded(

@@ -7,11 +7,18 @@ import '../../../../core/copy/premium_copy.dart';
 import '../../../../core/design_system/oracly_chrome.dart';
 import '../../../../core/design_system/oracly_soft_reveal.dart';
 import '../../../../core/theme/reading_typography.dart';
+import '../../../reading_access/copy/freemium_copy.dart';
+import '../../../reading_access/freemium_rollout.dart';
 import 'premium_chamber_plate.dart';
 import 'premium_quiet_action.dart';
 import 'premium_reference_value_highlights.dart';
 
 class PremiumReferenceHeroCard extends StatelessWidget {
+  /// Freemium V1 states the daily model; off keeps the shipped line.
+  static String get _heroLead => FreemiumRollout.enabled
+      ? FreemiumCopy.premiumHeroLead
+      : PremiumCopy.heroLead;
+
   const PremiumReferenceHeroCard({
     super.key,
     this.active = false,
@@ -60,10 +67,10 @@ class PremiumReferenceHeroCard extends StatelessWidget {
               color: OraclyChrome.cream.withValues(alpha: 0.92),
             ),
           ),
-          if (PremiumCopy.heroLead.trim().isNotEmpty) ...[
+          if (_heroLead.trim().isNotEmpty) ...[
             const SizedBox(height: 6),
             Text(
-              PremiumCopy.heroLead,
+              _heroLead,
               textAlign: TextAlign.center,
               style: ReadingTypography.footnote(
                 color: OraclyChrome.cream.withValues(alpha: 0.62),

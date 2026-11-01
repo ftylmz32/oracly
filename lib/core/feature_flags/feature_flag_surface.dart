@@ -10,4 +10,7 @@ enum FeatureFlagSurface {
 
   /// Starting a NEW Coffee V3 three-photo capture; stable = Coffee V2.
   coffeeV3Capture,
+
+  /// Freemium V1 client experience; stable = the existing entry flows.
+  freemiumV1,
 }

@@ -40,6 +40,14 @@ abstract final class CoffeeCupMapCopy {
         CoffeeV3PhotoSlot.saucer => 'Tabak',
       };
 
+  /// Narrow-screen thumbnail label, drawn after a cup glyph. The saucer's
+  /// own word is short enough to stay.
+  static String? photoShortLabel(CoffeeV3PhotoSlot slot) => switch (slot) {
+        CoffeeV3PhotoSlot.cupViewA => '1',
+        CoffeeV3PhotoSlot.cupViewB => '2',
+        CoffeeV3PhotoSlot.saucer => null,
+      };
+
   /// Strip tab, read in full by screen readers (the visual label is short).
   static String tabSemantics(String label, int pins, {bool missing = false}) =>
       missing ? '$label, fotoğraf cihazda yok, $pins işaret' : '$label, $pins işaret';

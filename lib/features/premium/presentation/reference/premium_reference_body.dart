@@ -8,6 +8,8 @@ import '../../../../core/design_system/app_spacing.dart';
 import '../../../../core/domain/models/premium_plan.dart';
 import '../../controllers/premium_status_controller.dart';
 import '../../models/premium_entitlement_state.dart';
+import '../../../reading_access/freemium_rollout.dart';
+import 'premium_daily_rights_section.dart';
 import 'premium_legal_disclosure.dart';
 import 'premium_qa_preview.dart';
 import 'premium_reference_cta_unavailable.dart';
@@ -89,6 +91,12 @@ class PremiumReferenceBody extends StatelessWidget {
                   preview: preview,
                   onInspectPlans: showPlansJump ? _jumpToPlans : null,
                 ),
+                if (FreemiumRollout.enabled) ...[
+                  SizedBox(height: PremiumReferenceTokens.benefitsToPlans),
+                  PremiumDailyRightsSection(
+                    active: status.isPremium && !_previewing,
+                  ),
+                ],
                 SizedBox(height: PremiumReferenceTokens.benefitsToPlans),
                 const PremiumReferenceGemNote(),
                 SizedBox(height: PremiumReferenceTokens.benefitsToPlans),

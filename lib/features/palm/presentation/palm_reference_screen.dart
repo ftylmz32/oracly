@@ -28,6 +28,9 @@ import '../../reading_commerce/models/reading_commerce_view.dart';
 import '../../reading_commerce/presentation/reading_commerce_screen.dart';
 import '../../../core/quality/quality_feature.dart';
 import 'palm_atmosphere.dart';
+import '../../reading_access/freemium_rollout.dart';
+import '../../reading_access/models/reading_allowance.dart';
+import '../../reading_access/providers/reading_allowance_providers.dart';
 import 'palm_reference_app_bar.dart';
 import 'palm_reference_body.dart';
 import 'palm_tokens.dart';
@@ -194,6 +197,12 @@ class _PalmReferenceScreenState extends ConsumerState<PalmReferenceScreen> {
         _journalRefreshedFor = shownId;
         PersonalDiscoveryRefresh.invalidate(ref);
       }
+      // Freemium V1: remember the server's own daily-quota answer for today.
+      if (next.dailyQuotaReached) {
+        ref
+            .read(readingAllowanceSignalsProvider)
+            .markUsed(ReadingAllowanceKind.palm);
+      }
     });
     return QualityLoopGate(
       feature: QualityFeature.palm,
@@ -223,7 +232,10 @@ class _PalmReferenceScreenState extends ConsumerState<PalmReferenceScreen> {
                   Expanded(
                     child:
                         controller.phase == PalmPhase.entry &&
-                            !widget.bypassPaidEntryForTest
+                            !widget.bypassPaidEntryForTest &&
+                            // Freemium V1: the free daily reading starts
+                            // here; a credit is never asked for up front.
+                            !FreemiumRollout.enabled
                         ? ReadingCommerceScreen(
                             view: widget.commerceViewForTest,
                             embedded: true,

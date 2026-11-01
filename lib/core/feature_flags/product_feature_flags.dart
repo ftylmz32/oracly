@@ -78,6 +78,16 @@ abstract final class ProductFeatureFlags {
     defaultValue: false,
   );
 
+  /// Freemium V1 client experience: daily free Coffee / Palm allowance
+  /// copy, the server daily-quota answer, Premium daily rights and the
+  /// Fincan Haritası Premium door. Dark by default; the server keeps its
+  /// own independent gate (ORACLY_FREEMIUM_V1_ENABLED).
+  static const freemiumV1 = FeatureFlagDefinition(
+    key: 'freemium_v1',
+    type: FeatureFlagType.boolean,
+    defaultValue: false,
+  );
+
   static const catalog = <FeatureFlagDefinition>[
     tarot7Card,
     tarotNarrativeV2,
@@ -89,6 +99,7 @@ abstract final class ProductFeatureFlags {
     yildiznameNarrativeV1,
     yildiznameAddressName,
     coffeeV3ThreeView,
+    freemiumV1,
   ];
 
   static Map<String, bool> defaults() => {

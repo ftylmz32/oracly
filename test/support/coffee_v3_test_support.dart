@@ -40,6 +40,10 @@ class CoffeeV3TestTransport {
   /// Create fails at the transport level (no response) once.
   bool dropNextCreate = false;
 
+  /// Freemium V1: the server answers every create with this error
+  /// (e.g. `429 coffee_daily_quota`, `429 rate_limited`).
+  ({int status, String code})? createError;
+
   Future<ReadingOperationWire?> send(
     String method,
     String path,
@@ -47,6 +51,15 @@ class CoffeeV3TestTransport {
   ) async {
     calls.add(RecordedCall(method, path, body == null ? null : Map.of(body)));
     final isCreate = method == 'POST' && path == '/v1/reading-operations';
+    final error = createError;
+    if (isCreate && error != null) {
+      return ReadingOperationWire(
+        statusCode: error.status,
+        json: {
+          'error': {'code': error.code},
+        },
+      );
+    }
     if (isCreate && dropNextCreate) {
       dropNextCreate = false;
       return null;

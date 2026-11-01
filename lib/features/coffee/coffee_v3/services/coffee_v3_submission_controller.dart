@@ -31,6 +31,8 @@ import 'coffee_v3_normalizer.dart';
 import 'coffee_v3_submission_store.dart';
 import 'coffee_v3_validation.dart';
 import 'coffee_v3_work_files.dart';
+import '../../../reading_access/freemium_rollout.dart';
+import '../../../reading_access/models/reading_allowance.dart';
 
 enum CoffeeV3SlotSelectionFailure {
   missingFile,
@@ -71,6 +73,9 @@ enum CoffeeV3SubmissionOutcome {
 
   /// Commerce is on and this account has no coffee credit. Draft intact.
   entitlementRequired,
+
+  /// Freemium V1: the server answered the day's coffee quota. Draft intact.
+  dailyQuota,
 
   /// Client creation gate closed (rollout flag off or non-Turkish UI).
   creationDisabled,
@@ -261,6 +266,14 @@ class CoffeeV3SubmissionController {
     if (snapshot == null) {
       if (begun.backendCode == 'reading_entitlement_required') {
         return CoffeeV3SubmissionOutcome.entitlementRequired;
+      }
+      if (FreemiumRollout.enabled &&
+          isDailyQuotaAnswer(
+            ReadingAllowanceKind.coffee,
+            httpStatus: begun.httpStatus,
+            backendCode: begun.backendCode,
+          )) {
+        return CoffeeV3SubmissionOutcome.dailyQuota;
       }
       return begun.httpStatus == 400
           ? CoffeeV3SubmissionOutcome.createRejected

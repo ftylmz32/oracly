@@ -16,11 +16,17 @@ import 'package:oracly_new/features/palm/services/palm_experience_service.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/features/reading_operation/services/reading_pending_operation_store.dart';
 import 'package:oracly_new/features/reading_operation/models/reading_operation_status.dart';
+import 'package:oracly_new/features/reading_operation/services/reading_acceleration_client.dart';
+import 'package:oracly_new/features/reading_operation/services/reading_feature_runner.dart';
+import 'package:oracly_new/features/reading_operation/services/reading_live_flow.dart';
+import 'package:oracly_new/features/reading_operation/services/reading_operation_gateway.dart';
+import 'package:oracly_new/features/reading_operation/services/reading_staged_image_gateway.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../support/fake_reading_operation_backend.dart';
+import '../../support/freemium_test_support.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -229,6 +235,95 @@ void main() {
     expect(controller.phase, PalmPhase.result);
     expect(analysis.calls, 2);
     expect(controller.image?.path, pathBefore);
+  });
+
+  group('Freemium V1 create answers', () {
+    tearDown(resetFeatureFlags);
+
+    PalmReadingController quotaController(
+      _FakePalmAnalysis analysis, {
+      required int status,
+      required String code,
+    }) {
+      final backend = FakeReadingOperationBackend(immediatelyEligible: true);
+      Future<ReadingOperationWire?> send(
+        String method,
+        String path,
+        Map<String, Object>? body,
+      ) async {
+        if (method == 'POST' && path == '/v1/reading-operations') {
+          return ReadingOperationWire(
+            statusCode: status,
+            json: {
+              'error': {'code': code},
+            },
+          );
+        }
+        return backend.send(method, path, body);
+      }
+
+      return PalmReadingController(
+        experience: PalmExperienceService(
+          analysis: analysis,
+          persistImage: ({required readingId, required sourcePath}) async =>
+              sourcePath,
+        ),
+        images: _FakeImages(fixturePath),
+        live: ReadingFeatureRunner(
+          serverOwnedCompletion: true,
+          stagedImages: ReadingStagedImageGateway(send),
+          flow: ReadingLiveFlow(
+            operations: ReadingOperationGateway(send: send),
+            acceleration: ReadingAccelerationClient(send: send),
+            send: send,
+          ),
+        ),
+        pendingStore: pendingStore,
+      );
+    }
+
+    test('on: only the exact palm quota answer reads as used today', () async {
+      setFreemiumFlag(true);
+      final analysis = _FakePalmAnalysis();
+      final controller = quotaController(
+        analysis,
+        status: 429,
+        code: 'palm_daily_quota',
+      );
+      addTearDown(controller.dispose);
+      await controller.acceptCapturedPath(fixturePath);
+      await controller.analyze();
+      expect(controller.dailyQuotaReached, isTrue);
+      expect(controller.needsReadingCredit, isFalse);
+      expect(controller.phase, PalmPhase.error);
+      expect(analysis.calls, 0);
+      controller.backToEntry();
+      expect(controller.dailyQuotaReached, isFalse);
+
+      final limited = quotaController(
+        _FakePalmAnalysis(),
+        status: 429,
+        code: 'rate_limited',
+      );
+      addTearDown(limited.dispose);
+      await limited.acceptCapturedPath(fixturePath);
+      await limited.analyze();
+      expect(limited.dailyQuotaReached, isFalse);
+    });
+
+    test('off: the same answer is the existing generic failure', () async {
+      setFreemiumFlag(false);
+      final controller = quotaController(
+        _FakePalmAnalysis(),
+        status: 429,
+        code: 'palm_daily_quota',
+      );
+      addTearDown(controller.dispose);
+      await controller.acceptCapturedPath(fixturePath);
+      await controller.analyze();
+      expect(controller.dailyQuotaReached, isFalse);
+      expect(controller.phase, PalmPhase.error);
+    });
   });
 }
 

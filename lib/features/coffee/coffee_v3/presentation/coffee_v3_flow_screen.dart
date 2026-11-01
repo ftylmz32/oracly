@@ -12,6 +12,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/design_system/chamber_waiting_stage.dart';
 import '../../../../shared/navigation/oracly_navigation.dart';
 import '../../../personal_discovery/services/personal_discovery_refresh.dart';
+import '../../../reading_access/freemium_rollout.dart';
+import '../../../reading_access/models/reading_allowance.dart';
+import '../../../reading_access/copy/freemium_copy.dart';
+import '../../../reading_access/presentation/coffee_allowance_panel.dart';
+import '../../../reading_access/providers/reading_allowance_providers.dart';
 import '../../../reading_commerce/models/reading_commerce_view.dart';
 import '../../../reading_commerce/presentation/reading_commerce_screen.dart';
 import '../../coffee_v2/presentation/coffee_v2_flow_screen.dart';
@@ -19,6 +24,7 @@ import '../../copy/coffee_copy.dart';
 import '../../presentation/reference/coffee_error_view.dart';
 import '../../presentation/reference/coffee_landing_chamber.dart';
 import '../../presentation/reference/coffee_reference_screen.dart';
+import '../controllers/coffee_v3_flow_controller.dart';
 import '../models/coffee_v3_flow_stage.dart';
 import '../providers/coffee_v3_providers.dart';
 import 'coffee_v3_active_views.dart';
@@ -57,6 +63,13 @@ class _CoffeeV3FlowScreenState extends ConsumerState<CoffeeV3FlowScreen> {
         _journalRefreshedFor = shownId;
         PersonalDiscoveryRefresh.invalidate(ref);
       }
+      // Freemium V1: only the server's own daily-quota answer marks today.
+      if (FreemiumRollout.enabled &&
+          next.createBlock == CoffeeV3CreateBlock.dailyQuota) {
+        ref
+            .read(readingAllowanceSignalsProvider)
+            .markUsed(ReadingAllowanceKind.coffee);
+      }
     });
     final stage = controller.stage;
     // Nothing V3-owned and NEW V3 creation not allowed: the default route
@@ -80,6 +93,8 @@ class _CoffeeV3FlowScreenState extends ConsumerState<CoffeeV3FlowScreen> {
           },
           onBack: () => _handleBack(context),
         ),
+        CoffeeV3FlowStage.intro when FreemiumRollout.enabled =>
+          _freemiumIntro(controller),
         CoffeeV3FlowStage.intro =>
           !_paidEntryRequested
               ? CoffeeV3IntroView(
@@ -110,6 +125,26 @@ class _CoffeeV3FlowScreenState extends ConsumerState<CoffeeV3FlowScreen> {
           onBack: () => _handleBack(context),
         ),
       },
+    );
+  }
+
+  /// Freemium V1: the free daily reading starts from the intro itself; a
+  /// credit is never asked for up front. The server decides at create.
+  Widget _freemiumIntro(CoffeeV3FlowController controller) {
+    final allowance = ref.watch(
+      readingAllowanceProvider(ReadingAllowanceKind.coffee),
+    );
+    return CoffeeV3IntroView(
+      ctaLabel: FreemiumCopy.coffeeCta,
+      onStart: allowance.canStart ? controller.dismissIntro : null,
+      allowance: allowance.canStart
+          ? CoffeeAllowancePanel(view: allowance)
+          : CoffeeAllowanceUsedCard(
+              view: allowance,
+              onRecheck: () => ref
+                  .read(readingAllowanceSignalsProvider)
+                  .clear(ReadingAllowanceKind.coffee),
+            ),
     );
   }
 }

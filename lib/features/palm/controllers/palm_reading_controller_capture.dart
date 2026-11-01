@@ -8,6 +8,9 @@ mixin PalmReadingCapture on ChangeNotifier {
   ReadingLiveState? liveState;
   bool needsReadingCredit = false;
 
+  /// Freemium V1: the server answered `palm_daily_quota` for this create.
+  bool dailyQuotaReached = false;
+
   PalmPhase _phase = PalmPhase.entry;
   PalmHand _hand = PalmHand.right;
   CoffeeImagePick? _image;
@@ -127,6 +130,7 @@ mixin PalmReadingCapture on ChangeNotifier {
     _error = null;
     _lastError = null;
     needsReadingCredit = false;
+    dailyQuotaReached = false;
     _qualityHint = null;
     liveState = null;
     _accelerating = false;

@@ -23,6 +23,8 @@ import '../../reading_operation/models/reading_acceleration.dart';
 import '../../reading_operation/services/reading_feature_runner.dart';
 import '../../reading_operation/services/reading_live_flow.dart';
 import '../../reading_operation/services/reading_pending_operation_store.dart';
+import '../../reading_access/freemium_rollout.dart';
+import '../../reading_access/models/reading_allowance.dart';
 
 part 'palm_reading_controller_capture.dart';
 part 'palm_reading_controller_analysis.dart';

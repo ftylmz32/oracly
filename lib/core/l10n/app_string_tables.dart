@@ -54,6 +54,7 @@ import 'tables/table_oracle_core.dart';
 import 'tables/table_release_paths.dart';
 import 'tables/table_notify.dart';
 import 'tables/table_resilience.dart';
+import 'tables/table_freemium.dart';
 import 'tables/table_safety.dart';
 import 'tables/table_screens.dart';
 import 'tables/table_session_continuation.dart';
@@ -95,6 +96,7 @@ abstract final class AppStringTables {
     ...kL10nPrivacyControl,
     ...kL10nQualityLoop,
     ...kL10nResilience,
+    ...kL10nFreemium,
     ...kL10nSafety,
     ...kL10nSoulMate,
     ...kL10nStarVoice,

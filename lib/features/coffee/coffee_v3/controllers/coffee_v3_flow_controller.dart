@@ -45,6 +45,9 @@ enum CoffeeV3CreateBlock {
   /// The server asked for a reading credit. The purchase screen decides
   /// whether a buy button exists.
   entitlementRequired,
+
+  /// Freemium V1: the server answered the day's coffee quota (draft kept).
+  dailyQuota,
 }
 
 class CoffeeV3FlowController extends ChangeNotifier {
@@ -340,6 +343,8 @@ class CoffeeV3FlowController extends ChangeNotifier {
         _lastCreateBlock = CoffeeV3CreateBlock.serverUnavailable;
       case CoffeeV3SubmissionOutcome.entitlementRequired:
         _lastCreateBlock = CoffeeV3CreateBlock.entitlementRequired;
+      case CoffeeV3SubmissionOutcome.dailyQuota:
+        _lastCreateBlock = CoffeeV3CreateBlock.dailyQuota;
       case CoffeeV3SubmissionOutcome.creationDisabled:
         _lastCreateBlock = CoffeeV3CreateBlock.creationDisabled;
       case CoffeeV3SubmissionOutcome.retryableFailure:
