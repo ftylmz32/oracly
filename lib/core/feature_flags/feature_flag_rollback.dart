@@ -18,6 +18,7 @@ abstract final class FeatureFlagRollback {
       FeatureFlagSurface.dailyMessage => ProductFeatureFlags.newDailyEngine,
       FeatureFlagSurface.coffeeV3Capture => ProductFeatureFlags.coffeeV3ThreeView,
       FeatureFlagSurface.freemiumV1 => ProductFeatureFlags.freemiumV1,
+      FeatureFlagSurface.adsV1 => ProductFeatureFlags.adsV1,
     };
   }
 

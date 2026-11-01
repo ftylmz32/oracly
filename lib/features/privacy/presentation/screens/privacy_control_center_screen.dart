@@ -13,6 +13,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/craftsmanship_rhythm.dart';
 import '../../../../core/theme/reading_typography.dart';
+import '../../../../features/ads/presentation/ads_privacy_options_tile.dart';
 import '../../../../features/premium/presentation/widgets/premium_background.dart';
 import '../../../../features/premium/presentation/widgets/settings_tiles.dart';
 import '../../../../shared/widgets/oracly_cinematic_loading.dart';
@@ -112,6 +113,8 @@ class PrivacyControlCenterScreen extends ConsumerWidget {
                       title: PrivacyControlCopy.sectionActions,
                     ),
                     const PrivacyControlActionsSection(),
+                    // Ads rollout off (default): renders nothing.
+                    const AdsPrivacyOptionsTile(),
                     SizedBox(height: AppSpacing.xxl),
                   ],
                 ),

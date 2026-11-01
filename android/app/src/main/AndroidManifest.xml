@@ -28,6 +28,23 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:node="remove"/>
+    <!-- google_mobile_ads merges these in. Ads are not live (ads_v1 is off
+         by default), so the advertising id and Privacy Sandbox ad APIs stay
+         out of the merged manifest and the current Play declarations remain
+         true. Enabling live ads is a separate, PO-approved change that drops
+         these removals together with the Play Console declarations. -->
+    <uses-permission
+        android:name="com.google.android.gms.permission.AD_ID"
+        tools:node="remove"/>
+    <uses-permission
+        android:name="android.permission.ACCESS_ADSERVICES_AD_ID"
+        tools:node="remove"/>
+    <uses-permission
+        android:name="android.permission.ACCESS_ADSERVICES_ATTRIBUTION"
+        tools:node="remove"/>
+    <uses-permission
+        android:name="android.permission.ACCESS_ADSERVICES_TOPICS"
+        tools:node="remove"/>
     <application
         android:label="ORACLY"
         android:name="${applicationName}"
@@ -74,6 +91,15 @@
                 <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
             </intent-filter>
         </receiver>
+        <!-- Google Mobile Ads: app id from build.gradle.kts (sample id in
+             debug/profile; a release requires the real id). Measurement
+             waits until the SDK is explicitly started by the ad gate. -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="${admobAppId}"/>
+        <meta-data
+            android:name="com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT"
+            android:value="true"/>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

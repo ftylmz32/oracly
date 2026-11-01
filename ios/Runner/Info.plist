@@ -4,6 +4,8 @@
 <dict>
 	<key>GADApplicationIdentifier</key>
 	<string>$(ORACLY_ADMOB_APP_ID)</string>
+	<key>GADDelayAppMeasurementInit</key>
+	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>ORACLY uses the camera for coffee-cup, palm, and profile photos.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

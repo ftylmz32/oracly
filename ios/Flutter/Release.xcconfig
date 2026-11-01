@@ -1,3 +1,6 @@
 #include "Generated.xcconfig"
 // Set ORACLY_ADMOB_APP_ID in the protected release build environment.
 ORACLY_ADMOB_APP_ID=disabled
+// The protected build writes the real id to this git-ignored file;
+// ios/scripts/admob_app_id_guard.sh refuses Release/Profile without it.
+#include? "AdMobApp.xcconfig"

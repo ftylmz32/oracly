@@ -64,12 +64,25 @@ void main() {
     test(
       'rewarded-ad provider is dormant/no-op without explicit configuration',
       () {
-        // Current shipped state: no concrete ad SDK dependency is
-        // compiled in, so rewardedAdProvider must resolve to null and the
-        // card must collapse -- this is what keeps the capability
-        // dormant until a real provider is intentionally enabled.
-        final pubspecLock = File('pubspec.lock').readAsStringSync().toLowerCase();
-        expect(pubspecLock, isNot(contains('google_mobile_ads')));
+        // Freemium Aşama 3A compiles google_mobile_ads in (pinned) but
+        // dormant: the only SDK entry is the ads gate behind the
+        // default-off ads_v1 flag (test/features/ads/ads_gate_test.dart),
+        // and rewardedAdProvider still resolves to null so the card
+        // collapses -- the rewarded capability stays dormant until a real
+        // provider is intentionally wired in.
+        final pubspec = File(
+          'pubspec.yaml',
+        ).readAsStringSync().replaceAll('\r\n', '\n');
+        expect(pubspec, contains('  google_mobile_ads: 9.1.0\n'));
+        final flags = File(
+          'lib/core/feature_flags/product_feature_flags.dart',
+        ).readAsStringSync().replaceAll('\r\n', '\n');
+        expect(
+          flags,
+          contains(
+            "key: 'ads_v1',\n    type: FeatureFlagType.boolean,\n    defaultValue: false,",
+          ),
+        );
 
         final providerSource = File(
           'lib/features/gems/providers/gem_providers.dart',

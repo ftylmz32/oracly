@@ -55,6 +55,7 @@ import 'tables/table_release_paths.dart';
 import 'tables/table_notify.dart';
 import 'tables/table_resilience.dart';
 import 'tables/table_freemium.dart';
+import 'tables/table_ads.dart';
 import 'tables/table_safety.dart';
 import 'tables/table_screens.dart';
 import 'tables/table_session_continuation.dart';
@@ -97,6 +98,7 @@ abstract final class AppStringTables {
     ...kL10nQualityLoop,
     ...kL10nResilience,
     ...kL10nFreemium,
+    ...kL10nAds,
     ...kL10nSafety,
     ...kL10nSoulMate,
     ...kL10nStarVoice,

@@ -88,6 +88,15 @@ abstract final class ProductFeatureFlags {
     defaultValue: false,
   );
 
+  /// Freemium Aşama 3A — ad SDK + consent gate (lib/features/ads). Dark by
+  /// default: off means the SDK is never started and no ad is requested.
+  /// No ad placement exists yet; turning this on alone shows nothing.
+  static const adsV1 = FeatureFlagDefinition(
+    key: 'ads_v1',
+    type: FeatureFlagType.boolean,
+    defaultValue: false,
+  );
+
   static const catalog = <FeatureFlagDefinition>[
     tarot7Card,
     tarotNarrativeV2,
@@ -100,6 +109,7 @@ abstract final class ProductFeatureFlags {
     yildiznameAddressName,
     coffeeV3ThreeView,
     freemiumV1,
+    adsV1,
   ];
 
   static Map<String, bool> defaults() => {

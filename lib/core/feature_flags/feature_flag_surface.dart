@@ -13,4 +13,7 @@ enum FeatureFlagSurface {
 
   /// Freemium V1 client experience; stable = the existing entry flows.
   freemiumV1,
+
+  /// Ad SDK + consent gate; stable = no SDK start, no ad request.
+  adsV1,
 }
