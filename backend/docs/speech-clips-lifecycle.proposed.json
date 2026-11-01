@@ -1,0 +1,11 @@
+{
+  "_comment": "PROPOSAL ONLY (Aşama 4C). Not applied. 'gcloud storage buckets update --lifecycle-file' REPLACES the bucket's whole lifecycle config: merge this rule into the existing rules (reading-staging/, soulmate-portraits/) first. Requires separate PO approval.",
+  "lifecycle": {
+    "rule": [
+      {
+        "action": { "type": "Delete" },
+        "condition": { "age": 2, "matchesPrefix": ["speech-clips/"] }
+      }
+    ]
+  }
+}

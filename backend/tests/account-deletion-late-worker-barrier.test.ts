@@ -134,6 +134,12 @@ class DeletionFirestoreAdapter {
 function storageFake(objects: MemoryStagedObjectStore, adapter: DeletionFirestoreAdapter) {
   return {
     bucket: (_name: string) => ({
+      // Aşama 4C: account deletion lists `speech-clips/<owner>/`.
+      async getFiles(options: { prefix: string }) {
+        return [[...objects.objects.keys()]
+          .filter((name) => name.startsWith(options.prefix))
+          .map((name) => ({ name }))];
+      },
       file: (path: string) => ({
         async delete() {
           adapter.noteDestructive(`object:${path.split('/')[0]}`);

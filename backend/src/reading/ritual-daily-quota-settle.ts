@@ -1,4 +1,5 @@
 /** Close or return a ritual-quota hold. A delivered body is never refunded. */
+import { deletionBarrierExists } from '../account/deletion-barrier.js';
 import type { FirestoreLike } from '../billing/entitlement-repository.js';
 import {
   chargesOf,
@@ -18,6 +19,8 @@ async function settle(
   const counterRef = store.collection(RITUAL_COUNTERS).doc(docId(`${identity}\0${hold.day}\0${hold.kind}`));
   const attemptRef = store.collection(RITUAL_ATTEMPTS).doc(docId(`${identity}\0${hold.kind}\0${hold.fullKey}`));
   await store.runTransaction(async (tx) => {
+    // Deleted owner: keep no text and no counter (the sweep removes the rest).
+    if (await deletionBarrierExists(tx, store, identity)) return;
     const [counterSnap, attemptSnap] = await Promise.all([tx.get(counterRef), tx.get(attemptRef)]);
     const attempt = attemptSnap.data();
     if (!attempt || attempt.identity !== identity || attempt.status === 'final') return;

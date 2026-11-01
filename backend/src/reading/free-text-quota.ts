@@ -4,6 +4,7 @@
  * that operation. Deep tarot, coffee, palm, dream, and soulmate stay outside.
  */
 import { createHash } from 'node:crypto';
+import { assertNoDeletionBarrier, deletionBarrierExists } from '../account/deletion-barrier.js';
 import type { FirestoreLike } from '../billing/entitlement-repository.js';
 import type { AppConfig } from '../config.js';
 import { ErrorCode, errorEnvelope } from '../errors.js';
@@ -92,6 +93,8 @@ export async function admitFreeTextQuota(input: {
   const counterRef = store.collection(COUNTERS).doc(docId(`${input.identity}\0${day}`));
   const attemptRef = store.collection(ATTEMPTS).doc(docId(`${input.identity}\0${fullKey}`));
   return store.runTransaction(async (tx) => {
+    // A deleted (or being deleted) account gets no new or replayed record.
+    await assertNoDeletionBarrier(tx, store, input.identity);
     const [counterSnap, attemptSnap] = await Promise.all([tx.get(counterRef), tx.get(attemptRef)]);
     const attempt = attemptSnap.data();
     const body = typeof attempt?.body === 'string' ? attempt.body : undefined;
@@ -139,6 +142,8 @@ export async function finishFreeTextQuota(
   const counterRef = store.collection(COUNTERS).doc(docId(`${identity}\0${hold.day}`));
   const attemptRef = store.collection(ATTEMPTS).doc(docId(`${identity}\0${hold.fullKey}`));
   await store.runTransaction(async (tx) => {
+    // Deleted owner: keep no text and no counter (the sweep removes the rest).
+    if (await deletionBarrierExists(tx, store, identity)) return;
     const [counterSnap, attemptSnap] = await Promise.all([tx.get(counterRef), tx.get(attemptRef)]);
     const attempt = attemptSnap.data();
     if (!attempt || attempt.identity !== identity) return;
@@ -163,6 +168,8 @@ export async function failFreeTextQuota(
   const counterRef = store.collection(COUNTERS).doc(docId(`${identity}\0${hold.day}`));
   const attemptRef = store.collection(ATTEMPTS).doc(docId(`${identity}\0${hold.fullKey}`));
   await store.runTransaction(async (tx) => {
+    // Deleted owner: keep no text and no counter (the sweep removes the rest).
+    if (await deletionBarrierExists(tx, store, identity)) return;
     const [counterSnap, attemptSnap] = await Promise.all([tx.get(counterRef), tx.get(attemptRef)]);
     const attempt = attemptSnap.data();
     if (!attempt || attempt.identity !== identity || attempt.status === 'final') return;

@@ -3,6 +3,7 @@ import { Firestore, FieldValue, Timestamp } from '@google-cloud/firestore';
 import { Storage } from '@google-cloud/storage';
 import type { AppConfig } from '../config.js';
 import { ACCOUNT_DELETION_RECEIPTS, accountDeletionReceiptId } from './deletion-barrier.js';
+import { isOwnedSpeechObject, speechOwnerPrefix } from '../reading/speech-retention.js';
 
 export type DeletionReceipt = {
   receiptId: string;
@@ -28,7 +29,24 @@ const DELETE_COLLECTIONS = [
   // SMD1 — Soulmate portrait metadata; the GCS object itself is deleted
   // below (mirrors the staged-image GCS cleanup right above it).
   'readingSoulmatePortraits',
+  // Legacy Coffee / Palm direct-AI one-reading pins (request key + phases;
+  // no reading content). Written only behind the deletion barrier check.
+  'readingLegacyDirectAi',
 ] as const;
+
+/** Free-quota records owned by an `identity` field: the attempts keep the
+ * delivered response `body`; the day counters keep the charge rows. Their
+ * writers check the deletion barrier, so nothing reappears after the sweep. */
+const IDENTITY_COLLECTIONS = [
+  'ritualDailyQuota', 'ritualDailyQuotaAttempts',
+  'freeTextQuota', 'freeTextQuotaAttempts',
+] as const;
+
+/** Aşama 4C — OR/Luna reply audio records, owned by an `identity` field:
+ * `speechGrants` keep the reply text; `speechPreviewDay` the daily preview
+ * cap. Their writers check the deletion barrier (`luna-speech-gate.ts`,
+ * `luna-speech-settle.ts`). The clips live under `speech-clips/<owner>/`. */
+const SPEECH_COLLECTIONS = ['speechGrants', 'speechPreviewDay'] as const;
 
 /** Production deletion is retry-safe: every delete is idempotent and the receipt
  * becomes `accepted` only after content cleanup and purchase-binding
@@ -88,9 +106,22 @@ export class FirestoreAccountDeletionRepository implements AccountDeletionReposi
       throw new Error('account_deletion_object_store_unavailable');
     }
 
-    for (const collection of DELETE_COLLECTIONS) {
+    // Aşama 4C — every clip and probe under this owner's own prefix, including
+    // orphans no record points at. Listed only AFTER the barrier committed:
+    // a render finishing later sees the barrier in its finish transaction and
+    // deletes its own clip. Objects go first and documents after, so a failed
+    // object delete leaves the records (and the `deleting` receipt) in place
+    // and the retry lists the prefix again.
+    deletedObjects += await this.deleteSpeechObjects(identityKey);
+
+    const sweeps = [
+      ...DELETE_COLLECTIONS.map((collection) => ({ collection, field: 'ownerUserId' })),
+      ...IDENTITY_COLLECTIONS.map((collection) => ({ collection, field: 'identity' })),
+      ...SPEECH_COLLECTIONS.map((collection) => ({ collection, field: 'identity' })),
+    ];
+    for (const { collection, field } of sweeps) {
       const snapshot = await this.firestore.collection(collection)
-        .where('ownerUserId', '==', identityKey).get();
+        .where(field, '==', identityKey).get();
       for (let offset = 0; offset < snapshot.docs.length; offset += 400) {
         const batch = this.firestore.batch();
         for (const doc of snapshot.docs.slice(offset, offset + 400)) batch.delete(doc.ref);
@@ -129,6 +160,32 @@ export class FirestoreAccountDeletionRepository implements AccountDeletionReposi
       expiresAt: Timestamp.fromMillis(Date.parse(receipt.completedAt) + 30 * 86_400_000),
     });
     return receipt;
+  }
+
+  /** Deletes `speech-clips/<owner>/` objects of exactly this identity.
+   * Idempotent (missing objects are fine); any other failure propagates so
+   * the receipt is never accepted. Without object storage it fails closed
+   * when speech records exist, as for staged images above. */
+  private async deleteSpeechObjects(identityKey: string): Promise<number> {
+    if (!this.storage || !this.bucket) {
+      for (const collection of SPEECH_COLLECTIONS) {
+        const owned = await this.firestore.collection(collection)
+          .where('identity', '==', identityKey).get();
+        if (!owned.empty) throw new Error('account_deletion_object_store_unavailable');
+      }
+      return 0;
+    }
+    const prefix = speechOwnerPrefix(identityKey);
+    const bucket = this.storage.bucket(this.bucket);
+    const [files] = await bucket.getFiles({ prefix });
+    let deleted = 0;
+    for (const file of files) {
+      // Defense in depth: never trust the listing beyond the exact shape.
+      if (!file.name.startsWith(prefix) || !isOwnedSpeechObject(file.name, identityKey)) continue;
+      await bucket.file(file.name).delete({ ignoreNotFound: true });
+      deleted++;
+    }
+    return deleted;
   }
 }
 

@@ -59,6 +59,7 @@ import {
   failRitualQuota,
   finishRitualQuota,
 } from '../reading/ritual-daily-quota-settle.js';
+import { findAccountDeletedError } from '../account/deletion-barrier.js';
 import { denySoulmateWithoutPremium } from '../reading/soulmate-ai-route-gate.js';
 import type { SoulmateEntitlementGuard } from '../reading/soulmate-entitlement-guard.js';
 import { admitLunaText, type LunaFreeHold } from '../reading/luna-premium-gate.js';
@@ -67,8 +68,11 @@ import {
   authorizeSpeech,
   issueSpeechGrant,
   speechGrantIdFromBody,
+  speechGrantRef,
   speechSignature,
 } from '../reading/luna-speech-gate.js';
+import { discardUnrecordedClip } from '../reading/luna-speech-discard.js';
+import { previewRecordExpiresAtMs } from '../reading/speech-retention.js';
 import { speechClipPath, speechStoreReady, writeSpeechClip } from '../reading/luna-speech-clip.js';
 import { PREVIEW_DAY_MAX, previewRef } from '../reading/luna-speech-preview.js';
 import {
@@ -400,6 +404,7 @@ export async function registerAiRoutes(
                 toEpochMs(clock.now()),
                 options.speechObjectStore,
                 PREVIEW_DAY_MAX,
+                previewRecordExpiresAtMs(toEpochMs(clock.now())),
               )
             : await claimSpeech(
                 speechStore,
@@ -462,22 +467,33 @@ export async function registerAiRoutes(
               await releaseUnusedQuota();
               return reply.code(503).send(errorEnvelope(ErrorCode.noConfiguration));
             }
-            if (spokenTurn.preview) {
-              await finishSpeechDoc(
-                speechStore,
-                previewRef(speechStore, spokenTurn.grantId),
+            const clipRef = spokenTurn.preview
+              ? previewRef(speechStore, spokenTurn.grantId)
+              : speechGrantRef(speechStore, spokenTurn.grantId);
+            try {
+              if (spokenTurn.preview) {
+                await finishSpeechDoc(speechStore, clipRef, identity, spokenTurn.signature, clipPath);
+              } else {
+                await finishSpeech(
+                  speechStore,
+                  spokenTurn.grantId,
+                  identity,
+                  spokenTurn.signature,
+                  clipPath,
+                );
+              }
+            } catch (finishError) {
+              // Aşama 4C: the clip is written but not recorded — do not leave
+              // an orphan (always removed when the account is being deleted).
+              await discardUnrecordedClip({
+                objects,
+                ref: clipRef,
                 identity,
-                spokenTurn.signature,
+                signature: spokenTurn.signature,
                 clipPath,
-              );
-            } else {
-              await finishSpeech(
-                speechStore,
-                spokenTurn.grantId,
-                identity,
-                spokenTurn.signature,
-                clipPath,
-              );
+                accountDeleted: findAccountDeletedError(finishError) !== null,
+              });
+              throw finishError;
             }
           } else if (spokenTurn.preview) {
             await releaseSpeechDoc(
@@ -498,13 +514,14 @@ export async function registerAiRoutes(
           const data = asRecord(asRecord(result.body)?.data);
           const text = data?.text;
           if (data && typeof text === 'string' && text.trim()) {
-            data.speechGrant = await issueSpeechGrant({
+            const speechGrant = await issueSpeechGrant({
               store: speechStore,
               clock,
               identity,
               kind: validated.operation === 'oracle' ? 'oracle' : 'luna',
               text,
             });
+            if (speechGrant) data.speechGrant = speechGrant;
           }
         }
         if (tarotHold && gemStore) {
@@ -607,7 +624,10 @@ export async function registerAiRoutes(
             // The hold stays open. The same operation id resumes it.
           }
         }
-        const proxy = error instanceof ProxyError ? error : null;
+        // A deleted (or being deleted) account: the quota / speech writers refused it.
+        const proxy = error instanceof ProxyError
+          ? error
+          : findAccountDeletedError(error) ? new ProxyError(ErrorCode.unauthorized, 401) : null;
         const code = proxy?.code ?? ErrorCode.internalError;
         const status = proxy?.httpStatus ?? 200;
         const payload = asRecord(asRecord(request.body)?.payload);

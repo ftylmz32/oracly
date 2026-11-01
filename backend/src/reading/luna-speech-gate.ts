@@ -3,6 +3,8 @@
  * Catalog preview phrases stay free. Luna chat speech still needs premium.
  */
 import { randomBytes } from 'node:crypto';
+import { Timestamp } from '@google-cloud/firestore';
+import { deletionBarrierExists } from '../account/deletion-barrier.js';
 import { asRecord, sanitizeText } from '../ai/sanitize.js';
 import type { FirestoreLike } from '../billing/entitlement-repository.js';
 import type { AppConfig } from '../config.js';
@@ -10,6 +12,7 @@ import { ErrorCode, errorEnvelope } from '../errors.js';
 import { toEpochMs, type ServerClock } from './clock.js';
 import { admitVoicePreview } from './luna-speech-preview.js';
 import type { SoulmateEntitlementGuard } from './soulmate-entitlement-guard.js';
+import { grantRecordExpiresAtMs } from './speech-retention.js';
 
 export const SPEECH_GRANTS = 'speechGrants';
 const TTL_MS = 6 * 60 * 60 * 1000;
@@ -81,19 +84,27 @@ export async function issueSpeechGrant(input: {
   identity: string;
   kind: 'luna' | 'oracle';
   text: string;
-}): Promise<string> {
+}): Promise<string | null> {
   const id = randomBytes(16).toString('hex');
   const text = sanitizeText(input.text, 1200);
   const doc = speechGrantRef(input.store, id);
-  await input.store.runTransaction(async (tx) => {
+  const expiresAtMs = toEpochMs(input.clock.now()) + TTL_MS;
+  // A grant issued while the account is being deleted would outlive the
+  // sweep with the reply text in it: issue none (the reply itself is kept).
+  const issued = await input.store.runTransaction(async (tx) => {
+    if (await deletionBarrierExists(tx, input.store, input.identity)) return false;
     tx.set(doc, {
       identity: input.identity,
       kind: input.kind,
       text,
-      expiresAtMs: toEpochMs(input.clock.now()) + TTL_MS,
+      expiresAtMs,
+      // Firestore TTL field (Timestamp). Playback is still gated by
+      // `expiresAtMs`; TTL only removes the record some time after it.
+      expiresAt: Timestamp.fromMillis(grantRecordExpiresAtMs(expiresAtMs)),
     });
+    return true;
   });
-  return id;
+  return issued ? id : null;
 }
 
 export async function authorizeSpeech(input: {
