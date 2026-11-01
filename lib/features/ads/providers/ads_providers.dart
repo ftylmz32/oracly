@@ -22,6 +22,12 @@ final adsEnvironmentProvider = Provider<AdsEnvironment>(
   (ref) => AdsEnvironment.current(),
 );
 
+/// One lock for the whole process (NOT per account): the UMP SDK is a
+/// singleton, so a form opened for one account blocks any other form.
+final adsConsentFormLockProvider = Provider<AdsConsentFormLock>(
+  (ref) => AdsConsentFormLock(),
+);
+
 final adsGateProvider = ChangeNotifierProvider<AdsGate>((ref) {
   ref.watch(localDataOwnerEpochProvider);
   return AdsGate(
@@ -29,6 +35,7 @@ final adsGateProvider = ChangeNotifierProvider<AdsGate>((ref) {
     premium: ref.watch(premiumStatusProvider.notifier),
     rolloutEnabled: () => AdsRollout.enabled,
     environment: ref.watch(adsEnvironmentProvider),
+    formLock: ref.watch(adsConsentFormLockProvider),
   );
 });
 

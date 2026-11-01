@@ -2,10 +2,17 @@
 /// Tests count them; production uses [GoogleMobileAdsPort].
 library;
 
+/// UMP's consent status (mirrors google_mobile_ads ConsentStatus).
+enum AdsConsentStatus { unknown, notRequired, required, obtained }
+
 abstract interface class AdsSdkPort {
   /// Refreshes UMP consent information (a consent-status request, never an
   /// ad request). Throws [AdsSdkException] on failure.
   Future<void> requestConsentInfoUpdate();
+
+  /// UMP's consent status after the last update (REQUIRED = the initial
+  /// consent form still has to be shown).
+  Future<AdsConsentStatus> consentStatus();
 
   /// Shows the UMP consent form only if UMP says it is required.
   /// Throws [AdsSdkException] on failure.

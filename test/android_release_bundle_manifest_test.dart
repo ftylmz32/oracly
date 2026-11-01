@@ -91,6 +91,15 @@ void main() {
       ),
     );
     expect(manifest, isNot(contains('ca-app-pub-3940256099942544')));
+    // Known, accepted risk (Aşama 3C): the SDK's own init provider is merged
+    // in and runs at process start, BEFORE the Flutter ads gate. It is
+    // pinned here so any change to it is a visible, reviewed decision;
+    // on-device network behaviour with the flag off is NOT proven by this
+    // test (see the 3C report).
+    expect(
+      manifest,
+      contains('android:name="com.google.android.gms.ads.MobileAdsInitProvider"'),
+    );
     expect(
       manifest,
       contains(

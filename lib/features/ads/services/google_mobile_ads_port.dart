@@ -52,6 +52,15 @@ class GoogleMobileAdsPort implements AdsSdkPort {
   }
 
   @override
+  Future<AdsConsentStatus> consentStatus() async =>
+      switch (await ConsentInformation.instance.getConsentStatus()) {
+        ConsentStatus.notRequired => AdsConsentStatus.notRequired,
+        ConsentStatus.obtained => AdsConsentStatus.obtained,
+        ConsentStatus.required => AdsConsentStatus.required,
+        ConsentStatus.unknown => AdsConsentStatus.unknown,
+      };
+
+  @override
   Future<bool> canRequestAds() => ConsentInformation.instance.canRequestAds();
 
   @override

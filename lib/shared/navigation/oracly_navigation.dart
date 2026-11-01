@@ -11,6 +11,7 @@ import '../../core/audio/oracly_feedback_gate.dart';
 import '../../core/navigation/oracly_navigation_service.dart';
 import '../../core/notifications/reading_push_bootstrap.dart';
 import '../../core/voice/oracly_tts_gate.dart';
+import '../../features/ads/presentation/ads_consent_moment_host.dart';
 import '../../features/home/home_page.dart';
 import '../../features/companion/presentation/reference/companion_or_tab_placeholder.dart';
 import '../../features/explore/presentation/explore_reference_screen.dart';
@@ -49,7 +50,8 @@ class _OraclyAppShellState extends ConsumerState<OraclyAppShell> {
   );
 
   static const List<Widget> _roots = [
-    HomePage(),
+    // Invisible: the only safe moment for UMP's initial consent form.
+    AdsConsentMomentHost(child: HomePage()),
     CompanionOrTabPlaceholder(),
     ExploreReferenceScreen(),
     DiscoveryJournalScreen(),

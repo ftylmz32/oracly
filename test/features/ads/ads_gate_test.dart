@@ -1,4 +1,4 @@
-/// Freemium Aşama 3A/3B — ad SDK + consent gate. Every SDK / UMP call goes
+/// Freemium Aşama 3A/3B/3C — ad SDK + consent gate. Every SDK / UMP call goes
 /// through a counting fake: "zero ad requests" means zero calls into the
 /// SDK at all (no consent request, no SDK start), not just no ad load.
 library;
@@ -16,6 +16,7 @@ import 'package:oracly_new/core/l10n/l10n.dart';
 import 'package:oracly_new/features/ads/ads_environment.dart';
 import 'package:oracly_new/features/ads/ads_rollout.dart';
 import 'package:oracly_new/features/ads/controllers/ads_gate.dart';
+import 'package:oracly_new/features/ads/presentation/ads_consent_moment_host.dart';
 import 'package:oracly_new/features/ads/presentation/ads_privacy_options_tile.dart';
 import 'package:oracly_new/features/ads/providers/ads_providers.dart';
 import 'package:oracly_new/features/ads/services/ads_sdk_port.dart';
@@ -86,6 +87,17 @@ class FakeAdsPort implements AdsSdkPort {
   Completer<void>? holdUpdate;
   void Function()? duringUpdate;
 
+  /// UMP status after an update (EEA first launch = required).
+  AdsConsentStatus status = AdsConsentStatus.notRequired;
+
+  /// What the user picks in the initial form (null = form shows nothing).
+  bool? formGrants;
+  Completer<void>? holdForm;
+  void Function()? duringForm;
+  Completer<void>? holdPrivacyForm;
+
+  int get forms => calls.where((c) => c == 'form').length;
+
   /// Calls that reach the SDK or UMP in any way.
   int get sdkCalls => calls.length;
 
@@ -98,9 +110,21 @@ class FakeAdsPort implements AdsSdkPort {
   }
 
   @override
+  Future<AdsConsentStatus> consentStatus() async {
+    calls.add('status');
+    return status;
+  }
+
+  @override
   Future<void> loadAndShowConsentFormIfRequired() async {
     calls.add('form');
+    duringForm?.call();
+    if (holdForm case final hold?) await hold.future;
     if (formError case final e?) throw e;
+    if (formGrants case final grants?) {
+      status = AdsConsentStatus.obtained;
+      canRequest = grants;
+    }
   }
 
   @override
@@ -118,6 +142,7 @@ class FakeAdsPort implements AdsSdkPort {
   @override
   Future<void> showPrivacyOptionsForm() async {
     calls.add('privacyForm');
+    if (holdPrivacyForm case final hold?) await hold.future;
     if (privacyError case final e?) throw e;
   }
 
@@ -140,12 +165,14 @@ void main() {
     FakePremiumStatus premium, {
     AdsEnvironment environment = _usable,
     Duration stepTimeout = const Duration(seconds: 12),
+    AdsConsentFormLock? lock,
   }) {
     final g = AdsGate(
       port: port,
       premium: premium,
       rolloutEnabled: () => AdsRollout.enabled,
       environment: environment,
+      formLock: lock,
       stepTimeout: stepTimeout,
     );
     addTearDown(g.dispose);
@@ -399,6 +426,7 @@ void main() {
         expect(await g.prepare(), AdsGateStatus.ready);
         expect(port.calls, [
           'update',
+          'status',
           'privacyRequired',
           'canRequest',
           'initialize',
@@ -414,9 +442,9 @@ void main() {
       final quiet = FakeAdsPort();
       await gate(quiet, MutablePremium()).prepare();
       expect(quiet.calls, isNot(contains('form')));
-      final asked = FakeAdsPort();
+      final asked = FakeAdsPort()..status = AdsConsentStatus.required;
       await gate(asked, MutablePremium()).prepare(userInitiated: true);
-      expect(asked.calls.indexOf('form'), 1);
+      expect(asked.calls.indexOf('form'), 2, reason: 'after update + status');
     });
 
     test('consent refresh failure (network): no ads, no SDK start', () async {
@@ -444,6 +472,7 @@ void main() {
     test('consent form error: no ads, no SDK start', () async {
       setAdsFlag(true);
       final port = FakeAdsPort()
+        ..status = AdsConsentStatus.required
         ..formError = const AdsSdkException('consent_form', '2');
       expect(
         await gate(port, MutablePremium()).prepare(userInitiated: true),
@@ -590,6 +619,7 @@ void main() {
       await settle();
       expect(port.calls, [
         'update',
+        'status',
         'privacyRequired',
         'canRequest',
         'initialize',
@@ -678,7 +708,10 @@ void main() {
       'a user-started prepare during the launch refresh still gets the form',
       () async {
         setAdsFlag(true);
-        final port = FakeAdsPort()..holdUpdate = Completer<void>();
+        final port = FakeAdsPort()
+          ..holdUpdate = Completer<void>()
+          ..status = AdsConsentStatus.required
+          ..formGrants = true;
         final g = gate(port, MutablePremium());
         g.armLaunchConsentRefresh();
         final user = g.prepare(userInitiated: true);
@@ -710,6 +743,467 @@ void main() {
       expect(app, contains('ref.watch(adsLaunchConsentProvider);'));
       expect(app, isNot(contains('adsGateProvider')));
       expect(app, isNot(contains('.prepare(')));
+    });
+  });
+
+  group('UMP consent flow (3C)', () {
+    test(
+      'consent not required (e.g. outside the EEA): no form, ready',
+      () async {
+        setAdsFlag(true);
+        final port = FakeAdsPort();
+        final g = gate(port, MutablePremium());
+        expect(await g.prepare(), AdsGateStatus.ready);
+        expect(g.consentFormPending, isFalse);
+        expect(await g.presentConsentFormAtSafeMoment(), isFalse);
+        expect(port.forms, 0);
+      },
+    );
+
+    test('required: launch refresh only marks the form as pending', () async {
+      setAdsFlag(true);
+      final port = FakeAdsPort()
+        ..status = AdsConsentStatus.required
+        ..canRequest = false;
+      final g = gate(port, MutablePremium());
+      expect(await g.prepare(), AdsGateStatus.consentNotGranted);
+      expect(g.consentFormPending, isTrue);
+      expect(port.forms, 0, reason: 'never a form from the launch refresh');
+      expect(port.calls, isNot(contains('initialize')));
+    });
+
+    test(
+      'required + accept at the safe moment: one form, then one start',
+      () async {
+        setAdsFlag(true);
+        final port = FakeAdsPort()
+          ..status = AdsConsentStatus.required
+          ..canRequest = false
+          ..formGrants = true;
+        final g = gate(port, MutablePremium());
+        await g.prepare();
+        expect(await g.presentConsentFormAtSafeMoment(), isTrue);
+        expect(g.status, AdsGateStatus.ready);
+        expect(port.forms, 1);
+        expect(port.calls.where((c) => c == 'initialize'), hasLength(1));
+        expect(g.consentFormPending, isFalse);
+        expect(await g.presentConsentFormAtSafeMoment(), isFalse);
+        expect(port.forms, 1, reason: 'the initial form appears once');
+      },
+    );
+
+    test(
+      'required + decline: no SDK start, never asked again this session',
+      () async {
+        setAdsFlag(true);
+        final port = FakeAdsPort()
+          ..status = AdsConsentStatus.required
+          ..canRequest = false
+          ..formGrants = false;
+        final g = gate(port, MutablePremium());
+        await g.prepare();
+        expect(await g.presentConsentFormAtSafeMoment(), isTrue);
+        expect(g.status, AdsGateStatus.consentNotGranted);
+        expect(g.canRequestAds, isFalse);
+        expect(port.calls, isNot(contains('initialize')));
+        expect(g.consentFormPending, isFalse);
+        expect(await g.presentConsentFormAtSafeMoment(), isFalse);
+        expect(port.forms, 1);
+      },
+    );
+
+    test(
+      'form shown even if the user dismisses: closed, not re-shown',
+      () async {
+        setAdsFlag(true);
+        final port = FakeAdsPort()
+          ..status = AdsConsentStatus.required
+          ..canRequest = false;
+        final g = gate(port, MutablePremium());
+        await g.prepare();
+        expect(await g.presentConsentFormAtSafeMoment(), isTrue);
+        expect(g.status, AdsGateStatus.consentNotGranted);
+        expect(await g.presentConsentFormAtSafeMoment(), isFalse);
+      },
+    );
+
+    test('network error on the consent form: closed, not retried', () async {
+      setAdsFlag(true);
+      final port = FakeAdsPort()
+        ..status = AdsConsentStatus.required
+        ..canRequest = false
+        ..formError = const AdsSdkException('consent_form', 'network');
+      final g = gate(port, MutablePremium());
+      await g.prepare();
+      expect(await g.presentConsentFormAtSafeMoment(), isTrue);
+      expect(g.status, AdsGateStatus.consentFailed);
+      expect(port.calls, isNot(contains('initialize')));
+      expect(await g.presentConsentFormAtSafeMoment(), isFalse);
+    });
+
+    test(
+      'Premium / unknown membership / flag off: never pending, never a form',
+      () async {
+        for (final (premium, flag) in [
+          (MutablePremium(premium: true), true),
+          (MutablePremium(loaded: false), true),
+          (MutablePremium(entitlement: PremiumEntitlementState.error), true),
+          (MutablePremium(), false),
+        ]) {
+          setAdsFlag(flag);
+          final port = FakeAdsPort()..status = AdsConsentStatus.required;
+          final g = gate(port, premium);
+          await g.prepare();
+          expect(g.consentFormPending, isFalse);
+          expect(await g.presentConsentFormAtSafeMoment(), isFalse);
+          expect(port.sdkCalls, 0, reason: '${premium.entitlement} flag=$flag');
+        }
+      },
+    );
+
+    test(
+      'two forms never open together (consent vs privacy options)',
+      () async {
+        setAdsFlag(true);
+        final lock = AdsConsentFormLock();
+        final port = FakeAdsPort()
+          ..status = AdsConsentStatus.required
+          ..canRequest = false
+          ..formGrants = true
+          ..holdForm = Completer<void>();
+        final g = gate(port, MutablePremium(), lock: lock);
+        await g.prepare();
+        final consent = g.presentConsentFormAtSafeMoment();
+        await Future<void>.delayed(Duration.zero);
+        expect(lock.held, isTrue);
+        expect(await g.showPrivacyOptions(), isFalse);
+        expect(port.calls, isNot(contains('privacyForm')));
+        expect(await g.presentConsentFormAtSafeMoment(), isFalse);
+        port.holdForm!.complete();
+        expect(await consent, isTrue);
+        expect(port.forms, 1);
+        expect(lock.held, isFalse);
+      },
+    );
+
+    test(
+      'privacy options open: the consent form waits (no second form)',
+      () async {
+        setAdsFlag(true);
+        final lock = AdsConsentFormLock();
+        final port = FakeAdsPort()
+          ..status = AdsConsentStatus.required
+          ..canRequest = false
+          ..holdPrivacyForm = Completer<void>();
+        final g = gate(port, MutablePremium(), lock: lock);
+        await g.prepare();
+        final privacy = g.showPrivacyOptions();
+        await Future<void>.delayed(Duration.zero);
+        expect(await g.presentConsentFormAtSafeMoment(), isFalse);
+        expect(
+          await g.prepare(userInitiated: true),
+          AdsGateStatus.consentNotGranted,
+        );
+        expect(port.forms, 0);
+        port.holdPrivacyForm!.complete();
+        expect(await privacy, isTrue);
+        expect(g.consentFormPending, isTrue, reason: 'still owed, still once');
+      },
+    );
+
+    test('the lock is shared across accounts (one process, one UMP)', () async {
+      setAdsFlag(true);
+      final lock = AdsConsentFormLock();
+      final portA = FakeAdsPort()
+        ..status = AdsConsentStatus.required
+        ..canRequest = false
+        ..holdForm = Completer<void>();
+      final a = gate(portA, MutablePremium(), lock: lock);
+      await a.prepare();
+      final open = a.presentConsentFormAtSafeMoment();
+      await Future<void>.delayed(Duration.zero);
+      final portB = FakeAdsPort()
+        ..status = AdsConsentStatus.required
+        ..canRequest = false;
+      final b = gate(portB, MutablePremium(), lock: lock);
+      await b.prepare();
+      expect(await b.presentConsentFormAtSafeMoment(), isFalse);
+      expect(portB.forms, 0);
+      portA.holdForm!.complete();
+      await open;
+    });
+
+    test(
+      'account switched while the form is open: the late result starts nothing',
+      () async {
+        setAdsFlag(true);
+        final lock = AdsConsentFormLock();
+        final port = FakeAdsPort()
+          ..status = AdsConsentStatus.required
+          ..canRequest = false
+          ..formGrants = true
+          ..holdForm = Completer<void>();
+        final g = AdsGate(
+          port: port,
+          premium: MutablePremium(),
+          rolloutEnabled: () => AdsRollout.enabled,
+          environment: _usable,
+          formLock: lock,
+        );
+        await g.prepare();
+        final open = g.presentConsentFormAtSafeMoment();
+        await Future<void>.delayed(Duration.zero);
+        g.dispose(); // owner epoch changed → this gate is retired
+        port.holdForm!.complete();
+        await open;
+        expect(port.calls, isNot(contains('initialize')));
+        expect(g.canRequestAds, isFalse);
+        expect(lock.held, isFalse, reason: 'the lock is always released');
+      },
+    );
+
+    test('becoming Premium while the form is open: no SDK start', () async {
+      setAdsFlag(true);
+      final premium = MutablePremium();
+      final port = FakeAdsPort()
+        ..status = AdsConsentStatus.required
+        ..canRequest = false
+        ..formGrants = true;
+      port.duringForm = () => premium.set(
+        premium: true,
+        entitlement: PremiumEntitlementState.active,
+      );
+      final g = gate(port, premium);
+      await g.prepare();
+      await g.presentConsentFormAtSafeMoment();
+      expect(g.status, AdsGateStatus.premium);
+      expect(port.calls, isNot(contains('initialize')));
+    });
+
+    test('flag turned off while the form is open: no SDK start', () async {
+      setAdsFlag(true);
+      final port = FakeAdsPort()
+        ..status = AdsConsentStatus.required
+        ..canRequest = false
+        ..formGrants = true;
+      port.duringForm = () => setAdsFlag(false);
+      final g = gate(port, MutablePremium());
+      await g.prepare();
+      await g.presentConsentFormAtSafeMoment();
+      expect(g.status, AdsGateStatus.off);
+      expect(port.calls, isNot(contains('initialize')));
+    });
+
+    test(
+      'a gate retired mid-refresh settles quietly (no null-check crash)',
+      () async {
+        setAdsFlag(true);
+        final port = FakeAdsPort()..holdUpdate = Completer<void>();
+        final g = AdsGate(
+          port: port,
+          premium: MutablePremium(),
+          rolloutEnabled: () => AdsRollout.enabled,
+          environment: _usable,
+        );
+        final run = g.prepare();
+        g.dispose();
+        port.holdUpdate!.complete();
+        expect(await run, AdsGateStatus.off);
+        expect(port.calls, ['update']);
+      },
+    );
+
+    test(
+      'consent granted later in privacy options re-walks the gate (no form)',
+      () async {
+        setAdsFlag(true);
+        final port = FakeAdsPort()
+          ..canRequest = false
+          ..privacyRequired = true;
+        final g = gate(port, MutablePremium());
+        expect(await g.prepare(), AdsGateStatus.consentNotGranted);
+        port.canRequest = true;
+        expect(await g.showPrivacyOptions(), isTrue);
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        expect(g.status, AdsGateStatus.ready);
+        expect(port.forms, 0);
+      },
+    );
+
+    test('daily free readings are untouched by any consent outcome', () {
+      // Structural: the allowance code never imports the ads layer (see
+      // boundaries), and the gate never imports reading access.
+      final gateSource = File(
+        'lib/features/ads/controllers/ads_gate.dart',
+      ).readAsStringSync();
+      expect(gateSource, isNot(contains('reading_access')));
+      expect(gateSource, isNot(contains('freemium')));
+    });
+  });
+
+  group('safe moment host (initial consent form placement)', () {
+    Future<(ProviderContainer, FakeAdsPort)> pumpHost(
+      WidgetTester tester, {
+      bool flag = true,
+      MutablePremium? premium,
+      bool tickerEnabled = true,
+      FakeAdsPort? port,
+    }) async {
+      setAdsFlag(flag);
+      final p =
+          port ??
+          (FakeAdsPort()
+            ..status = AdsConsentStatus.required
+            ..canRequest = false
+            ..formGrants = true);
+      final container = ProviderContainer(
+        overrides: [
+          adsSdkPortProvider.overrideWithValue(p),
+          adsEnvironmentProvider.overrideWithValue(_usable),
+          premiumStatusProvider.overrideWith(
+            (ref) => premium ?? MutablePremium(),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            home: TickerMode(
+              enabled: tickerEnabled,
+              child: Navigator(
+                onGenerateRoute: (_) => MaterialPageRoute<void>(
+                  builder: (_) => const AdsConsentMomentHost(
+                    settle: Duration(milliseconds: 100),
+                    child: Text('home'),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      if (flag) {
+        // The launch refresh learns that consent is required.
+        container.read(adsLaunchConsentProvider);
+        await tester.pump();
+        await tester.pump();
+      }
+      return (container, p);
+    }
+
+    testWidgets('flag off: plain child, no gate, zero SDK calls', (
+      tester,
+    ) async {
+      final (_, port) = await pumpHost(tester, flag: false);
+      await tester.pump(const Duration(seconds: 2));
+      expect(find.text('home'), findsOneWidget);
+      expect(port.sdkCalls, 0);
+    });
+
+    testWidgets('home visible and settled: the form is presented once', (
+      tester,
+    ) async {
+      final (container, port) = await pumpHost(tester);
+      expect(port.forms, 0, reason: 'not before the settle delay');
+      await tester.pump(const Duration(milliseconds: 150));
+      await tester.pump();
+      expect(port.forms, 1);
+      expect(container.read(adsGateProvider).status, AdsGateStatus.ready);
+      await tester.pump(const Duration(seconds: 1));
+      expect(port.forms, 1);
+    });
+
+    testWidgets('a screen pushed in the tab: no form until back on home', (
+      tester,
+    ) async {
+      final (_, port) = await pumpHost(tester);
+      final tabNavigator = tester.state<NavigatorState>(
+        find.byType(Navigator).last,
+      );
+      tabNavigator.push(
+        MaterialPageRoute<void>(builder: (_) => const Text('reading')),
+      );
+      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(port.forms, 0);
+      tabNavigator.pop();
+      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 150));
+      await tester.pump();
+      expect(port.forms, 1);
+    });
+
+    testWidgets(
+      'a root route (purchase sheet / capture) above the shell: no form',
+      (tester) async {
+        final (_, port) = await pumpHost(tester);
+        final root = tester.state<NavigatorState>(find.byType(Navigator).first);
+        root.push(
+          MaterialPageRoute<void>(builder: (_) => const Text('capture')),
+        );
+        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 400));
+        expect(port.forms, 0);
+        root.pop();
+        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 250));
+        await tester.pump();
+        expect(port.forms, 1);
+      },
+    );
+
+    testWidgets('home tab hidden: no form', (tester) async {
+      final (_, port) = await pumpHost(tester, tickerEnabled: false);
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(port.forms, 0);
+    });
+
+    testWidgets('app in background: no form', (tester) async {
+      final (_, port) = await pumpHost(tester);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(port.forms, 0);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pump(const Duration(milliseconds: 150));
+      await tester.pump();
+      expect(port.forms, 1);
+    });
+
+    testWidgets('Premium: never a form', (tester) async {
+      final (_, port) = await pumpHost(
+        tester,
+        premium: MutablePremium(premium: true),
+      );
+      await tester.pump(const Duration(seconds: 1));
+      expect(port.sdkCalls, 0);
+    });
+
+    testWidgets('consent not required: never a form', (tester) async {
+      final (_, port) = await pumpHost(tester, port: FakeAdsPort());
+      await tester.pump(const Duration(seconds: 1));
+      expect(port.forms, 0);
+    });
+
+    test('the host wraps only the Home tab root', () {
+      final shell = File(
+        'lib/shared/navigation/oracly_navigation.dart',
+      ).readAsStringSync().replaceAll('\r\n', '\n');
+      expect(shell, contains('AdsConsentMomentHost(child: HomePage()),'));
+      expect('AdsConsentMomentHost('.allMatches(shell), hasLength(1));
+      final callers = [
+        for (final f
+            in Directory('lib')
+                .listSync(recursive: true)
+                .whereType<File>()
+                .where((f) => f.path.endsWith('.dart')))
+          if (f.readAsStringSync().contains('.presentConsentFormAtSafeMoment('))
+            f.path.replaceAll('\\', '/'),
+      ];
+      expect(callers, [
+        'lib/features/ads/presentation/ads_consent_moment_host.dart',
+      ]);
     });
   });
 

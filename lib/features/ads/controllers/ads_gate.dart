@@ -6,16 +6,22 @@
 ///   membership not verified free (loading, busy, error, unverified,
 ///   store unavailable) → Premium → consent (UMP) → SDK start → ready.
 ///
-/// Nothing here runs on its own. Two entry points exist:
+/// Nothing here runs on its own. Entry points:
 ///   * [armLaunchConsentRefresh] — Google's UMP guidance: refresh consent
 ///     information on every app launch. Armed once per launch (and per
-///     account) from the app root; it runs [prepare] without the consent
-///     form, and only once every blocker has cleared (so never with the
-///     flag off, never for Premium, never while membership is unknown).
-///   * [prepare] with userInitiated — the only path that may show the UMP
-///     consent form; no ad placement calls it yet in this phase.
-/// No ad is ever loaded here. The daily free reading allowance never
-/// depends on this gate.
+///     account) from the app root; it runs [prepare] WITHOUT a form, and
+///     only once every blocker has cleared (never with the flag off, never
+///     for Premium, never while membership is unknown).
+///   * [presentConsentFormAtSafeMoment] — the initial UMP consent form
+///     (`loadAndShowConsentFormIfRequired`), shown only when UMP reports
+///     consent as required, at most once per gate, and only from
+///     AdsConsentMomentHost (home tab root, nothing pushed above it, app
+///     resumed) — never over a reading, a capture or a purchase.
+///   * [showPrivacyOptions] — the separate, user-opened privacy options form
+///     (`showPrivacyOptionsForm`) from the Privacy Control Center.
+/// Both forms share one [AdsConsentFormLock]: two UMP forms never open at
+/// once, across accounts too. No ad is ever loaded here. The daily free
+/// reading allowance never depends on this gate.
 library;
 
 import 'dart:async';
@@ -60,17 +66,35 @@ enum AdsGateStatus {
   ready,
 }
 
+/// Process-wide guard: at most one UMP form (consent or privacy options)
+/// is open at a time. Shared by every gate (one per account).
+class AdsConsentFormLock {
+  bool _held = false;
+
+  bool get held => _held;
+
+  bool tryAcquire() {
+    if (_held) return false;
+    _held = true;
+    return true;
+  }
+
+  void release() => _held = false;
+}
+
 class AdsGate extends ChangeNotifier {
   AdsGate({
     required AdsSdkPort port,
     required PremiumStatusController premium,
     required bool Function() rolloutEnabled,
     required AdsEnvironment environment,
+    AdsConsentFormLock? formLock,
     this.stepTimeout = const Duration(seconds: 12),
   }) : _port = port,
        _premium = premium,
        _rolloutEnabled = rolloutEnabled,
-       _environment = environment {
+       _environment = environment,
+       _formLock = formLock ?? AdsConsentFormLock() {
     _premium.addListener(_onMembershipChanged);
   }
 
@@ -78,11 +102,14 @@ class AdsGate extends ChangeNotifier {
   final PremiumStatusController _premium;
   final bool Function() _rolloutEnabled;
   final AdsEnvironment _environment;
+  final AdsConsentFormLock _formLock;
   final Duration stepTimeout;
 
   AdsGateStatus _status = AdsGateStatus.idle;
   bool _sdkStarted = false;
   bool _privacyOptionsRequired = false;
+  bool _consentFormPending = false;
+  bool _consentFormAttempted = false;
   bool _disposed = false;
   Future<AdsGateStatus>? _inFlight;
   bool _inFlightUserInitiated = false;
@@ -94,6 +121,14 @@ class AdsGate extends ChangeNotifier {
   /// Whether UMP asks for a privacy-options entry point (known only after
   /// a consent refresh in this session).
   bool get privacyOptionsRequired => _privacyOptionsRequired;
+
+  /// UMP reported consent as REQUIRED and the initial form has not been
+  /// shown by this gate yet; the safe-moment host may present it.
+  bool get consentFormPending =>
+      !_disposed &&
+      _consentFormPending &&
+      !_consentFormAttempted &&
+      _blocker() == null;
 
   /// Checked immediately before every ad request: the last preparation
   /// succeeded AND nothing has changed since (flag, membership).
@@ -118,13 +153,13 @@ class AdsGate extends ChangeNotifier {
     return null;
   }
 
-  /// Walks the gate. [userInitiated] lets UMP show its consent form (only
-  /// from a natural, user-started moment — never at launch, never over a
-  /// reading, a capture or a purchase). Concurrent calls share one run.
+  /// Walks the gate. [userInitiated] allows UMP's initial consent form
+  /// (only from a safe moment — see [presentConsentFormAtSafeMoment]).
+  /// Concurrent calls share one run.
   Future<AdsGateStatus> prepare({bool userInitiated = false}) {
     final running = _inFlight;
     if (running != null) {
-      // A user-started call must not be swallowed by a launch refresh that
+      // A form-allowed call must not be swallowed by a launch refresh that
       // skips the form: let that run finish, then walk again with the form.
       if (userInitiated && !_inFlightUserInitiated) {
         return running.then((_) => prepare(userInitiated: true));
@@ -155,6 +190,17 @@ class AdsGate extends ChangeNotifier {
     unawaited(prepare());
   }
 
+  /// Shows UMP's initial consent form once, only if UMP reported consent as
+  /// required and no other UMP form is open. Returns whether it ran.
+  Future<bool> presentConsentFormAtSafeMoment() async {
+    if (!consentFormPending || _formLock.held || _inFlight != null) {
+      return false;
+    }
+    _consentFormAttempted = true;
+    await prepare(userInitiated: true);
+    return true;
+  }
+
   Future<AdsGateStatus> _prepare(bool userInitiated) async {
     final blocked = _blocker();
     if (blocked != null) return _set(blocked);
@@ -165,22 +211,34 @@ class AdsGate extends ChangeNotifier {
       // Network / UMP failure: no ads this session rather than guessing.
       return _set(AdsGateStatus.consentFailed);
     }
-    if (_changed()) return _set(_blocker()!);
+    if (_changed()) return _closedByChange();
+    _consentFormPending = await _consentStatus() == AdsConsentStatus.required;
+    if (_changed()) return _closedByChange();
 
-    if (userInitiated) {
+    if (userInitiated && _consentFormPending) {
+      if (!_formLock.tryAcquire()) {
+        // Another UMP form is open: never stack a second one.
+        return _set(AdsGateStatus.consentNotGranted);
+      }
       try {
         await _port.loadAndShowConsentFormIfRequired().timeout(
           const Duration(minutes: 10),
         );
       } catch (_) {
         return _set(AdsGateStatus.consentFailed);
+      } finally {
+        _formLock.release();
       }
-      if (_changed()) return _set(_blocker()!);
+      // A late form result (account switched, became Premium, flag off)
+      // never starts the SDK.
+      if (_changed()) return _closedByChange();
+      _consentFormPending = await _consentStatus() == AdsConsentStatus.required;
+      if (_changed()) return _closedByChange();
     }
 
     _privacyOptionsRequired = await _safe(_port.privacyOptionsRequired);
     final allowed = await _safe(_port.canRequestAds);
-    if (_changed()) return _set(_blocker()!);
+    if (_changed()) return _closedByChange();
     if (!allowed) return _set(AdsGateStatus.consentNotGranted);
 
     if (!_sdkStarted) {
@@ -190,28 +248,50 @@ class AdsGate extends ChangeNotifier {
       } catch (_) {
         return _set(AdsGateStatus.sdkFailed);
       }
-      if (_changed()) return _set(_blocker()!);
+      if (_changed()) return _closedByChange();
     }
     return _set(AdsGateStatus.ready);
   }
 
-  /// Opens UMP's privacy options (re-consent / withdraw). Re-evaluates
-  /// afterwards: withdrawn consent drops the gate out of [ready].
+  /// Opens UMP's privacy options (re-consent / withdraw) — separate from
+  /// the initial consent form, user-opened only, never while another UMP
+  /// form is open. Re-evaluates afterwards: withdrawn consent drops the
+  /// gate out of [ready]; newly granted consent re-walks the gate (no form).
   Future<bool> showPrivacyOptions() async {
     if (_disposed || !_rolloutEnabled()) return false;
+    if (!_formLock.tryAcquire()) return false;
     try {
       await _port.showPrivacyOptionsForm();
     } catch (_) {
       return false;
+    } finally {
+      _formLock.release();
     }
+    if (_disposed) return true;
     final allowed = await _safe(_port.canRequestAds);
-    if (!_disposed && !allowed && _status == AdsGateStatus.ready) {
-      _set(AdsGateStatus.consentNotGranted);
+    if (_disposed) return true;
+    if (!allowed) {
+      if (_status == AdsGateStatus.ready) {
+        _set(AdsGateStatus.consentNotGranted);
+      }
+    } else if (_status != AdsGateStatus.ready && _blocker() == null) {
+      unawaited(prepare());
     }
     return true;
   }
 
   bool _changed() => _disposed || _blocker() != null;
+
+  AdsGateStatus _closedByChange() =>
+      _set(_disposed ? AdsGateStatus.off : (_blocker() ?? AdsGateStatus.off));
+
+  Future<AdsConsentStatus> _consentStatus() async {
+    try {
+      return await _port.consentStatus().timeout(stepTimeout);
+    } catch (_) {
+      return AdsConsentStatus.unknown;
+    }
+  }
 
   Future<bool> _safe(Future<bool> Function() call) async {
     try {

@@ -84,6 +84,22 @@ void main() {
           ),
         );
 
+        // Release approval lock (Aşama 3B/3C): default false, and no CI
+        // workflow may turn ads (or the release approval) on.
+        final environment = File(
+          'lib/features/ads/ads_environment.dart',
+        ).readAsStringSync().replaceAll('\r\n', '\n');
+        expect(
+          environment,
+          contains(
+            "static const releaseApprovedDefine = bool.fromEnvironment(\n    'ORACLY_ADS_RELEASE_APPROVED',\n  );",
+          ),
+        );
+        expect(environment, isNot(contains('defaultValue: true')));
+        final ci = File('codemagic.yaml').readAsStringSync();
+        expect(ci, isNot(contains('ORACLY_ADS_RELEASE_APPROVED')));
+        expect(ci, isNot(contains('ORACLY_ADS_V1_ENABLED')));
+
         final providerSource = File(
           'lib/features/gems/providers/gem_providers.dart',
         ).readAsStringSync();
