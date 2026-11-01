@@ -1,4 +1,4 @@
-/// Freemium Aşama 3A — ad SDK + consent gate. Every SDK / UMP call goes
+/// Freemium Aşama 3A/3B — ad SDK + consent gate. Every SDK / UMP call goes
 /// through a counting fake: "zero ad requests" means zero calls into the
 /// SDK at all (no consent request, no SDK start), not just no ad load.
 library;
@@ -191,46 +191,74 @@ void main() {
   });
 
   group('environment', () {
-    test('only Android / iOS, and a release only with a real app id', () {
+    test('only Android / iOS; a release needs a real id AND approval', () {
       AdsEnvironment env({
         TargetPlatform platform = TargetPlatform.android,
         bool web = false,
         bool release = true,
-        String android = '',
-        String ios = '',
+        bool approved = false,
+        String? android,
+        String? ios,
       }) => AdsEnvironment.resolve(
         platform: platform,
         web: web,
         releaseMode: release,
-        androidReleaseAppId: android,
-        iosReleaseAppId: ios,
+        releaseApproved: approved,
+        androidReleaseAppId: android ?? AdsEnvironment.androidProductionAppId,
+        iosReleaseAppId: ios ?? AdsEnvironment.iosProductionAppId,
       );
 
       expect(env(web: true).supportedPlatform, isFalse);
       expect(env(platform: TargetPlatform.windows).usable, isFalse);
       expect(env(release: false).usable, isTrue, reason: 'sample id, test ads');
-      expect(env().usable, isFalse, reason: 'release without an id');
-      expect(
-        env(android: 'ca-app-pub-3940256099942544~3347511713').usable,
-        isFalse,
-        reason: 'Google sample id is never a release id',
-      );
-      expect(env(android: 'disabled').usable, isFalse);
-      expect(
-        env(android: 'ca-app-pub-1234567890123456~1234567890').usable,
-        isTrue,
-      );
-      expect(
-        env(
-          platform: TargetPlatform.iOS,
-          android: 'ca-app-pub-1234567890123456~1234567890',
-        ).usable,
-        isFalse,
-        reason: 'each platform needs its own id',
-      );
+
+      // Real ORACLY app ids are bound, yet a release stays closed until
+      // the explicit production approval define is baked in.
+      for (final platform in [TargetPlatform.android, TargetPlatform.iOS]) {
+        final closed = env(platform: platform);
+        expect(closed.appIdConfigured, isTrue, reason: '$platform');
+        expect(closed.releaseApproved, isFalse, reason: '$platform');
+        expect(closed.usable, isFalse, reason: '$platform');
+        expect(env(platform: platform, approved: true).usable, isTrue);
+      }
+      expect(AdsEnvironment.releaseApprovedDefine, isFalse);
+
+      // Missing / sample / malformed ids are never hidden by approval.
+      for (final bad in [
+        '',
+        'disabled',
+        'ca-app-pub-3940256099942544~3347511713',
+        'ca-app-pub-8094570449180229/6192956874',
+      ]) {
+        expect(env(android: bad, approved: true).usable, isFalse, reason: bad);
+        expect(
+          env(platform: TargetPlatform.iOS, ios: bad, approved: true).usable,
+          isFalse,
+          reason: bad,
+        );
+      }
     });
 
-    test('unsupported or unconfigured: zero SDK calls', () async {
+    test('the ORACLY production app ids (app ids, not ad unit ids)', () {
+      expect(
+        AdsEnvironment.androidProductionAppId,
+        'ca-app-pub-8094570449180229~6192956874',
+      );
+      expect(
+        AdsEnvironment.iosProductionAppId,
+        'ca-app-pub-8094570449180229~5809813493',
+      );
+      for (final id in [
+        AdsEnvironment.androidProductionAppId,
+        AdsEnvironment.iosProductionAppId,
+      ]) {
+        expect(AdsEnvironment.isRealAppId(id), isTrue);
+        expect(id, contains('~'), reason: 'app id, not an ad unit (/) id');
+        expect(id, isNot(startsWith(AdsEnvironment.googleTestPublisher)));
+      }
+    });
+
+    test('unsupported, unconfigured or unapproved: zero SDK calls', () async {
       setAdsFlag(true);
       for (final (env, expected) in [
         (
@@ -242,6 +270,14 @@ void main() {
         ),
         (
           const AdsEnvironment(supportedPlatform: true, appIdConfigured: false),
+          AdsGateStatus.notConfigured,
+        ),
+        (
+          const AdsEnvironment(
+            supportedPlatform: true,
+            appIdConfigured: true,
+            releaseApproved: false,
+          ),
           AdsGateStatus.notConfigured,
         ),
       ]) {
@@ -496,6 +532,187 @@ void main() {
     });
   });
 
+  group('launch consent refresh (UMP: update on every launch)', () {
+    ProviderContainer launchContainer(
+      FakeAdsPort port,
+      MutablePremium premium, {
+      AdsEnvironment environment = _usable,
+    }) {
+      final container = ProviderContainer(
+        overrides: [
+          adsSdkPortProvider.overrideWithValue(port),
+          adsEnvironmentProvider.overrideWithValue(environment),
+          premiumStatusProvider.overrideWith((ref) => premium),
+        ],
+      );
+      addTearDown(container.dispose);
+      return container;
+    }
+
+    Future<void> settle() =>
+        Future<void>.delayed(const Duration(milliseconds: 10));
+
+    test('flag off: the app root hook makes zero SDK calls', () async {
+      resetFeatureFlags();
+      final port = FakeAdsPort();
+      launchContainer(port, MutablePremium()).read(adsLaunchConsentProvider);
+      await settle();
+      expect(port.sdkCalls, 0);
+    });
+
+    test(
+      'flag on but a release without production approval: zero SDK calls',
+      () async {
+        setAdsFlag(true);
+        final port = FakeAdsPort();
+        final container = launchContainer(
+          port,
+          MutablePremium(),
+          environment: AdsEnvironment.resolve(
+            platform: TargetPlatform.android,
+            web: false,
+            releaseMode: true,
+          ),
+        );
+        container.read(adsLaunchConsentProvider);
+        await settle();
+        expect(port.sdkCalls, 0);
+        expect(container.read(adsGateProvider).status, AdsGateStatus.idle);
+      },
+    );
+
+    test('verified free: consent update without the form, once', () async {
+      setAdsFlag(true);
+      final port = FakeAdsPort();
+      final container = launchContainer(port, MutablePremium());
+      container.read(adsLaunchConsentProvider);
+      container.read(adsGateProvider).armLaunchConsentRefresh();
+      await settle();
+      expect(port.calls, [
+        'update',
+        'privacyRequired',
+        'canRequest',
+        'initialize',
+      ]);
+      expect(port.calls, isNot(contains('form')));
+    });
+
+    test('Premium: never refreshed, even after membership updates', () async {
+      setAdsFlag(true);
+      final port = FakeAdsPort();
+      final premium = MutablePremium(premium: true);
+      final container = launchContainer(port, premium);
+      container.read(adsLaunchConsentProvider);
+      premium.set(busy: false);
+      await settle();
+      expect(port.sdkCalls, 0);
+      expect(container.read(adsGateProvider).canRequestAds, isFalse);
+    });
+
+    test(
+      'membership still loading: waits, then refreshes once verified free',
+      () async {
+        setAdsFlag(true);
+        final port = FakeAdsPort();
+        final premium = MutablePremium(loaded: false);
+        final container = launchContainer(port, premium);
+        container.read(adsLaunchConsentProvider);
+        await settle();
+        expect(port.sdkCalls, 0, reason: 'unknown membership');
+        premium.set(loaded: true);
+        await settle();
+        expect(port.calls.first, 'update');
+        premium.set(busy: false);
+        await settle();
+        expect(port.calls.where((c) => c == 'update'), hasLength(1));
+      },
+    );
+
+    test('membership resolving to Premium: never refreshed', () async {
+      setAdsFlag(true);
+      final port = FakeAdsPort();
+      final premium = MutablePremium(loaded: false);
+      launchContainer(port, premium).read(adsLaunchConsentProvider);
+      premium.set(
+        loaded: true,
+        premium: true,
+        entitlement: PremiumEntitlementState.active,
+      );
+      await settle();
+      expect(port.sdkCalls, 0);
+    });
+
+    test(
+      'declined consent at launch: no SDK start, privacy entry known',
+      () async {
+        setAdsFlag(true);
+        final port = FakeAdsPort()
+          ..canRequest = false
+          ..privacyRequired = true;
+        final container = launchContainer(port, MutablePremium());
+        container.read(adsLaunchConsentProvider);
+        await settle();
+        final g = container.read(adsGateProvider);
+        expect(g.status, AdsGateStatus.consentNotGranted);
+        expect(g.privacyOptionsRequired, isTrue);
+        expect(port.calls, isNot(contains('initialize')));
+        expect(g.canRequestAds, isFalse);
+      },
+    );
+
+    test('network failure at launch: closed, app unaffected', () async {
+      setAdsFlag(true);
+      final port = FakeAdsPort()
+        ..updateError = const SocketException('offline');
+      final container = launchContainer(port, MutablePremium());
+      container.read(adsLaunchConsentProvider);
+      await settle();
+      expect(
+        container.read(adsGateProvider).status,
+        AdsGateStatus.consentFailed,
+      );
+      expect(port.calls, ['update']);
+    });
+
+    test(
+      'a user-started prepare during the launch refresh still gets the form',
+      () async {
+        setAdsFlag(true);
+        final port = FakeAdsPort()..holdUpdate = Completer<void>();
+        final g = gate(port, MutablePremium());
+        g.armLaunchConsentRefresh();
+        final user = g.prepare(userInitiated: true);
+        port.holdUpdate!.complete();
+        expect(await user, AdsGateStatus.ready);
+        expect(port.calls, contains('form'));
+        expect(port.calls.where((c) => c == 'initialize'), hasLength(1));
+      },
+    );
+
+    test('account switch: the new account refreshes again', () async {
+      setAdsFlag(true);
+      final port = FakeAdsPort();
+      final container = launchContainer(port, MutablePremium());
+      final sub = container.listen(adsLaunchConsentProvider, (_, _) {});
+      addTearDown(sub.close);
+      await settle();
+      expect(port.calls.where((c) => c == 'update'), hasLength(1));
+      UserLocalDataIsolation.accountSwitchEpoch.value++;
+      container.read(adsLaunchConsentProvider);
+      await settle();
+      expect(port.calls.where((c) => c == 'update'), hasLength(2));
+    });
+
+    test('the app root watches the launch hook (and nothing else of ads)', () {
+      final app = File(
+        'lib/app/oracly_app.dart',
+      ).readAsStringSync().replaceAll('\r\n', '\n');
+      expect(app, contains('ref.watch(adsLaunchConsentProvider);'));
+      expect(app, isNot(contains('adsGateProvider')));
+      expect(app, isNot(contains('.prepare(')));
+    });
+  });
+
   group('privacy options entry', () {
     Future<void> pumpTile(WidgetTester tester, FakeAdsPort port) async {
       final container = ProviderContainer(
@@ -612,7 +829,7 @@ void main() {
       }
     });
 
-    test('nothing prepares the gate yet (no placement, nothing at launch)', () {
+    test('no placement prepares the gate; launch only arms the refresh', () {
       final callers = [
         for (final f in dart('lib'))
           if (!f.path.replaceAll('\\', '/').contains('lib/features/ads/') &&
@@ -622,6 +839,17 @@ void main() {
       expect(
         callers.where((p) => read(p).contains('adsGateProvider')),
         isEmpty,
+      );
+      final armers = [
+        for (final f in dart('lib'))
+          if (read(f.path).contains('.armLaunchConsentRefresh('))
+            f.path.replaceAll('\\', '/'),
+      ];
+      expect(armers, ['lib/features/ads/providers/ads_providers.dart']);
+      expect(
+        read('lib/features/ads/controllers/ads_gate.dart'),
+        contains('unawaited(prepare());'),
+        reason: 'the launch refresh never passes userInitiated (no form)',
       );
     });
 
@@ -684,7 +912,7 @@ void main() {
     });
 
     test(
-      'Android: sample id only outside release; release refuses without a real id',
+      'Android: sample id outside release; release carries the real app id',
       () {
         final gradle = read('android/app/build.gradle.kts');
         expect(
@@ -694,15 +922,21 @@ void main() {
         expect(
           gradle,
           contains(
-            'manifestPlaceholders["admobAppId"] = admobReleaseAppId ?: ""',
+            'val admobProductionAppId = "${AdsEnvironment.androidProductionAppId}"',
           ),
         );
         expect(
           gradle,
+          contains('manifestPlaceholders["admobAppId"] = admobProductionAppId'),
+        );
+        expect(
+          gradle,
           contains(
-            'if (releaseRequested && !isRealAdmobAppId(admobReleaseAppId))',
+            'if (releaseRequested && !isRealAdmobAppId(admobProductionAppId))',
           ),
         );
+        expect(gradle, isNot(contains('ORACLY_ADMOB_ANDROID_APP_ID')));
+        expect(gradle, isNot(contains(AdsEnvironment.iosProductionAppId)));
         expect(
           gradle,
           contains('!id.startsWith("ca-app-pub-3940256099942544")'),
@@ -729,10 +963,26 @@ void main() {
         contains('ORACLY_ADMOB_APP_ID=ca-app-pub-3940256099942544~1458002511'),
       );
       final release = read('ios/Flutter/Release.xcconfig');
-      expect(release, contains('ORACLY_ADMOB_APP_ID=disabled'));
-      expect(release, contains('#include? "AdMobApp.xcconfig"'));
+      expect(
+        release,
+        contains('ORACLY_ADMOB_APP_ID=${AdsEnvironment.iosProductionAppId}\n'),
+      );
+      expect(
+        'ORACLY_ADMOB_APP_ID='.allMatches(release),
+        hasLength(1),
+        reason: 'one id, no optional include that could override it',
+      );
+      expect(release, isNot(contains('#include?')));
       expect(release, isNot(contains('3940256099942544')));
-      expect(read('ios/.gitignore'), contains('Flutter/AdMobApp.xcconfig'));
+      expect(release, isNot(contains(AdsEnvironment.androidProductionAppId)));
+      expect(read('ios/.gitignore'), isNot(contains('AdMobApp.xcconfig')));
+      // Profile and Release both build on Release.xcconfig.
+      expect(
+        RegExp(
+          r'baseConfigurationReference = 7AFA3C8E1D35360C0083082E /\* Release\.xcconfig \*/',
+        ).allMatches(read('ios/Runner.xcodeproj/project.pbxproj')),
+        hasLength(2),
+      );
       final pbx = read('ios/Runner.xcodeproj/project.pbxproj');
       expect(
         pbx,
@@ -766,6 +1016,8 @@ void main() {
       expect(await run('Profile', 'disabled'), 1);
       expect(await run('Release', 'ca-app-pub-123~1'), 1);
       expect(await run('Release', 'ca-app-pub-1234567890123456~1234567890'), 0);
+      expect(await run('Release', AdsEnvironment.iosProductionAppId), 0);
+      expect(await run('Profile', AdsEnvironment.iosProductionAppId), 0);
     });
   });
 }

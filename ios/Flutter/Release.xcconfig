@@ -1,6 +1,7 @@
 #include "Generated.xcconfig"
-// Set ORACLY_ADMOB_APP_ID in the protected release build environment.
-ORACLY_ADMOB_APP_ID=disabled
-// The protected build writes the real id to this git-ignored file;
-// ios/scripts/admob_app_id_guard.sh refuses Release/Profile without it.
-#include? "AdMobApp.xcconfig"
+// ORACLY's real AdMob iOS app id (an app id, not an ad unit id; public in
+// every shipped binary). Release and Profile use this file. The app id alone
+// never requests or shows an ad: that stays behind the ads gate and the
+// default-off ads_v1 flag. ios/scripts/admob_app_id_guard.sh refuses any
+// non-Debug build whose id is missing, malformed or Google's sample id.
+ORACLY_ADMOB_APP_ID=ca-app-pub-8094570449180229~5809813493

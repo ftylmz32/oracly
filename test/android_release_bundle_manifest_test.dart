@@ -32,7 +32,7 @@ void main() {
       );
       return;
     }
-    final manifest = file.readAsStringSync();
+    final manifest = file.readAsStringSync().replaceAll('\r\n', '\n');
 
     expect(manifest, contains('package="app.oracly"'));
     expect(
@@ -62,11 +62,9 @@ void main() {
       manifest,
       isNot(contains('com.google.android.gms.permission.AD_ID')),
     );
-    // Modern Privacy Sandbox equivalents of AD_ID -- google_mobile_ads (or
-    // any other AdServices-based ad SDK) merges these in even when the
-    // legacy AD_ID permission is suppressed. Rewarded ads are not shipping
-    // in this release, so the ad SDK itself must not be compiled in at all
-    // (see pubspec.yaml) -- these must stay absent, not just hidden.
+    // Modern Privacy Sandbox equivalents of AD_ID -- google_mobile_ads
+    // merges these in even when the legacy AD_ID permission is suppressed.
+    // Ads are not live, so they must be absent from the shipped artifact.
     expect(
       manifest,
       isNot(contains('android.permission.ACCESS_ADSERVICES_AD_ID')),
@@ -79,14 +77,33 @@ void main() {
       manifest,
       isNot(contains('android.permission.ACCESS_ADSERVICES_TOPICS')),
     );
-    expect(manifest, isNot(contains('android.ext.adservices')));
+    // Freemium Aşama 3A/3B (PO decision): google_mobile_ads 9.1.0 is
+    // compiled in but dormant behind the ads gate (default-off ads_v1 and,
+    // in release, ORACLY_ADS_RELEASE_APPROVED). Its components may appear
+    // only together with ORACLY's real app id (never Google's sample id) and
+    // delayed measurement. The optional Privacy Sandbox library stays
+    // required="false" so no device is excluded.
     expect(
       manifest,
-      isNot(contains('com.google.android.gms.ads.MobileAdsInitProvider')),
+      contains(
+        'android:name="com.google.android.gms.ads.APPLICATION_ID"\n'
+        '            android:value="ca-app-pub-8094570449180229~6192956874"',
+      ),
+    );
+    expect(manifest, isNot(contains('ca-app-pub-3940256099942544')));
+    expect(
+      manifest,
+      contains(
+        'android:name="com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT"\n'
+        '            android:value="true"',
+      ),
     );
     expect(
       manifest,
-      isNot(contains('com.google.android.gms.ads.APPLICATION_ID')),
+      contains(
+        'android:name="android.ext.adservices"\n'
+        '            android:required="false"',
+      ),
     );
     expect(
       RegExp(

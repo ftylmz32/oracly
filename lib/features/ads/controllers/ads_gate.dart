@@ -1,13 +1,21 @@
 /// The single place that decides whether an ad may be requested.
 ///
 /// Fail-closed order, re-checked after every asynchronous step:
-///   rollout off → unsupported platform → app id not configured →
+///   rollout off → unsupported platform → app id not configured or
+///   release not approved →
 ///   membership not verified free (loading, busy, error, unverified,
 ///   store unavailable) → Premium → consent (UMP) → SDK start → ready.
 ///
-/// Nothing here runs on its own: no SDK call happens until a caller asks
-/// [prepare], and no caller exists yet (no ad placement in this phase).
-/// The daily free reading allowance never depends on this gate.
+/// Nothing here runs on its own. Two entry points exist:
+///   * [armLaunchConsentRefresh] — Google's UMP guidance: refresh consent
+///     information on every app launch. Armed once per launch (and per
+///     account) from the app root; it runs [prepare] without the consent
+///     form, and only once every blocker has cleared (so never with the
+///     flag off, never for Premium, never while membership is unknown).
+///   * [prepare] with userInitiated — the only path that may show the UMP
+///     consent form; no ad placement calls it yet in this phase.
+/// No ad is ever loaded here. The daily free reading allowance never
+/// depends on this gate.
 library;
 
 import 'dart:async';
@@ -29,7 +37,8 @@ enum AdsGateStatus {
   /// Not Android / iOS.
   unsupportedPlatform,
 
-  /// Release build without a real AdMob app id.
+  /// No real AdMob app id, or a release build without the explicit
+  /// production-ads approval (ORACLY_ADS_RELEASE_APPROVED).
   notConfigured,
 
   /// Membership not verified as free: never risk an ad to a member.
@@ -76,6 +85,9 @@ class AdsGate extends ChangeNotifier {
   bool _privacyOptionsRequired = false;
   bool _disposed = false;
   Future<AdsGateStatus>? _inFlight;
+  bool _inFlightUserInitiated = false;
+  bool _launchRefreshArmed = false;
+  bool _launchRefreshStarted = false;
 
   AdsGateStatus get status => _status;
 
@@ -94,7 +106,9 @@ class AdsGate extends ChangeNotifier {
     if (!_environment.supportedPlatform) {
       return AdsGateStatus.unsupportedPlatform;
     }
-    if (!_environment.appIdConfigured) return AdsGateStatus.notConfigured;
+    if (!_environment.appIdConfigured || !_environment.releaseApproved) {
+      return AdsGateStatus.notConfigured;
+    }
     if (_premium.isPremium) return AdsGateStatus.premium;
     if (!_premium.loaded ||
         _premium.busy ||
@@ -108,9 +122,37 @@ class AdsGate extends ChangeNotifier {
   /// from a natural, user-started moment — never at launch, never over a
   /// reading, a capture or a purchase). Concurrent calls share one run.
   Future<AdsGateStatus> prepare({bool userInitiated = false}) {
-    return _inFlight ??= _prepare(userInitiated).whenComplete(() {
+    final running = _inFlight;
+    if (running != null) {
+      // A user-started call must not be swallowed by a launch refresh that
+      // skips the form: let that run finish, then walk again with the form.
+      if (userInitiated && !_inFlightUserInitiated) {
+        return running.then((_) => prepare(userInitiated: true));
+      }
+      return running;
+    }
+    _inFlightUserInitiated = userInitiated;
+    return _inFlight = _prepare(userInitiated).whenComplete(() {
       _inFlight = null;
+      _inFlightUserInitiated = false;
     });
+  }
+
+  /// UMP: request a consent-information update on every app launch. Arms a
+  /// single refresh (no consent form) that runs as soon as no blocker
+  /// remains — immediately, or when membership becomes verified free.
+  /// Flag off / Premium / unknown membership / not configured: no SDK call.
+  void armLaunchConsentRefresh() {
+    if (_disposed) return;
+    _launchRefreshArmed = true;
+    _maybeRunLaunchRefresh();
+  }
+
+  void _maybeRunLaunchRefresh() {
+    if (!_launchRefreshArmed || _launchRefreshStarted || _disposed) return;
+    if (_blocker() != null) return;
+    _launchRefreshStarted = true;
+    unawaited(prepare());
   }
 
   Future<AdsGateStatus> _prepare(bool userInitiated) async {
@@ -180,6 +222,7 @@ class AdsGate extends ChangeNotifier {
   }
 
   void _onMembershipChanged() {
+    _maybeRunLaunchRefresh();
     if (_status != AdsGateStatus.ready) return;
     final blocked = _blocker();
     if (blocked != null) _set(blocked);

@@ -26,6 +26,7 @@ import '../core/navigation/oracly_navigator_key.dart';
 import '../core/navigation/oracly_page_transitions.dart';
 import '../core/navigation/oracly_route_generator.dart';
 import '../core/navigation/oracly_routes.dart';
+import '../features/ads/providers/ads_providers.dart';
 import '../features/reading_commerce/services/reading_purchase_binding.dart';
 import '../features/share_reopen/widgets/share_link_host.dart';
 import '../screens/splash/splash_screen.dart';
@@ -38,6 +39,8 @@ class OraclyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(readingPurchaseMonitorProvider);
+    // UMP consent refresh per launch; a no-op unless ads are rolled out.
+    ref.watch(adsLaunchConsentProvider);
     final locale = ref.watch(appLocaleProvider);
     OraclyL10n.bind(locale.languageCode);
     final themeMode = ref.watch(appThemeModeProvider);

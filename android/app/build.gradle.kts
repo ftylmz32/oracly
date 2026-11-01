@@ -7,7 +7,6 @@ plugins {
 
 import java.util.Properties
 import java.io.FileInputStream
-import java.util.Base64
 
 val keystorePropertiesFile = rootProject.file("key.properties")
 val keystoreProperties = Properties()
@@ -36,31 +35,15 @@ if (localDebugApplicationId != null) {
     }
 }
 
-// ── Google Mobile Ads app id (Freemium Aşama 3A, ads dark by default) ──
+// ── Google Mobile Ads app id (Freemium Aşama 3B, ads dark by default) ──
 // Debug / profile carry Google's official sample app id (test ads only).
-// A release must carry the real AdMob app id, passed as
-// --dart-define=ORACLY_ADMOB_ANDROID_APP_ID=... (the same define the Dart
-// gate checks) or the ORACLY_ADMOB_ANDROID_APP_ID environment variable.
-// Without it a release is refused below: the SDK stops an app whose id is
-// missing, so there is no "build anyway" fallback and no invented id.
+// Release carries ORACLY's real AdMob Android app id (an app id, not an ad
+// unit id; it is public inside every shipped APK, not a secret). The app id
+// alone never requests or shows an ad: that stays behind the ads gate and
+// the default-off ads_v1 flag. lib/features/ads/ads_environment.dart holds
+// the same value; test/features/ads/ads_gate_test.dart keeps them in sync.
 val admobSampleAppId = "ca-app-pub-3940256099942544~3347511713"
-val dartDefines: Map<String, String> = run {
-    val decoded = mutableMapOf<String, String>()
-    val raw = project.findProperty("dart-defines")?.toString().orEmpty()
-    for (encoded in raw.split(",")) {
-        if (encoded.isBlank()) continue
-        val pair: String = try {
-            Base64.getDecoder().decode(encoded).toString(Charsets.UTF_8)
-        } catch (e: IllegalArgumentException) {
-            continue
-        }
-        val i: Int = pair.indexOf("=")
-        if (i > 0) decoded[pair.substring(0, i)] = pair.substring(i + 1)
-    }
-    decoded
-}
-val admobReleaseAppId: String? = dartDefines["ORACLY_ADMOB_ANDROID_APP_ID"]
-    ?: System.getenv("ORACLY_ADMOB_ANDROID_APP_ID")
+val admobProductionAppId = "ca-app-pub-8094570449180229~6192956874"
 val admobRealAppId = Regex("^ca-app-pub-[0-9]{16}~[0-9]{10}$")
 fun isRealAdmobAppId(id: String?): Boolean =
     id != null && admobRealAppId.matches(id) && !id.startsWith("ca-app-pub-3940256099942544")
@@ -109,7 +92,7 @@ android {
     buildTypes {
         release {
             // Real AdMob app id only (checked before any release task runs).
-            manifestPlaceholders["admobAppId"] = admobReleaseAppId ?: ""
+            manifestPlaceholders["admobAppId"] = admobProductionAppId
             // R8 / resource shrinking for release APKs and App Bundles.
             isMinifyEnabled = true
             isShrinkResources = true
@@ -133,8 +116,8 @@ android {
     }
 }
 
-// Fail release assemble/bundle early without a real AdMob app id (BLOCKED
-// until the AdMob app exists; never a sample or invented id in a release).
+// Fail release assemble/bundle early unless the release app id is a real,
+// non-sample AdMob app id (never a sample or invented id in a release).
 gradle.taskGraph.whenReady {
     val releaseRequested = allTasks.any { task ->
         val n = task.name
@@ -147,11 +130,10 @@ gradle.taskGraph.whenReady {
                 n.contains("Apk") ||
                 n.contains("Aab"))
     }
-    if (releaseRequested && !isRealAdmobAppId(admobReleaseAppId)) {
+    if (releaseRequested && !isRealAdmobAppId(admobProductionAppId)) {
         throw GradleException(
-            "Release builds need the real AdMob Android app id: pass " +
-                "--dart-define=ORACLY_ADMOB_ANDROID_APP_ID=ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY " +
-                "or set ORACLY_ADMOB_ANDROID_APP_ID. Google's sample id is debug-only.",
+            "Release builds need ORACLY's real AdMob Android app id " +
+                "(admobProductionAppId). Google's sample id is debug-only.",
         )
     }
 }

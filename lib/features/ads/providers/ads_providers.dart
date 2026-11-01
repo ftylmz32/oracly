@@ -1,5 +1,5 @@
-/// Ad gate wiring. Reading this provider never calls the SDK; only
-/// [AdsGate.prepare] does. A new gate per account (owner epoch), so one
+/// Ad gate wiring. Reading [adsGateProvider] never calls the SDK; only
+/// [AdsGate.prepare] does (directly, or via the launch consent refresh). A new gate per account (owner epoch), so one
 /// account's readiness never carries over to the next. UMP consent is a
 /// device-level choice and is deliberately not reset on account switch.
 library;
@@ -30,4 +30,16 @@ final adsGateProvider = ChangeNotifierProvider<AdsGate>((ref) {
     rolloutEnabled: () => AdsRollout.enabled,
     environment: ref.watch(adsEnvironmentProvider),
   );
+});
+
+/// Watched once by the app root (OraclyApp). Implements UMP's "refresh
+/// consent information on every app launch" — and nothing else: no form,
+/// no ad load. With the rollout off or the build not usable for ads (e.g. a
+/// release without ORACLY_ADS_RELEASE_APPROVED) it returns before even
+/// creating the gate, so the app's launch path is unchanged. Re-runs per
+/// account because the gate is rebuilt on every owner epoch.
+final adsLaunchConsentProvider = Provider<void>((ref) {
+  if (!AdsRollout.enabled) return;
+  if (!ref.watch(adsEnvironmentProvider).usable) return;
+  ref.watch(adsGateProvider.notifier).armLaunchConsentRefresh();
 });
