@@ -24,8 +24,14 @@
   refuses identities without an `accepted` receipt.
 - `scripts/deletion-reconcile.ts` + `deletion-reconcile-plan.ts`: dry-run by
   default; exact match `sha256("account-delete\0"+identity)` → receipt id;
-  prints counts only. Apply needs `--apply`, `--confirm-project`,
-  `ORACLY_DELETION_RECONCILE_APPROVED=yes`, cap `--max-identities` (25).
+  prints counts only. Every run (dry run too) needs `FIREBASE_PROJECT_ID`,
+  `FIRESTORE_DATABASE_ID` and `READING_STAGING_BUCKET` set explicitly AND
+  repeated as `--project`, `--database`, `--bucket` (4L: QA and production
+  share the project; nothing falls back to `(default)`). Apply also needs
+  `--apply` and `ORACLY_DELETION_RECONCILE_APPROVED=yes`; cap
+  `--max-identities` (25). Logic: `src/account/deletion-reconcile-cli.ts`
+  (in the image: `node dist/account/deletion-reconcile-cli.js`). Run it
+  under a service account whose IAM is limited to the target environment.
 - Not matchable (reported): `speech-clips/<owner>/` objects with no record
   left — covered by the age-based speech cleanup (lifecycle `age: 2`).
 
