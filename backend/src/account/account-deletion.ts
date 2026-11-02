@@ -18,7 +18,18 @@ export interface AccountDeletionRepository {
   deleteForIdentity(identityKey: string): Promise<DeletionReceipt>;
 }
 
-const DELETE_COLLECTIONS = [
+/** What one owner-data sweep removed. */
+export type DeletionSweep = {
+  deletedDocuments: number;
+  deletedObjects: number;
+  anonymizedPurchaseBindings: number;
+};
+
+export type ReconcileResult =
+  | ({ status: 'reconciled' } & DeletionSweep)
+  | { status: 'skipped'; reason: 'no_receipt' | 'not_accepted' };
+
+export const DELETE_COLLECTIONS = [
   'userProfiles', 'orMemory', 'lunaMemory', 'personalization',
   'readingOperations', 'readingOperationKeys', 'readingOperationResults', 'readingOperationActive',
   'gemBalances', 'gemTransactions', 'gemTransactionKeys',
@@ -37,7 +48,7 @@ const DELETE_COLLECTIONS = [
 /** Free-quota records owned by an `identity` field: the attempts keep the
  * delivered response `body`; the day counters keep the charge rows. Their
  * writers check the deletion barrier, so nothing reappears after the sweep. */
-const IDENTITY_COLLECTIONS = [
+export const IDENTITY_COLLECTIONS = [
   'ritualDailyQuota', 'ritualDailyQuotaAttempts',
   'freeTextQuota', 'freeTextQuotaAttempts',
 ] as const;
@@ -46,7 +57,7 @@ const IDENTITY_COLLECTIONS = [
  * `speechGrants` keep the reply text; `speechPreviewDay` the daily preview
  * cap. Their writers check the deletion barrier (`luna-speech-gate.ts`,
  * `luna-speech-settle.ts`). The clips live under `speech-clips/<owner>/`. */
-const SPEECH_COLLECTIONS = ['speechGrants', 'speechPreviewDay'] as const;
+export const SPEECH_COLLECTIONS = ['speechGrants', 'speechPreviewDay'] as const;
 
 /** Production deletion is retry-safe: every delete is idempotent and the receipt
  * becomes `accepted` only after content cleanup and purchase-binding
@@ -66,6 +77,12 @@ export class FirestoreAccountDeletionRepository implements AccountDeletionReposi
     const receiptRef = this.firestore.collection(ACCOUNT_DELETION_RECEIPTS).doc(receiptId);
     const existing = await receiptRef.get();
     if (existing.exists && existing.data()?.status === 'accepted') {
+      // Aşama 4K — an `accepted` receipt does not prove the data is gone: an
+      // older revision may have accepted without sweeping every collection,
+      // and a late writer may have added a record afterwards. Re-run the same
+      // idempotent, owner-scoped sweep (the barrier is already in place) and
+      // answer with the original receipt. A failure propagates.
+      await this.reconcileAccepted(receiptRef, identityKey);
       return existing.data() as DeletionReceipt;
     }
     // Barrier first: committed before the first destructive operation and
@@ -79,6 +96,62 @@ export class FirestoreAccountDeletionRepository implements AccountDeletionReposi
       });
     }
 
+    const { deletedDocuments, deletedObjects, anonymizedPurchaseBindings } =
+      await this.sweepOwnedData(identityKey);
+
+    const receipt: DeletionReceipt = {
+      receiptId,
+      status: 'accepted',
+      completedAt: new Date().toISOString(),
+      deletedDocuments,
+      deletedObjects,
+      anonymizedPurchaseBindings,
+    };
+    await receiptRef.set({
+      ...receipt,
+      expiresAt: Timestamp.fromMillis(Date.parse(receipt.completedAt) + 30 * 86_400_000),
+    });
+    return receipt;
+  }
+
+  /** Aşama 4K — for the one-off reconciliation tool: re-sweeps the data of
+   * an identity whose deletion was already ACCEPTED (exact match: the receipt
+   * id is derived from the identity key). Never creates a receipt, never
+   * touches an identity without an accepted one. */
+  async reconcileDeletedIdentity(identityKey: string): Promise<ReconcileResult> {
+    const receiptRef = this.firestore.collection(ACCOUNT_DELETION_RECEIPTS)
+      .doc(accountDeletionReceiptId(identityKey));
+    const existing = await receiptRef.get();
+    if (!existing.exists) return { status: 'skipped', reason: 'no_receipt' };
+    if (existing.data()?.status !== 'accepted') return { status: 'skipped', reason: 'not_accepted' };
+    return { status: 'reconciled', ...(await this.reconcileAccepted(receiptRef, identityKey)) };
+  }
+
+  /** Re-sweep under an accepted receipt; records what it removed on the
+   * receipt (its TTL `expiresAt` is left unchanged). */
+  private async reconcileAccepted(
+    receiptRef: ReturnType<ReturnType<Firestore['collection']>['doc']>,
+    identityKey: string,
+  ): Promise<DeletionSweep> {
+    const swept = await this.sweepOwnedData(identityKey);
+    const removed = swept.deletedDocuments + swept.deletedObjects + swept.anonymizedPurchaseBindings;
+    if (removed > 0) {
+      const current = (await receiptRef.get()).data() ?? {};
+      const prior = (key: string) => (typeof current[key] === 'number' ? (current[key] as number) : 0);
+      await receiptRef.update({
+        reconciledAt: new Date().toISOString(),
+        reconciledDocuments: prior('reconciledDocuments') + swept.deletedDocuments,
+        reconciledObjects: prior('reconciledObjects') + swept.deletedObjects,
+        reconciledPurchaseBindings: prior('reconciledPurchaseBindings') + swept.anonymizedPurchaseBindings,
+      });
+    }
+    return swept;
+  }
+
+  /** The owner-scoped, idempotent sweep (unchanged from the deletion path):
+   * objects first, then documents, then purchase-binding anonymization. Any
+   * failure propagates, so nothing is ever reported as cleaned when it is not. */
+  private async sweepOwnedData(identityKey: string): Promise<DeletionSweep> {
     let deletedDocuments = 0;
     let deletedObjects = 0;
     const staged = await this.firestore.collection('readingOperationStagedImages')
@@ -146,20 +219,7 @@ export class FirestoreAccountDeletionRepository implements AccountDeletionReposi
         });
       });
     }
-
-    const receipt: DeletionReceipt = {
-      receiptId,
-      status: 'accepted',
-      completedAt: new Date().toISOString(),
-      deletedDocuments,
-      deletedObjects,
-      anonymizedPurchaseBindings: bindings.size,
-    };
-    await receiptRef.set({
-      ...receipt,
-      expiresAt: Timestamp.fromMillis(Date.parse(receipt.completedAt) + 30 * 86_400_000),
-    });
-    return receipt;
+    return { deletedDocuments, deletedObjects, anonymizedPurchaseBindings: bindings.size };
   }
 
   /** Deletes `speech-clips/<owner>/` objects of exactly this identity.

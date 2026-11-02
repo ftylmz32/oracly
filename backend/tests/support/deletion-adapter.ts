@@ -23,6 +23,9 @@ export class DeletionAdapter {
           async set(data: Record<string, unknown>) {
             await store.runTransaction(async (tx) => { tx.set(ref, data); });
           },
+          async update(data: Record<string, unknown>) {
+            await store.runTransaction(async (tx) => { tx.update(ref, data); });
+          },
         };
       },
       where(field: string, _op: string, value: unknown) {
